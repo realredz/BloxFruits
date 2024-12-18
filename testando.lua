@@ -938,48 +938,69 @@ local Module = {} do
     
     local Enabled = _ENV.rz_EnabledOptions;
     local IsAlive = Module.IsAlive;
+    
+    local NextEnemy = nil;
     local NextTarget = nil;
+    local UpdateDebounce = 0;
     
     local GetPlayers = Players.GetPlayers
     local GetChildren = Enemies.GetChildren
     local Skills = ToDictionary({"Z", "X", "C", "V", "F"})
     
-    local function CheckTeam(player)
+    local function CanAttack(player)
       return player.Team and (player.Team.Name == "Pirates" or player.Team ~= Player.Team)
-    end
-    
-    local function GetEnemyTarget()
-      local Distance, Nearest = 750
-      
-      local Position = Player.Character.PrimaryPart.Position
-      
-      for _, player in GetPlayers(Players) do
-        local Character = player.Character
-        
-        if player ~= Player and IsAlive(Character) and CheckTeam(player) and Character.Parent == Characters then
-          local PrimaryPart = Character.PrimaryPart
-          local Magnitude = (Position - PrimaryPart.Position).Magnitude
-          
-          if Magnitude < Distance then
-            Distance, Nearest = Magnitude, PrimaryPart
-          end
-        end
-      end
-      
-      return Nearest
     end
     
     local function GetNextTarget(Mode)
       if Enabled.Mastery or Enabled.Sea or Enabled.WoodPlanks then
-        return NextTarget
+        return NextEnemy
       end
       
       if (Mode and _ENV[Mode]) then
-        return GetEnemyTarget()
+        return NextTarget
       end
     end
     
-   --[[local function HookEvent(Hook, Method, self, ...)
+    local function UpdateTarget()
+      if (tick() - UpdateDebounce) < 0.5 then
+        return nil
+      end
+      
+      local Position = Player.Character.PrimaryPart.Position
+      
+      local Players = Players:GetPlayers()
+      local Enemies = Enemies:GetChildren()
+      
+      local Distance, Nearest = 750
+      
+      if #Players > 1 then
+        for _, player in ipairs(Players) do
+          if player ~= Player and CanAttack(player) and IsAlive(player.Character) then
+            local UpperTorso = player.Character:FindFirstChild("UpperTorso")
+            local Magnitude = UpperTorso and (UpperTorso.Position - Position).Magnitude
+            
+            if UpperTorso and Magnitude < Distance then
+              Distance, Nearest = Magnitude, UpperTorso
+            end
+          end
+        end
+      end
+      if #Enemies > 0 and not Settings.NoAimMobs then
+        for _, Enemy in ipairs(Enemies) do
+          local UpperTorso = Enemy:FindFirstChild("UpperTorso")
+          if UpperTorso and IsAlive(Enemy) then
+            local Magnitude = (UpperTorso.Position - Position).Magnitude
+            if Magnitude < Distance then
+              Distance, Nearest = Magnitude, UpperTorso
+            end
+          end
+        end
+      end
+      
+      NextTarget, UpdateDebounce = Nearest, tick()
+    end
+    
+    local function HookEvent(self, old, ...)
       local Name = self.Name
       
       if Name == "RE/ShootGunEvent" then
@@ -988,49 +1009,39 @@ local Module = {} do
         if typeof(Position) == "Vector3" and type(Enemies) == "table" then
           local Target = GetNextTarget("AimBot_Gun")
           
-          if Target and Target.Parent:FindFirstChild("Head") then
-            table.insert(Enemies, Target.Parent.Head)
+          if Target then
+            table.insert(Enemies, Target)
             Position = Target.Position
           end
           
-          return Hook(self, Position, Enemies)
+          return old(self, Position, Enemies)
         end
-        
-        return Hook(self, ...)
-      end
-      
-      if Name == "RemoteEvent" and self:IsDescendantOf(Player.Character) then
+      elseif Name == "RemoteEvent" and self.Parent.ClassName == "Tool" then
         local Position, Enemy = ...
         
         if typeof(Position) == "Vector3" then
-          local Target = GetNextTarget("AimBot_Skills")
+          local Target = GetNextTarget("AimBot_Gun")
           
           if Target then
-            return Hook(self, Target.Position)
+            return old(self, Target.Position)
           end
         end
-        
-        return Hook(self, ...)
-      end
-      
-      if Method == "invokeserver" then
+      elseif self.ClassName == "RemoteFunction" then
         local Tag, Position = ...
         
         if typeof(Position) == "Vector3" and (Tag == "TAP" or not Position and Skills[Tag]) then
-          local Target = GetNextTarget("AimBot_Tap")
+          local Target = GetNextTarget("AimBot_Skills")
           
           if Tag == "TAP" and Target then
-            return Hook(self, Tag, Target.Position)
+            return old(self, Tag, Target.Position)
           elseif Target then
-            return Hook(self, Tag, Target.Position, Target)
+            return old(self, Tag, Target.Position, Target)
           end
         end
-        
-        return Hook(self, ...)
       end
       
-      return Hook(self, ...)
-    end]]
+      return old(self, ...)
+    end
     
     function module:SpeedBypass()
       if _ENV._Enabled_Speed_Bypass then
@@ -1049,20 +1060,22 @@ local Module = {} do
     end
     
     function module:SetTarget(RootPart)
-      NextTarget = RootPart
+      NextEnemy = RootPart
     end
     
     if not _ENV.loaded_aimbot then
       _ENV.loaded_aimbot = true
       
-      --[[local old;old = hookmetamethod(game, "__namecall", newcclosure(function(...)
-        local Method = getnamecallmethod():lower()
+      Stepped:Connect(UpdateTarget)
+      
+      local old;old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+        local Method = string.lower(getnamecallmethod())
         
         if Method == "fireserver" or Method == "invokeserver" then
-          return HookEvent(old, Method, ...)
+          return HookEvent(self, old, ...)
         end
-        return old(...)
-      end))]]
+        return old(self, ...)
+      end))
     end
     
     return module
