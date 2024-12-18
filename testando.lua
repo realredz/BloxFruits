@@ -64,11 +64,12 @@ local Module = {} do
   
   Module.AttackCooldown = tick()
   Module.MaxLevel = 2600
+  Module.AllMobs = { __RaidBoss = {}, __Bones = {}, __Elite = {}, __CakePrince = {} }
   Module.Progress = {}
   Module.SpawnedFruits = {}
-  Module.EnemyPosition = {}
   Module.BossesName = {}
-  Module.AllMobs = { __RaidBoss = {}, __Bones = {}, __Elite = {}, __CakePrince = {} }
+  Module.EnemyLocations = {}
+  Module.SpawnLocations = {}
   
   Module.FruitsId = {
     ["rbxassetid://15060012861"] = "Rocket-Rocket",
@@ -302,7 +303,7 @@ local Module = {} do
     }
   }
   Module.Shop = {
-    {"Frags", {{"Race Rerol", {"BlackbeardReward", "Reroll", "2"}}, {"Reset Stats", {"BlackbeardReward", "Refund", "2"}}}},
+    {"Frags", {{"Race Reroll", {"BlackbeardReward", "Reroll", "2"}}, {"Reset Stats", {"BlackbeardReward", "Refund", "2"}}}},
     {"Fighting Style", {
       {"Buy Black Leg", {"BuyBlackLeg"}},
       {"Buy Electro", {"BuyElectro"}},
@@ -493,6 +494,16 @@ local Module = {} do
     pcall(sethiddenproperty, Player, "SimulationRadius", math.huge)
   end
   
+  function Module.IsSpawned(Enemy)
+    local Cached = Module.SpawnLocations[Enemy]
+    
+    if Cached then
+      return Cached:GetAttribute("Active") or Module:GetEnemyByTag(Enemy)
+    end
+    
+    return Module:GetEnemyByTag(Enemy)
+  end
+  
   function Module:ServerHop(Region: string?, MaxPlayers: number?): (nil)
     MaxPlayers = MaxPlayers or self.SH_MaxPlrs or 8
     -- Region = Region or self.SH_Region or "Singapore"
@@ -656,44 +667,6 @@ local Module = {} do
     end
   })
   
-  Module.EnemyLocations = setmetatable({ void = {} }, {
-    __index = function(self, index)
-      if typeof(index) == "Instance" then
-        return rawget(self, index.Name) or self.void
-      end
-      return rawget(self, index) or self.void
-    end,
-    __call = function(self, Location)
-      if Location and Location:IsA("BasePart") and Location:GetAttribute("DisplayName") then
-        local Name = GetEnemyName(Location.Name)
-        
-        if not rawget(self, Name) then self[Name] = {} end
-        table.insert(self[Name], (Location.CFrame + Vector3.new(0, 30, 0)))
-      end
-    end
-  })
-  
-  Module.IsSpawned = setmetatable({}, {
-    __call = function(self, Enemy)
-      local Cached = rawget(self, Enemy)
-      
-      if Cached then
-        return Cached:GetAttribute("Active") or Module:GetEnemyByTag(Enemy)
-      end
-      
-      if Module:GetEnemyByTag(Enemy) then
-        return true
-      end
-      
-      for _, Spawn in ipairs(EnemySpawns:GetChildren()) do
-        if GetEnemyName(Spawn.Name) == Enemy and Spawn:GetAttribute("Active") then
-          rawset(self, Enemy, Spawn)
-          return true
-        end
-      end
-    end
-  })
-  
   Module.FruitsName = setmetatable({}, {
     __index = function(self, Fruit)
       local Ids = Module.FruitsId
@@ -811,26 +784,26 @@ local Module = {} do
   task.spawn(function()
     local AllMobs = Module.AllMobs
     
-    local Elites = ToDictionary({"Deandre", "Diablo", "Urban"})
-    local Bones = ToDictionary({"Reborn Skeleton", "Living Zombie", "Demonic Soul", "Posessed Mummy"})
-    local CakePrince = ToDictionary({"Head Baker", "Baking Staff", "Cake Guard", "Cookie Crafter"})
+    local Elites = ToDictionary({ "Deandre", "Diablo", "Urban" })
+    local Bones = ToDictionary({ "Reborn Skeleton", "Living Zombie", "Demonic Soul", "Posessed Mummy" })
+    local CakePrince = ToDictionary({ "Head Baker", "Baking Staff", "Cake Guard", "Cookie Crafter" })
     
     function Module:GetEnemyByTag(Tag)
-      if not Tag or not AllMobs[Tag] then
-        return nil
-      end
+      local Mobs = AllMobs[Tag]
+      if not Mobs then return end
       
-      for _, Enemy in AllMobs[Tag] do
+      for _, Enemy in ipairs(Mobs) do
         if self.IsAlive(Enemy) then
           return Enemy
         end
       end
     end
     
-    local function newEnemy(Enemy)
+    local function MobAdded(Enemy)
       local EnemyName = Enemy.Name
+      local RaidBoss = Enemy:GetAttribute("RaidBoss")
       
-      if Enemy:GetAttribute("RaidBoss") then
+      if RaidBoss then
         table.insert(AllMobs.__RaidBoss, Enemy)
       elseif Elites[EnemyName] then
         table.insert(AllMobs.__Elite, Enemy)
@@ -840,18 +813,12 @@ local Module = {} do
         table.insert(AllMobs.__CakePrince, Enemy)
       end
       
-      if not AllMobs[EnemyName] then
-        AllMobs[EnemyName] = {}
-      end
-      
+      AllMobs[EnemyName] = AllMobs[EnemyName] or {}
       table.insert(AllMobs[EnemyName], Enemy)
     end
     
-    for _, Enemy in CollectionService:GetTagged("BasicMob") do
-      newEnemy(Enemy)
-    end
-    
-    CollectionService:GetInstanceAddedSignal("BasicMob"):Connect(newEnemy)
+    for _, Enemy in CollectionService:GetTagged("BasicMob") do MobAdded(Enemy) end
+    CollectionService:GetInstanceAddedSignal("BasicMob"):Connect(MobAdded)
   end)
   
   task.spawn(function()
@@ -882,15 +849,29 @@ local Module = {} do
   end)
   
   task.spawn(function()
+    local SpawnLocations = Module.SpawnLocations
     local EnemyLocations = Module.EnemyLocations
     
-    for i,v in EnemySpawns:GetChildren() do EnemyLocations(v) end
-    
-    Locations.ChildAdded:Connect(function(part)
-      if string.find(part.Name, "Island") then
+    local function NewIslandAdded(Island)
+      if Island.Name:find("Island") then
         Module.RaidIsland = nil
       end
-    end)
+    end
+    
+    local function NewSpawn(Part)
+      local EnemyName = GetEnemyName(Part.Name)
+      
+      if not EnemyLocations[EnemyName] then
+        EnemyLocations[EnemyName] = {}
+      end
+      
+      table.insert(EnemyLocations[EnemyName], Part.CFrame + Vector3.new(0, 25, 0))
+      SpawnLocations[EnemyName] = Part
+    end
+    
+    for _, Spawn in EnemySpawns:GetChildren() do NewSpawn(Spawn) end
+    EnemySpawns.ChildAdded:Connect(NewSpawn)
+    Locations.ChildAdded:Connect(NewIslandAdded)
   end)
   
   task.spawn(function()
