@@ -43,6 +43,8 @@ local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
 local setupvalue = setupvalue or (debug and debug.setupvalue)
 local getupvalue = getupvalue or (debug and debug.getupvalue)
 
+local BRING_TAG = tostring(math.random(80, 140)) .. "_Bring"
+
 local function GetEnemyName(string)
   return (string:find("Lv. ") and string:gsub(" %pLv. %d+%p", "") or string):gsub(" %pBoss%p", "")
 end
@@ -64,7 +66,7 @@ local Module = {} do
   
   Module.AttackCooldown = tick()
   Module.MaxLevel = 2600
-  Module.AllMobs = { __RaidBoss = {}, __Bones = {}, __Elite = {}, __CakePrince = {} }
+  Module.allMobs = { __RaidBoss = {}, __Bones = {}, __Elite = {}, __CakePrince = {} }
   Module.Progress = {}
   Module.SpawnedFruits = {}
   Module.BossesName = {}
@@ -526,7 +528,7 @@ local Module = {} do
   
   function Module:GetClosestEnemy(Name: string): Instance?
     local Cached = CachedEnemies[Name]
-    local Mobs = self.AllMobs[Name]
+    local Mobs = self.allMobs[Name]
     
     if self.IsAlive(Cached) or (not Mobs) then
       return Cached
@@ -558,7 +560,7 @@ local Module = {} do
         return Cached
       end
       
-      local Mobs = self.AllMobs[Name]
+      local Mobs = self.allMobs[Name]
       
       if Mobs then
         for _, Enemy in Mobs do
@@ -571,7 +573,7 @@ local Module = {} do
     end
   end
   
-  function Module:BringEnemies(ToEnemy: Instance): (nil)
+  function Module:BringEnemies(ToEnemy: Instance, SuperBring: boolean?): (nil)
     if not self.IsAlive(ToEnemy) or not ToEnemy.PrimaryPart then
       return nil
     end
@@ -579,30 +581,33 @@ local Module = {} do
     pcall(sethiddenproperty, Player, "SimulationRadius", math.huge)
     
     if Settings.BringMobs then
-      local Target = CachedBring[ToEnemy] or ToEnemy.PrimaryPart.CFrame
+      local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
+      local Target = ToEnemy.PrimaryPart.CFrame
       
-      if not CachedBring[ToEnemy] then
-        CachedBring[ToEnemy] = Target
+      if not CachedBring[ToEnemy.Name] or (Target.Position - CachedBring[ToEnemy.Name].Position).Magnitude > 5 then
+        CachedBring[ToEnemy.Name] = Target
       end
       
-      for _, Enemy in self.AllMobs[ToEnemy.Name] do
+      for _, Enemy in self.allMobs[ToEnemy.Name] do
+        if Enemy:HasTag(BRING_TAG) then continue end
+        
         local PrimaryPart = Enemy.PrimaryPart
         if self.IsAlive(Enemy) and PrimaryPart then
-          if (PrimaryPart.Position - Target.Position).Magnitude < Settings.BringDistance then
-            PrimaryPart.CFrame = Target
-            PrimaryPart.CanCollide = false
+          if (Position - PrimaryPart.Position).Magnitude < Settings.BringDistance then
             PrimaryPart.Size = HitBoxSize
+            PrimaryPart.CanCollide = false
             Enemy.Humanoid.WalkSpeed = 0
-            Enemy.Humanoid:ChangeState(14)
+            Enemy.Humanoid.JumpPower = 0
+            Enemy:AddTag(BRING_TAG)
           end
         end
       end
     else
       if not CachedBring[ToEnemy] then
-        CachedBring[ToEnemy] = ToEnemy:GetPivot()
+        CachedBring[ToEnemy] = ToEnemy.PrimaryPart.CFrame
       end
       
-      ToEnemy:PivotTo(CachedBring[ToEnemy])
+      ToEnemy.PrimaryPart.CFrame = CachedBring[ToEnemy]
     end
   end
   
@@ -782,14 +787,48 @@ local Module = {} do
   end
   
   task.spawn(function()
-    local AllMobs = Module.AllMobs
+    local allMobs = Module.allMobs
     
     local Elites = ToDictionary({ "Deandre", "Diablo", "Urban" })
     local Bones = ToDictionary({ "Reborn Skeleton", "Living Zombie", "Demonic Soul", "Posessed Mummy" })
     local CakePrince = ToDictionary({ "Head Baker", "Baking Staff", "Cake Guard", "Cookie Crafter" })
     
+    function Module:GetClosestByTag(Tag)
+      local Cached = CachedEnemies[Tag]
+      local Mobs = allMobs[Tag]
+      
+      if Cached and Cached.Parent and self.IsAlive(Cached) then
+        return Cached
+      elseif not Mobs or #Mobs < 1 then
+        return nil
+      end
+      
+      local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
+      local Distance, Nearest = math.huge
+      
+      for _, Enemy in Mobs do
+        local PrimaryPart = Enemy.PrimaryPart
+        
+        if PrimaryPart and self.IsAlive(Enemy) then
+          local Magnitude = (Position - PrimaryPart.Position).Magnitude
+          
+          if Magnitude < 20 then
+            CachedEnemies[Tag] = Enemy
+            return Enemy
+          elseif Magnitude < Distance then
+            Distance, Nearest = Magnitude, Enemy
+          end
+        end
+      end
+      
+      if Nearest then
+        CachedEnemies[Tag] = Nearest
+        return Nearest
+      end
+    end
+    
     function Module:GetEnemyByTag(Tag)
-      local Mobs = AllMobs[Tag]
+      local Mobs = allMobs[Tag]
       if not Mobs then return end
       
       for _, Enemy in ipairs(Mobs) do
@@ -804,21 +843,38 @@ local Module = {} do
       local RaidBoss = Enemy:GetAttribute("RaidBoss")
       
       if RaidBoss then
-        table.insert(AllMobs.__RaidBoss, Enemy)
+        table.insert(allMobs.__RaidBoss, Enemy)
       elseif Elites[EnemyName] then
-        table.insert(AllMobs.__Elite, Enemy)
+        table.insert(allMobs.__Elite, Enemy)
       elseif Bones[EnemyName] then
-        table.insert(AllMobs.__Bones, Enemy)
+        table.insert(allMobs.__Bones, Enemy)
       elseif CakePrince[EnemyName] then
-        table.insert(AllMobs.__CakePrince, Enemy)
+        table.insert(allMobs.__CakePrince, Enemy)
       end
       
-      AllMobs[EnemyName] = AllMobs[EnemyName] or {}
-      table.insert(AllMobs[EnemyName], Enemy)
+      allMobs[EnemyName] = allMobs[EnemyName] or {}
+      table.insert(allMobs[EnemyName], Enemy)
+    end
+    
+    local function Bring(Enemy)
+      local Character = Player.Character
+      local Humanoid = Enemy:WaitForChild("Humanoid")
+      local RootPart = Enemy:WaitForChild("HumanoidRootPart")
+      local Target = CachedBring[Enemy.Name]
+      
+      while Character and RootPart and Humanoid and Humanoid.Health > 0 do
+        if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance then
+          RootPart.CFrame = Target
+        else
+          break
+        end
+        task.wait()
+      end
     end
     
     for _, Enemy in CollectionService:GetTagged("BasicMob") do MobAdded(Enemy) end
     CollectionService:GetInstanceAddedSignal("BasicMob"):Connect(MobAdded)
+    CollectionService:GetInstanceAddedSignal(BRING_TAG):Connect(Bring)
   end)
   
   task.spawn(function()
