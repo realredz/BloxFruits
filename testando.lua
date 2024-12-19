@@ -1145,7 +1145,7 @@ local Module = {} do
     local RegisterHit = Net:WaitForChild("RE/RegisterHit")
     
     function module:AttackEnemy(EnemyHead)
-      if EnemyHead and Player:DistanceFromCharacter(EnemyHead.Position) < self.Distance then
+      if EnemyHead and Module.IsAlive(EnemyHead.Parent) and Player:DistanceFromCharacter(EnemyHead.Position) < self.Distance then
         if not self.FirstAttack then
           RegisterAttack:FireServer(Settings.ClickDelay or 0.125)
           self.FirstAttack = true
