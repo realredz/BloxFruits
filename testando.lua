@@ -72,7 +72,6 @@ local Module = {} do
   Module.BossesName = {}
   Module.EnemyLocations = {}
   Module.SpawnLocations = {}
-Module.Webhooks = true
   
   Module.FruitsId = {
     ["rbxassetid://15060012861"] = "Rocket-Rocket",
@@ -617,18 +616,15 @@ Module.Webhooks = true
       return self.RaidIsland
     end
     
-    local list = {}
-    
-    for _,Island in ipairs(Locations:GetChildren()) do
-      if Island:IsA("BasePart") and Player:DistanceFromCharacter(Island.Position) < 3000 then
-        list[Island.Name] = Island
+    for i = 5, 1, -1 do
+      local Name = "Island " .. i
+      for _, Island in ipairs(Locations:GetChildren()) do
+        if Island.Name == Name and Player:DistanceFromCharacter(Island.Position) < 3500 then
+          self.RaidIsland = Island
+          return Island
+        end
       end
     end
-    
-    local Island = list["Island 5"] or list["Island 4"] or list["Island 3"] or list["Island 2"] or list["Island 1"]
-    
-    self.RaidIsland = Island
-    return Island
   end
   
   function Module:GetProgress(Tag, ...)
@@ -745,12 +741,12 @@ Module.Webhooks = true
         return self.Chest
       end
       
-      if not Module.IsAlive(Player.Character) then
+      local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
+      local Chests = CollectionService:GetTagged("_ChestTagged")
+      
+      if #Chests == 0 then
         return nil
       end
-      
-      local Chests = CollectionService:GetTagged("_ChestTagged")
-      local Position = Player.Character.PrimaryPart.Position
       
       local Distance, Nearest = math.huge
       
@@ -770,7 +766,7 @@ Module.Webhooks = true
     Module.PirateRaidEnemies = {}
     
     local Spawn = Vector3.new(-5556, 314, -2988)
-    local BlackList = ToDictionary({"rip_indra True Form", "Blank Buddy"})
+    local BlackList = ToDictionary({ "rip_indra True Form", "Blank Buddy" })
     
     local IsPirateRaidEnemy = function(Enemy)
       local PrimaryPart = Enemy.PrimaryPart
@@ -932,9 +928,6 @@ Module.Webhooks = true
   end)
   
   task.spawn(function()
-    local Inventory = WaitChilds(Player, "PlayerGui", "Main", "UIController", "Inventory")
-    local ItemList = getupvalue(require(Inventory).UpdateSort, 2)
-    
     function Module:GetMaterial(index: string?): number
       local Material = self.Inventory[index]
       return (Material and Material.details.Count) or 0
@@ -972,10 +965,6 @@ Module.Webhooks = true
     Module.ItemsMastery = {}
     Module.Inventory = {}
     Module.Unlocked = {}
-    
-    for _, Item in ipairs(ItemList) do
-      Module:UpdateItem(Item)
-    end
     
     CommE.OnClientEvent:Connect(OnClientEvent)
   end)
@@ -1116,8 +1105,10 @@ Module.Webhooks = true
       end)
     end
     
-    function module:SetTarget(RootPart)
-      NextEnemy = RootPart
+    function module:SetTarget(Part)
+      if Part then
+        NextEnemy = Part.Parent:FindFirstChild("UpperTorso")
+      end
     end
     
     if not _ENV.loaded_aimbot then
@@ -1160,16 +1151,19 @@ Module.Webhooks = true
           self.FirstAttack = true
         end
         RegisterHit:FireServer(EnemyHead, {})
+        return true
       end
     end
     
     function module:AttackNearest()
       for _, Enemy in Enemies:GetChildren() do
-        self:AttackEnemy(Enemy:FindFirstChild("UpperTorso"))
+        if self:AttackEnemy(Enemy:FindFirstChild("UpperTorso")) then
+          return nil
+        end
       end
       for _, Enemy in Characters:GetChildren() do
-        if Enemy ~= Player.Character then
-          self:AttackEnemy(Enemy:FindFirstChild("UpperTorso"))
+        if Enemy ~= Player.Character and self:AttackEnemy(Enemy:FindFirstChild("UpperTorso")) then
+          return nil
         end
       end
       
