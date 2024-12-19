@@ -72,6 +72,7 @@ local Module = {} do
   Module.BossesName = {}
   Module.EnemyLocations = {}
   Module.SpawnLocations = {}
+Module.Webhooks = true
   
   Module.FruitsId = {
     ["rbxassetid://15060012861"] = "Rocket-Rocket",
