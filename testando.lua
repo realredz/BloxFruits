@@ -1158,12 +1158,12 @@ local Module = {} do
     function module:AttackNearest()
       for _, Enemy in Enemies:GetChildren() do
         if self:AttackEnemy(Enemy:FindFirstChild("UpperTorso")) then
-          return nil
+          break
         end
       end
       for _, Enemy in Characters:GetChildren() do
         if Enemy ~= Player.Character and self:AttackEnemy(Enemy:FindFirstChild("UpperTorso")) then
-          return nil
+          break
         end
       end
       
