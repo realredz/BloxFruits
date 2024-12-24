@@ -12,7 +12,7 @@
   
   "Auto Pirates Sea": ["Farmar Piratas do Mar", "Conclui automaticamente o evento de piratas no Castelo do Mar"],
   "Auto Farm Bones": ["Farmar Ossos", "Farma ossos automaticamente"],
-  "Auto Kill Soul Reaper": ["Matar Soul Reaper", "Derrota o Soul Reaper automaticamente"],
+  "Auto Kill Soul Reaper": ["Auto Soul Reaper", "Spawnar e Matar Soul Reaper"],
   "Auto Trade Bones": ["Trocar Ossos", "Troca automaticamente ossos por recompensas"],
   
   "Auto Farm Candy": ["Farmar Doces", "Farm de Doces automático durante o evento de Natal"],
@@ -86,7 +86,7 @@
   "Fruits": "Frutas",
   "Auto Store Fruits": ["Auto Armazenar Frutas", "Guardar frutas no seu Inventário"],
   "Teleport To Fruits": ["Auto Coletar Frutas", "Coletar frutas que estão no mapa"],
-  "Auto Random Fruit": ["Auto Obter Fruta Aleatória", "Girar fruta automaticamente"],
+  "Auto Random Fruit": ["Auto Girar Fruta Aleatória", "Girar fruta automaticamente"],
   
   "Select Chip": ["Selecionar Chip de Raid", "Escolher chip para iniciar raids"],
   "Auto Farm Raid": ["Farmar Raid Automaticamente", "Farmar raids, despertar e atacar automaticamente"],
