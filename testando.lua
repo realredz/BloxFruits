@@ -1214,8 +1214,7 @@ local Module = {} do
     end
     
     local FastAttack = {
-      NextAttack = 0,
-      Distance = 80,
+      Distance = 60,
       attackMobs = true,
       attackPlayers = true,
       Equipped = nil
@@ -1228,31 +1227,39 @@ local Module = {} do
     local EquipTool = Module.EquipTool
     local IsAlive = Module.IsAlive
     
-    function FastAttack:AttackEnemy(BasePart)
-      local Character = BasePart and BasePart.Parent
+    local function ProcessEnemies(OthersEnemies, Folder)
+      local BasePart = nil;
       
-      if IsAlive(Character) and Player:DistanceFromCharacter(BasePart.Position) < self.Distance then
-        self.FirstAttack = true
-        RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
-        RegisterHit:FireServer(BasePart, {})
-      end
-    end
-    
-    function FastAttack:AttackNearest()
-      for _, Enemy in Enemies:GetChildren() do
-        self:AttackEnemy(Enemy:FindFirstChild("UpperTorso"))
-      end
-      for _, Enemy in Characters:GetChildren() do
-        if Enemy ~= Player.Character then
-          self:AttackEnemy(Enemy:FindFirstChild("UpperTorso"))
+      for _, Enemy in Folder:GetChildren() do
+        local Head = Enemy:FindFirstChild("Head")
+        
+        if Head and IsAlive(Enemy) and Player:DistanceFromCharacter(Head.Position) < FastAttack.Distance then
+          if Enemy ~= Player.Character then
+            table.insert(OthersEnemies, { Enemy, Head })
+            BasePart = Head
+          end
         end
       end
       
-      if not self.FirstAttack then
-        task.wait(0.5)
-      end
+      return BasePart
+    end
+    
+    function FastAttack:Attack(BasePart, OthersEnemies)
+      RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
+      RegisterHit:FireServer(BasePart, OthersEnemies)
+    end
+    
+    function FastAttack:AttackNearest()
+      local OthersEnemies = {}
       
-      self.FirstAttack = false
+      local Part1 = ProcessEnemies(OthersEnemies, Enemies)
+      local Part2 = ProcessEnemies(OthersEnemies, Characters)
+      
+      if #OthersEnemies > 0 then
+        self:Attack(Part1 or Part2, OthersEnemies)
+      else
+        task.wait(1)
+      end
     end
     
     function FastAttack:BladeHits()
@@ -1260,6 +1267,8 @@ local Module = {} do
       
       if Equipped and Equipped.ToolTip ~= "Gun" then
         self:AttackNearest()
+      else
+        task.wait(0.5)
       end
     end
     
