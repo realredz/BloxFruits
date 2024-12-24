@@ -67,7 +67,7 @@ local Module = {} do
   
   Module.Sea = (placeId == 2753915549 and 1) or (placeId == 4442272183 and 2) or (placeId == 7449423635 and 3) or 0
   
-  Module.AttackCooldown = tick()
+  Module.AttackCooldown = 0
   Module.MaxLevel = 2600
   Module.allMobs = { __RaidBoss = {}, __Bones = {}, __Elite = {}, __CakePrince = {} }
   Module.Progress = {}
@@ -1265,7 +1265,7 @@ local Module = {} do
     
     task.spawn(function()
       while task.wait(Settings.ClickDelay or 0.125) do
-        if Settings.AutoClick and (tick() - FastAttack.AttackCooldown) >= 1 then
+        if Settings.AutoClick and (tick() - Module.AttackCooldown) >= 1 then
           FastAttack:BladeHits()
         end
       end
