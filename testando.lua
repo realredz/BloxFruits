@@ -1066,6 +1066,7 @@ local Module = {} do
     local NextEnemy = nil;
     local NextTarget = nil;
     local UpdateDebounce = 0;
+    local TargetDebounce = 0;
     
     local GetPlayers = Players.GetPlayers
     local GetChildren = Enemies.GetChildren
@@ -1076,7 +1077,7 @@ local Module = {} do
     end
     
     local function GetNextTarget(Mode)
-      if Enabled.Mastery or Enabled.Sea or Enabled.WoodPlanks then
+      if (tick() - TargetDebounce) < 2.5 then
         return NextEnemy
       end
       
@@ -1138,7 +1139,7 @@ local Module = {} do
         if typeof(Position) == "Vector3" and type(Enemies) == "table" then
           local Target = GetNextTarget("AimBot_Gun")
           
-          if Target then
+          if Target and Target.Name == "UpperTorso" then
             table.insert(Enemies, Target)
             Position = Target.Position
           end
@@ -1146,25 +1147,19 @@ local Module = {} do
           return old(self, Position, Enemies)
         end
       elseif Name == "RemoteEvent" and self.Parent.ClassName == "Tool" then
-        local Position, Enemy = ...
+        local v1, v2 = ...
         
-        if typeof(Position) == "Vector3" then
-          local Target = GetNextTarget("AimBot_Gun")
+        if typeof(v1) == "Vector3" and not v2 then
+          local Target = GetNextTarget("AimBot_Skills")
           
           if Target then
             return old(self, Target.Position)
           end
-        end
-      elseif self.ClassName == "RemoteFunction" then
-        local Tag, Position = ...
-        
-        if typeof(Position) == "Vector3" and (Tag == "TAP" or not Position and Skills[Tag]) then
-          local Target = GetNextTarget("AimBot_Skills")
+        elseif v1 == "TAP" and typeof(v2) == "Vector3" then
+          local Target = GetNextTarget("AimBot_Tap")
           
-          if Tag == "TAP" and Target then
-            return old(self, Tag, Target.Position)
-          elseif Target then
-            return old(self, Tag, Target.Position, Target)
+          if Target then
+            return old(self, "TAP", Target.Position)
           end
         end
       end
@@ -1190,7 +1185,8 @@ local Module = {} do
     
     function module:SetTarget(Part)
       if Part then
-        NextEnemy = Part.Parent:FindFirstChild("UpperTorso")
+        NextEnemy = Part.Parent:FindFirstChild("UpperTorso") or Part
+        TargetDebounce = tick()
       end
     end
     
@@ -1217,11 +1213,12 @@ local Module = {} do
       return _ENV.rz_FastAttack
     end
     
-    local module = {
+    local FastAttack = {
       NextAttack = 0,
       Distance = 80,
       attackMobs = true,
-      attackPlayers = true
+      attackPlayers = true,
+      Equipped = nil
     }
     
     local RegisterAttack = Net:WaitForChild("RE/RegisterAttack")
@@ -1231,61 +1228,51 @@ local Module = {} do
     local EquipTool = Module.EquipTool
     local IsAlive = Module.IsAlive
     
-    function module:AttackEnemy(Head)
-      local Character = Head and Head.Parent
+    function FastAttack:AttackEnemy(BasePart)
+      local Character = BasePart and BasePart.Parent
       
-      if IsAlive(Character) and Player:DistanceFromCharacter(Head.Position) < self.Distance then
-        local Equipped = EquipTool.Equipped
-        
-        if Equipped and Equipped.Parent == Player.Character and Equipped.ToolTip == "Gun" then
-          return nil
-        end
-        
-        if not self.FirstAttack then
-          RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
-          self.FirstAttack = true
-        end
-        
-        RegisterHit:FireServer(Head, {})
-        return true
+      if IsAlive(Character) and Player:DistanceFromCharacter(BasePart.Position) < self.Distance then
+        self.FirstAttack = true
+        RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
+        RegisterHit:FireServer(BasePart, {})
       end
     end
     
-    function module:AttackNearest()
+    function FastAttack:AttackNearest()
       for _, Enemy in Enemies:GetChildren() do
-        if self:AttackEnemy(Enemy:FindFirstChild("UpperTorso")) then
-          break
-        end
+        self:AttackEnemy(Enemy:FindFirstChild("UpperTorso"))
       end
       for _, Enemy in Characters:GetChildren() do
-        if Enemy ~= Player.Character and self:AttackEnemy(Enemy:FindFirstChild("UpperTorso")) then
-          break
+        if Enemy ~= Player.Character then
+          self:AttackEnemy(Enemy:FindFirstChild("UpperTorso"))
         end
       end
       
       if not self.FirstAttack then
         task.wait(0.5)
       end
+      
+      self.FirstAttack = false
     end
     
-    function module:BladeHits()
-      self:AttackNearest()
-      self.FirstAttack = false
+    function FastAttack:BladeHits()
+      local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
+      
+      if Equipped and Equipped.ToolTip ~= "Gun" then
+        self:AttackNearest()
+      end
     end
     
     task.spawn(function()
       while task.wait(Settings.ClickDelay or 0.125) do
-        if (tick() - Module.AttackCooldown) < 1 then continue end
-        if not Settings.AutoClick then continue end
-        if not Module.IsAlive(Player.Character) then continue end
-        if not Player.Character:FindFirstChildOfClass("Tool") then continue end
-        
-        module:BladeHits()
+        if Settings.AutoClick and (tick() - FastAttack.AttackCooldown) >= 1 then
+          FastAttack:BladeHits()
+        end
       end
     end)
     
-    _ENV.rz_FastAttack = module
-    return module
+    _ENV.rz_FastAttack = FastAttack
+    return FastAttack
   end)()
   
   Module.Tween = (function()
