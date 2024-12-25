@@ -69,6 +69,8 @@ local Module = {} do
   
   Module.AttackCooldown = 0
   Module.MaxLevel = 2600
+  Module.Christmas = true
+  
   Module.allMobs = { __RaidBoss = {}, __Bones = {}, __Elite = {}, __CakePrince = {} }
   Module.Progress = {}
   Module.SpawnedFruits = {}
@@ -293,7 +295,7 @@ local Module = {} do
     ["Beautiful Pirate"] = {
       IsBoss = true,
       Level = 1950,
-      Position = CFrame.new(5241, 23, 129),
+      Position = CFrame.new(5370, 22, -89),
       Quest = {"DeepForestIsland2", CFrame.new(-12682, 391, -9901)}
     },
     ["Cake Queen"] = {
