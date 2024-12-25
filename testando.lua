@@ -765,6 +765,10 @@ local Module = {} do
         return self.Cached
       end
       
+      if self.Debounce and (tick() - self.Debounce) < 0.5 then
+        return nil
+      end
+      
       local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
       local Chests = CollectionService:GetTagged("_ChestTagged")
       
@@ -781,6 +785,7 @@ local Module = {} do
         end
       end
       
+      self.Debounce = tick()
       self.Cached = Nearest
       return Nearest
     end
@@ -792,17 +797,25 @@ local Module = {} do
         return self.Cached
       end
       
+      if self.Debounce and (tick() - self.Debounce) < 0.5 then
+        return nil
+      end
+      
       local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
       local BerryBush = CollectionService:GetTagged("BerryBush")
       
       local Distance, Nearest = math.huge
       
       for _, Berries in ipairs(BerryBush) do
-        if #Berries:GetChildren() > 0 then
-          
+        local Berry = Berries:FindFirstChildOfClass("Model")
+        local Magnitude = Berry and (Berry:GetPivot().Position - Position).Magnitude
+        
+        if Berry and Magnitude < Distance then
+          Nearest, Distance = Berry, Magnitude
         end
       end
       
+      self.Debounce = tick()
       self.Cached = Nearest
       return Nearest
     end
