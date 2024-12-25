@@ -439,12 +439,13 @@ local Module = {} do
     end
   end
   
-  local function ToDictionary(tab: table): table
-    for _, String in ipairs(tab) do
-      tab[String] = true
-      table.remove(tab, _)
+  local function ToDictionary(Array: table): table
+    local Dictionary = {}
+    for _, String in ipairs(Array) do
+      Dictionary[String] = true
     end
-    return tab
+    table.clear(Array)
+    return Dictionary
   end
   
   function Module.TravelTo(Sea: number?): (nil)
@@ -601,14 +602,15 @@ local Module = {} do
     pcall(sethiddenproperty, Player, "SimulationRadius", math.huge)
     
     if Settings.BringMobs then
+      local Name = ToEnemy.Name
       local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
       local Target = ToEnemy.PrimaryPart.CFrame
       
-      if not CachedBring[ToEnemy.Name] or (Target.Position - CachedBring[ToEnemy.Name].Position).Magnitude > 5 then
-        CachedBring[ToEnemy.Name] = Target
+      if not CachedBring[Name] or (Target.Position - CachedBring[Name].Position).Magnitude > 5 then
+        CachedBring[Name] = Target
       end
       
-      for _, Enemy in self.allMobs[ToEnemy.Name] do
+      for _, Enemy in ipairs(SuperBring and Enemies:GetChildren() or self.allMobs[Name]) do
         if Enemy:HasTag(BRING_TAG) then continue end
         
         local PrimaryPart = Enemy.PrimaryPart
@@ -838,7 +840,7 @@ local Module = {} do
       
       if Cached and Cached.Parent and self.IsAlive(Cached) then
         return Cached
-      elseif not Mobs or #Mobs < 1 then
+      elseif not Mobs or #Mobs == 0 then
         return nil
       end
       
@@ -902,12 +904,11 @@ local Module = {} do
     end
     
     local function Bring(Enemy)
-      local Character = Player.Character
       local Humanoid = Enemy:WaitForChild("Humanoid")
       local RootPart = Enemy:WaitForChild("HumanoidRootPart")
       local Target = CachedBring[Enemy.Name]
       
-      while Character and RootPart and Humanoid and Humanoid.Health > 0 do
+      while RootPart and Humanoid and Humanoid.Health > 0 do
         if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance then
           RootPart.CFrame = Target
         else
@@ -921,8 +922,9 @@ local Module = {} do
       local Humanoid = Enemy:FindFirstChild("Humanoid")
       local RootPart = Enemy:FindFirstChild("HumanoidRootPart")
       
-      if Humanoid and RootPart and Player:DistanceFromCharacter(RootPart.Position) <= 500 then
-        pcall(sethiddenproperty, Player, "SimulationRadius", math.huge)
+      pcall(sethiddenproperty, Player, "SimulationRadius", math.huge)
+      
+      if Humanoid and RootPart and Player:DistanceFromCharacter(RootPart.Position) < 350 then
         RootPart.CanCollide = false
         RootPart.Size = Vector3.new(60, 60, 60)
         Humanoid:ChangeState(15)
