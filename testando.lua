@@ -557,7 +557,7 @@ local Module = {} do
       return Cached
     end
     
-    local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
+    local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
     local Distance, Nearest = math.huge
     
     for _, Enemy in Mobs do
@@ -605,7 +605,7 @@ local Module = {} do
     
     if Settings.BringMobs then
       local Name = ToEnemy.Name
-      local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
+      local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
       local Target = ToEnemy.PrimaryPart.CFrame
       
       if not CachedBring[Name] or (Target.Position - CachedBring[Name].Position).Magnitude > 5 then
@@ -769,7 +769,7 @@ local Module = {} do
         return nil
       end
       
-      local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
+      local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
       local Chests = CollectionService:GetTagged("_ChestTagged")
       
       if #Chests == 0 then
@@ -801,7 +801,7 @@ local Module = {} do
         return nil
       end
       
-      local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
+      local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
       local BerryBush = CollectionService:GetTagged("BerryBush")
       
       local Distance, Nearest = math.huge
@@ -859,7 +859,7 @@ local Module = {} do
         return nil
       end
       
-      local Position = (Player.Character or Player.CharacterAdded:Wait()).PrimaryPart.Position
+      local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
       local Distance, Nearest = math.huge
       
       for _, Enemy in Mobs do
