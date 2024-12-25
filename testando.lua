@@ -1189,10 +1189,7 @@ local Module = {} do
     end
     
     function module:SetTarget(Part)
-      if Part then
-        NextEnemy = Part.Parent:FindFirstChild("UpperTorso") or Part
-        TargetDebounce = tick()
-      end
+      TargetDebounce, NextEnemy = tick(), Part.Parent:FindFirstChild("UpperTorso") or Part
     end
     
     if not _ENV.loaded_aimbot then
