@@ -1141,8 +1141,11 @@ local Module = {} do
         if typeof(Position) == "Vector3" and type(Enemies) == "table" then
           local Target = GetNextTarget("AimBot_Gun")
           
-          if Target and Target.Name == "UpperTorso" then
-            table.insert(Enemies, Target)
+          if Target then
+            if Target.Name == "UpperTorso" then
+              table.insert(Enemies, Target)
+            end
+            
             Position = Target.Position
           end
           
