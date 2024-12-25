@@ -16,7 +16,8 @@
   "Auto Trade Bones": ["Trocar Ossos", "Troca automaticamente ossos por recompensas"],
   
   "Auto Farm Candy": ["Farmar Doces", "Farm de Doces automático durante o evento de Natal"],
-  "Auto Christmas Gift": ["Presente de Natal Automático", "Coleta presentes de Natal automaticamente"],
+  "Auto Christmas Gift": ["Presente de Natal Automático", "Coleta presentes de Natal automaticamente a cada 1 hora"],
+  "Auto Store Christmas Hift": ["Armazenar Prensentes", "Armazena automaticamente após coletar um presente de Natal"],
   
   "Auto Chest [ Tween ]": ["Auto Baús [ Tween ]", "Coleta cofres automaticamente usando Tween"],
   
@@ -41,8 +42,8 @@
   "Look To Moon": ["Olhar para a Lua", "Olhar para a lua para fazer ela brilhar"],
   "Auto Finish Trial": ["Concluir Trial Automático", "Completar Trial da sua raça Automaticamente"],
   
-  "Auto Dojo Trainer Quest": ["Missão do Dojo Trainer", "Completa as missões das Faixas Automaticamente"],
-  "Auto Dragon Hunter Quest": ["Missão do Dragon Hunter", "a cada Missão terminada, você ganharar 'Blaze Ember'"],
+  "Auto Dojo Trainer Quest": ["Missão Dojo Trainer", "Completa as missões das Faixas Automaticamente"],
+  "Auto Dragon Hunter Quest": ["Missão Dragon Hunter", "a cada Missão terminada, você ganharar 'Blaze Ember'"],
   "Auto Elite Hunter": ["Elite Hunter Automatico", "Completar missões do Elite Hunter a cada 10 Minutos"],
   "Auto Rip Indra": ["Auto Rip Indra", "Conseguir Calice, Ativar Placas, Spawnar e Matar Rip Indra"],
   "Auto Cake Prince": ["Auto Cake Prince", "Spawnar e Matar Cake Prince"],
@@ -52,7 +53,7 @@
   "Auto Tushita": ["Conseguir a Tushita Automaticamente", "resolver puzzle da Tushita e matar Longma"],
   "Auto Cursed Dual Katana": ["Auto Cursed Dual Katana", "Desbloquear a Cursed Dual Katana"],
   
-  "Auto Citizen Quest": ["Completar missão do Citizen", "Completar missão do Citizen para desbloquear Musketeer Hat"],
+  "Auto Citizen Quest": ["Completar Missão Citizen", "Completar missão do Citizen para desbloquear Musketeer Hat"],
   "Auto Rainbow Haki": ["Auto Haki Arco-íris", "Desbloquear a cor de Haki Arco-íris"],
   
   "Third Sea": ["Terceiro Mar", "Desbloquear o acesso ao terceiro mar"],
