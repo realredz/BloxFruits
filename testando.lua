@@ -434,20 +434,20 @@ local Module = {} do
     return nil
   end
   
-  function noSit()
-    local Char = Player.Character
-    if Module.IsAlive(Char) and Char.Humanoid.Sit then
-      Char.Humanoid.Sit = false
-    end
-  end
-  
-  local function ToDictionary(Array: table): table
+  function ToDictionary(Array: table): table
     local Dictionary = {}
     for _, String in ipairs(Array) do
       Dictionary[String] = true
     end
     table.clear(Array)
     return Dictionary
+  end
+  
+  function noSit(): (nil)
+    local Char = Player.Character
+    if Module.IsAlive(Char) and Char.Humanoid.Sit then
+      Char.Humanoid.Sit = false
+    end
   end
   
   function Module.TravelTo(Sea: number?): (nil)
@@ -926,8 +926,8 @@ local Module = {} do
       while RootPart and Humanoid and Humanoid.Health > 0 do
         if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance then
           RootPart.CFrame = Target
-        else
-          break
+        elseif Enemy then
+          Enemy:RemoveTag(BRING_TAG)
         end
         task.wait()
       end
@@ -939,7 +939,7 @@ local Module = {} do
       
       pcall(sethiddenproperty, Player, "SimulationRadius", math.huge)
       
-      if Humanoid and RootPart and Player:DistanceFromCharacter(RootPart.Position) < 350 then
+      if Humanoid and RootPart then
         RootPart.CanCollide = false
         RootPart.Size = Vector3.new(60, 60, 60)
         Humanoid:ChangeState(15)
