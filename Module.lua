@@ -1,11 +1,15 @@
 local Settings = ...
 
+if type(Settings) ~= "table" then
+  return nil
+end
+
 local _ENV = (getgenv or getrenv or getfenv)()
 
 local function WaitChilds(path, ...)
   local last = path
-  for _,child in {...} do
-    last = last:FindFirstChild(child) or last:WaitForChild(child)
+  for _, Name in {...} do
+    last = last:FindFirstChild(Name) or last:WaitForChild(Name)
   end
   return last
 end
@@ -43,11 +47,11 @@ local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
 local setupvalue = setupvalue or (debug and debug.setupvalue)
 local getupvalue = getupvalue or (debug and debug.getupvalue)
 
-local BRING_TAG = _ENV._BringTag or (math.random(80, 140) .. "_Bring")
-local KILLAURA_TAG = _ENV._KillAuraTag or (math.random(120, 200) .. "_Kill")
+local BRING_TAG = _ENV._Bring_Tag or (math.random(80, 140) .. "_Bring")
+local KILLAURA_TAG = _ENV._KillAura_Tag or (math.random(120, 200) .. "_Kill")
 
-_ENV._BringTag = BRING_TAG
-_ENV._KillAuraTag = KILLAURA_TAG
+_ENV._Bring_Tag = BRING_TAG
+_ENV._KillAura_Tag = KILLAURA_TAG
 
 local function GetEnemyName(string)
   return (string:find("Lv. ") and string:gsub(" %pLv. %d+%p", "") or string):gsub(" %pBoss%p", "")
@@ -522,11 +526,16 @@ local Module = {} do
   function Module.IsSpawned(Enemy)
     local Cached = Module.SpawnLocations[Enemy]
     
-    if Cached then
+    if Cached and Cached.Parent then
       return Cached:GetAttribute("Active") or Module:GetEnemyByTag(Enemy)
     end
     
     return Module:GetEnemyByTag(Enemy)
+  end
+  
+  function Module.GunClick()
+    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1);task.wait(0.05)
+    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1);task.wait(0.05)
   end
   
   function Module:ServerHop(Region: string?, MaxPlayers: number?): (nil)
@@ -806,8 +815,8 @@ local Module = {} do
       
       local Distance, Nearest = math.huge
       
-      for _, Berries in ipairs(BerryBush) do
-        local Berry = Berries:FindFirstChildOfClass("Model")
+      for _, Bush in ipairs(BerryBush) do
+        local Berry = Bush:FindFirstChildOfClass("Model")
         local Magnitude = Berry and (Berry:GetPivot().Position - Position).Magnitude
         
         if Berry and Magnitude < Distance then
@@ -891,12 +900,6 @@ local Module = {} do
         if self.IsAlive(Enemy) then
           return Enemy
         end
-      end
-    end
-    
-    function Module:AddKillAuraTag(Enemy)
-      if not Enemy:HasTag(KILLAURA_TAG) then
-        Enemy:AddTag(KILLAURA_TAG)
       end
     end
     
@@ -1075,7 +1078,12 @@ local Module = {} do
   end)
   
   Module.Hooking = (function()
+    if _ENV.rz_AimBot then
+      return _ENV.rz_AimBot
+    end
+    
     local module = {}
+    _ENV.rz_AimBot = module
     
     local Enabled = _ENV.rz_EnabledOptions;
     local IsAlive = Module.IsAlive;
@@ -1147,46 +1155,6 @@ local Module = {} do
       NextTarget, UpdateDebounce = Nearest, tick()
     end
     
-    local function HookEvent(self, old, ...)
-      local Name = self.Name
-      
-      if Name == "RE/ShootGunEvent" then
-        local Position, Enemies = ...
-        
-        if typeof(Position) == "Vector3" and type(Enemies) == "table" then
-          local Target = GetNextTarget("AimBot_Gun")
-          
-          if Target then
-            if Target.Name == "UpperTorso" then
-              table.insert(Enemies, Target)
-            end
-            
-            Position = Target.Position
-          end
-          
-          return old(self, Position, Enemies)
-        end
-      elseif Name == "RemoteEvent" and self.Parent.ClassName == "Tool" then
-        local v1, v2 = ...
-        
-        if typeof(v1) == "Vector3" and not v2 then
-          local Target = GetNextTarget("AimBot_Skills")
-          
-          if Target then
-            return old(self, Target.Position)
-          end
-        elseif v1 == "TAP" and typeof(v2) == "Vector3" then
-          local Target = GetNextTarget("AimBot_Tap")
-          
-          if Target then
-            return old(self, "TAP", Target.Position)
-          end
-        end
-      end
-      
-      return old(self, ...)
-    end
-    
     function module:SpeedBypass()
       if _ENV._Enabled_Speed_Bypass then
         return nil
@@ -1207,20 +1175,53 @@ local Module = {} do
       TargetDebounce, NextEnemy = tick(), Part.Parent:FindFirstChild("UpperTorso") or Part
     end
     
-    if not _ENV.loaded_aimbot then
-      _ENV.loaded_aimbot = true
+    Stepped:Connect(UpdateTarget)
+    
+    local old_namecall; old_namecall = _ENV.original_namecall or hookmetamethod(game, "__namecall", function(self, ...)
+      local Method = string.lower(getnamecallmethod())
       
-      Stepped:Connect(UpdateTarget)
+      if Method ~= "fireserver" then
+        return old_namecall(self, ...)
+      end
       
-      local old;old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
-        local Method = string.lower(getnamecallmethod())
+      local Name = self.Name
+      
+      if Name == "RE/ShootGunEvent" then
+        local Position, Enemies = ...
         
-        if Method == "fireserver" or Method == "invokeserver" then
-          return HookEvent(self, old, ...)
+        if typeof(Position) == "Vector3" and type(Enemies) == "table" then
+          local Target = GetNextTarget("AimBot_Gun")
+          
+          if Target then
+            if Target.Name == "UpperTorso" then
+              table.insert(Enemies, Target)
+            end
+            
+            Position = Target.Position
+          end
+          
+          return old_namecall(self, Position, Enemies)
         end
-        return old(self, ...)
-      end))
-    end
+      elseif Name == "RemoteEvent" and self.Parent.ClassName == "Tool" then
+        local v1, v2 = ...
+        
+        if typeof(v1) == "Vector3" and not v2 then
+          local Target = GetNextTarget("AimBot_Skills")
+          
+          if Target then
+            return old_namecall(self, Target.Position)
+          end
+        elseif v1 == "TAP" and typeof(v2) == "Vector3" then
+          local Target = GetNextTarget("AimBot_Tap")
+          
+          if Target then
+            return old_namecall(self, "TAP", Target.Position)
+          end
+        end
+      end
+      
+      return old_namecall(self, ...)
+    end)
     
     return module
   end)()
@@ -1236,6 +1237,7 @@ local Module = {} do
       attackPlayers = true,
       Equipped = nil
     }
+    _ENV.rz_FastAttack = FastAttack
     
     local RegisterAttack = Net:WaitForChild("RE/RegisterAttack")
     local ShootGunEvent = Net:WaitForChild("RE/ShootGunEvent")
@@ -1261,19 +1263,26 @@ local Module = {} do
       return BasePart
     end
     
-    function FastAttack:Attack(BasePart, OthersEnemies)
-      RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
-      RegisterHit:FireServer(BasePart, OthersEnemies)
-    end
-    
-    function FastAttack:AttackNearest()
+    function FastAttack:AttackNearest(ToolTip)
       local OthersEnemies = {}
       
       local Part1 = ProcessEnemies(OthersEnemies, Enemies)
       local Part2 = ProcessEnemies(OthersEnemies, Characters)
       
       if #OthersEnemies > 0 then
-        self:Attack(Part1 or Part2, OthersEnemies)
+        if ToolTip == "Gun" then
+          local Hits = {}
+          for _, Enemy in ipairs(OthersEnemies) do
+            table.insert(Hits, Enemy[2])
+          end
+          Module.GunClick()
+          for i = 1, 5 do
+            ShootGunEvent:FireServer((Part1 or Part2).Position, Hits)
+          end
+        else
+          RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
+          RegisterHit:FireServer(Part1 or Part2, OthersEnemies)
+        end
       else
         task.wait(1)
       end
@@ -1282,8 +1291,12 @@ local Module = {} do
     function FastAttack:BladeHits()
       local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
       
-      if Equipped and Equipped.ToolTip ~= "Gun" then
-        self:AttackNearest()
+      if Equipped then
+        if Equipped.ToolTip == "Gun" and not Settings.FastShoot then
+          return nil
+        end
+        
+        self:AttackNearest(Equipped.ToolTip)
       else
         task.wait(0.5)
       end
@@ -1297,7 +1310,6 @@ local Module = {} do
       end
     end)
     
-    _ENV.rz_FastAttack = FastAttack
     return FastAttack
   end)()
   
