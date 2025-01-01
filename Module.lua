@@ -73,7 +73,6 @@ local Module = {} do
   
   Module.AttackCooldown = 0
   Module.MaxLevel = 2600
-  Module.Christmas = true
   
   Module.allMobs = { __RaidBoss = {}, __Bones = {}, __Elite = {}, __CakePrince = {} }
   Module.Progress = {}
