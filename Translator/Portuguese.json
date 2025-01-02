@@ -36,6 +36,7 @@
   
   "Auto Farm Sea": ["Farm Mar Automático", "Farmar automaticamente no Mar"],
   "Auto Drive Boat": ["Auto Dirigir barco", "dirigir barco automaticamente se 'Farm Mar' estiver ativo"],
+  "Use Gun": ["Usar Arma", "Usar arma para atacar Sea Beasts e Barcos"],
   
   "Boat Tween Speed": ["Velocidade do Barco", "Ajustar a velocidade do barco"],
   "Teleport to NPC": ["Teleportar para NPC", "Ir até o NPC selecionado"],
@@ -123,6 +124,8 @@
   "ESP Players": ["ESP Jogadores", "Exibir jogadores no mapa"],
   "ESP Fruits": ["ESP Frutas", "Exibir frutas no mapa"],
   "ESP Islands": ["ESP Ilhas", "Exibir ilhas no mapa"],
+  "ESP Chests": ["ESP Baús", "Exibir Baús disponíveis para Coletar"],
+  "ESP Berries": ["ESP Berries", "Exibir Berries que já estão disponíveis para Coletar"],
   
   "Execute Clipboard": ["Executar do Clipboard", "Executar script copiado"],
   "Redeem all Codes": ["Resgatar Todos os Códigos", "Coletar recompensas de códigos disponíveis"],
@@ -146,7 +149,7 @@
   "Walk On Water": ["Andar sobre a Água", "Permitir andar na água"],
   "Anti AFK": ["Anti AFK", "Evitar ser desconectado por inatividade"],
   
-  "Select Farm": "Selecionar Farm",
+  "Farm Select": "Selecionar Farm",
   "Travel": "Viagem",
   "Settings": "Configurações",
   "ESP": "ESP",
