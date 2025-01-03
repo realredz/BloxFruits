@@ -810,7 +810,7 @@ local Module = {} do
   })
   
   Module.Berry = setmetatable({}, {
-    __call = function(self, ...)
+    __call = function(self, BerryArray)
       local CachedBush = self.Cached
       
       if CachedBush then
@@ -830,10 +830,12 @@ local Module = {} do
       
       for _, Bush in ipairs(BerryBush) do
         for AttributeName, BerryName in pairs(Bush:GetAttributes()) do
-          local Magnitude = (Bush.Parent:GetPivot().Position - Position).Magnitude
-          
-          if Magnitude < Distance then
-            Nearest, Distance = Bush, Magnitude
+          if not BerryArray or table.find(BerryArray, BerryName) then
+            local Magnitude = (Bush.Parent:GetPivot().Position - Position).Magnitude
+            
+            if Magnitude < Distance then
+              Nearest, Distance = Bush, Magnitude
+            end
           end
         end
       end
