@@ -29,6 +29,7 @@ local CommE = Remotes:WaitForChild("CommE")
 local ChestModels = workspace:WaitForChild("ChestModels")
 local WorldOrigin = workspace:WaitForChild("_WorldOrigin")
 local Characters = workspace:WaitForChild("Characters")
+local SeaBeasts = workspace:WaitForChild("SeaBeasts")
 local Enemies = workspace:WaitForChild("Enemies")
 local Map = workspace:WaitForChild("Map")
 
@@ -467,18 +468,17 @@ local Module = {} do
     task.spawn(TeleportService.TeleportToPlaceInstance, TeleportService, game.PlaceId, game.JobId, Player)
   end
   
-  function Module.IsAlive(Char: Model?): boolean
-    if not Char then
-      return nil
+  function Module.IsAlive(Character: Model?): boolean
+    if Character then
+      local Humanoid = CachedChars[Character] or Character:FindFirstChild("Humanoid")
+      
+      if Humanoid then
+        local IsHumanoid = Humanoid.ClassName == "Humanoid"
+        
+        CachedChars[Character] = Humanoid
+        return Humanoid and Humanoid[IsHumanoid and "Health" or "Value"] > 0
+      end
     end
-    
-    if CachedChars[Char] then
-      return CachedChars[Char].Health > 0
-    end
-    
-    local Hum = Char:FindFirstChildOfClass("Humanoid")
-    CachedChars[Char] = Hum
-    return Hum and Hum.Health > 0
   end
   
   function Module.FireRemote(...): any
@@ -532,12 +532,7 @@ local Module = {} do
     return Module:GetEnemyByTag(Enemy)
   end
   
-  function Module.GunClick()
-    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1);task.wait(0.05)
-    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1);task.wait(0.05)
-  end
-  
-  function Module:ServerHop(Region: string?, MaxPlayers: number?): (nil)
+  function Module:ServerHop(MaxPlayers: number?, Region: string?): (nil)
     MaxPlayers = MaxPlayers or self.SH_MaxPlrs or 8
     -- Region = Region or self.SH_Region or "Singapore"
     
@@ -801,8 +796,12 @@ local Module = {} do
   
   Module.Berry = setmetatable({}, {
     __call = function(self, ...)
-      if self.Cached and self.Cached.Parent then
-        return self.Cached
+      local CachedBush = self.Cached
+      
+      if CachedBush then
+        for Tag, CFrame in pairs(CachedBush:GetAttributes()) do
+          return CachedBush
+        end
       end
       
       if self.Debounce and (tick() - self.Debounce) < 0.5 then
@@ -815,11 +814,12 @@ local Module = {} do
       local Distance, Nearest = math.huge
       
       for _, Bush in ipairs(BerryBush) do
-        local Berry = Bush:FindFirstChildOfClass("Model")
-        local Magnitude = Berry and (Berry:GetPivot().Position - Position).Magnitude
-        
-        if Berry and Magnitude < Distance then
-          Nearest, Distance = Berry, Magnitude
+        for AttributeName, BerryName in pairs(Bush:GetAttributes()) do
+          local Magnitude = (Bush.Parent:GetPivot().Position - Position).Magnitude
+          
+          if Magnitude < Distance then
+            Nearest, Distance = Bush, Magnitude
+          end
         end
       end
       
@@ -1058,7 +1058,7 @@ local Module = {} do
     end
     
     Module.ItemsMastery = {}
-    Module.ItemsCount = {} 
+    Module.ItemsCount = {}
     Module.Inventory = {}
     Module.Unlocked = {}
     
@@ -1231,7 +1231,9 @@ local Module = {} do
     end
     
     local FastAttack = {
-      Distance = 60,
+      Distance = 65,
+      BoatDistance = 130,
+      SeaBeastDistance = 400,
       attackMobs = true,
       attackPlayers = true,
       Equipped = nil
@@ -1245,16 +1247,35 @@ local Module = {} do
     local EquipTool = Module.EquipTool
     local IsAlive = Module.IsAlive
     
+    local GunClickDebounce = 0
+    
+    local ShootsPerTarget = {
+      ["Dual Flintlock"] = 20,
+      ["Dragon Storm"] = 25
+    }
+    
     local function ProcessEnemies(OthersEnemies, Folder)
       local BasePart = nil;
       
+      local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
+      
       for _, Enemy in Folder:GetChildren() do
-        local Head = Enemy:FindFirstChild("Head")
+        local IsBoat = Enemy:GetAttribute("IsBoat")
         
-        if Head and IsAlive(Enemy) and Player:DistanceFromCharacter(Head.Position) < FastAttack.Distance then
-          if Enemy ~= Player.Character then
-            table.insert(OthersEnemies, { Enemy, Head })
-            BasePart = Head
+        if IsBoat and Enemy:FindFirstChild("Body") and IsAlive(Enemy) then
+          local BasePart = Enemy.Body:FindFirstChildWhichIsA("BasePart")
+          
+          if BasePart and (Position - BasePart.Position).Magnitude < FastAttack.BoatDistance then
+            table.insert(OthersEnemies, { Enemy, Part })
+          end
+        elseif not IsBoat and IsAlive(Enemy) then
+          local Head = Enemy:FindFirstChild("Head")
+          
+          if Head and (Position - Head.Position).Magnitude < FastAttack.Distance then
+            if Enemy ~= Player.Character then
+              table.insert(OthersEnemies, { Enemy, Head })
+              BasePart = Head
+            end
           end
         end
       end
@@ -1262,28 +1283,56 @@ local Module = {} do
       return BasePart
     end
     
-    function FastAttack:AttackNearest(ToolTip)
+    function Module.GunClick()
+      if (tick() - GunClickDebounce) <= 0.1 then
+        return nil
+      end
+      
+      GunClickDebounce = tick()
+      VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1);task.wait(0.05)
+      VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+    end
+    
+    function FastAttack:GunHits(Part, Enemies, Multiplayer)
+      local Hits = {}
+      
+      for _, Enemy in ipairs(Enemies) do
+        table.insert(Hits, Enemy[2])
+      end
+      
+      for _, SeaEvent in ipairs(SeaBeasts:GetChildren()) do
+        local RootPart = SeaEvent:FindFirstChild("HumanoidRootPart")
+        
+        if RootPart and IsAlive(SeaEvent) and Player:DistanceFromCharacter(RootPart.Position) < self.SeaBeastDistance then
+          Part = RootPart
+          table.insert(Hits, RootPart)
+        end
+      end
+      
+      if #Hits > 0 then
+        Module.GunClick()
+        
+        for i = 1, Multiplayer do
+          ShootGunEvent:FireServer(Part.Position, Hits)
+        end
+      else
+        task.wait(0.3)
+      end
+    end
+    
+    function FastAttack:AttackNearest(Equipped, ToolTip)
       local OthersEnemies = {}
       
       local Part1 = ProcessEnemies(OthersEnemies, Enemies)
       local Part2 = ProcessEnemies(OthersEnemies, Characters)
       
-      if #OthersEnemies > 0 then
-        if ToolTip == "Gun" then
-          local Hits = {}
-          for _, Enemy in ipairs(OthersEnemies) do
-            table.insert(Hits, Enemy[2])
-          end
-          Module.GunClick()
-          for i = 1, 5 do
-            ShootGunEvent:FireServer((Part1 or Part2).Position, Hits)
-          end
-        else
-          RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
-          RegisterHit:FireServer(Part1 or Part2, OthersEnemies)
-        end
+      if ToolTip == "Gun" then
+        self:GunHits(Part1 or Part2, OthersEnemies, ShootsPerTarget[Equipped.Name] or 3)
+      elseif #OthersEnemies > 0 then
+        RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
+        RegisterHit:FireServer(Part1 or Part2, OthersEnemies)
       else
-        task.wait(1)
+        task.wait(0.5)
       end
     end
     
@@ -1295,7 +1344,7 @@ local Module = {} do
           return nil
         end
         
-        self:AttackNearest(Equipped.ToolTip)
+        self:AttackNearest(Equipped, Equipped.ToolTip)
       else
         task.wait(0.5)
       end
@@ -1307,6 +1356,12 @@ local Module = {} do
           FastAttack:BladeHits()
         end
       end
+    end)
+    
+    task.spawn(function()
+      local old; old = hookfunction(require(Modules.CombatUtil).IsGunReloading, function(...)
+        return false
+      end)
     end)
     
     return FastAttack
