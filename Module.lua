@@ -1328,7 +1328,7 @@ local Module = {} do
         Module.GunClick()
         
         for i = 1, Multiplayer do
-          ShootGunEvent:FireServer(Part.Position, Hits)
+          ShootGunEvent:FireServer(if Part then Part.Position else Vertor3.zero, Hits)
         end
       else
         task.wait(0.3)
