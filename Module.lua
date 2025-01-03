@@ -1249,9 +1249,10 @@ local Module = {} do
     end
     
     local FastAttack = {
-      Distance = 65,
-      BoatDistance = 180,
-      SeaBeastDistance = 400,
+      Distance = 70,
+      GunDistance = 200,
+      BoatDistance = 350,
+      SeaBeastDistance = 600,
       attackMobs = true,
       attackPlayers = true,
       Equipped = nil
@@ -1262,7 +1263,7 @@ local Module = {} do
     local ShootGunEvent = Net:WaitForChild("RE/ShootGunEvent")
     local RegisterHit = Net:WaitForChild("RE/RegisterHit")
     
-    local old_shoot = getupvalue(require(WaitChilds(ReplicatedStorage, "Controllers", "CombatController")).Attack, 9)
+    local old_shoot = getupvalue(require(WaitChilds(ReplicatedStorage, "Controllers",CombatController")).Attack, 9)
     
     local EquipTool = Module.EquipTool
     local IsAlive = Module.IsAlive
@@ -1302,10 +1303,13 @@ local Module = {} do
       Validator2:FireServer(math.floor(v9 / v4 * 16777215), v7)
     end
     
-    local function ProcessEnemies(OthersEnemies, Folder)
+    local function ProcessEnemies(OthersEnemies, Folder, IsGun)
       local BasePart = nil;
       
       local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
+      
+      local EnemyDistance = if IsGun then FastAttack.GunDistance else FastAttack.Distance
+      local BoatDistance = FastAttack.BoatDistance
       
       for _, Enemy in Folder:GetChildren() do
         local IsBoat = Enemy:GetAttribute("IsBoat")
@@ -1313,13 +1317,13 @@ local Module = {} do
         if IsBoat and Enemy:FindFirstChild("Body") and IsAlive(Enemy) then
           local BasePart = Enemy.Body:FindFirstChildOfClass("MeshPart")
           
-          if BasePart and (Position - BasePart.Position).Magnitude < FastAttack.BoatDistance then
+          if BasePart and (Position - BasePart.Position).Magnitude < BoatDistance then
             table.insert(OthersEnemies, { Enemy, BasePart })
           end
         elseif not IsBoat and IsAlive(Enemy) then
           local Head = Enemy:FindFirstChild("Head")
           
-          if Head and (Position - Head.Position).Magnitude < FastAttack.Distance then
+          if Head and (Position - Head.Position).Magnitude < EnemyDistance then
             if Enemy ~= Player.Character then
               table.insert(OthersEnemies, { Enemy, Head })
               BasePart = Head
@@ -1371,10 +1375,12 @@ local Module = {} do
     function FastAttack:AttackNearest(Equipped, ToolTip)
       local OthersEnemies = {}
       
-      local Part1 = ProcessEnemies(OthersEnemies, Enemies)
-      local Part2 = ProcessEnemies(OthersEnemies, Characters)
+      local IsGun = ToolTip == "Gun"
       
-      if ToolTip == "Gun" then
+      local Part1 = ProcessEnemies(OthersEnemies, Enemies, IsGun)
+      local Part2 = ProcessEnemies(OthersEnemies, Characters, IsGun)
+      
+      if IsGun then
         self:GunHits(Part1 or Part2, OthersEnemies, ShootsPerTarget[Equipped.Name] or 3)
       elseif #OthersEnemies > 0 then
         RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
