@@ -60,7 +60,13 @@ end
 
 local function GetCharacterHumanoid(Character)
   if Character:GetAttribute("IsBoat") or Character.Parent == SeaBeasts then
-    return Character:FindFirstChild("Humanoid")
+    local HealthValue = Character:FindFirstChild("Health")
+    
+    if HealthValue then
+      return HealthValue
+    else
+      return Character:FindFirstChild("Humanoid"), true
+    end
   else
     return Character:FindFirstChildOfClass("Humanoid")
   end
@@ -481,7 +487,10 @@ local Module = {} do
       local Humanoid, NoCache = CachedChars[Character] or GetCharacterHumanoid(Character)
       
       if Humanoid then
-        CachedChars[Character] = Humanoid
+        if NoCache ~= true and not CachedChars[Character] then
+          CachedChars[Character] = Humanoid
+        end
+        
         return Humanoid[if Humanoid.ClassName == "Humanoid" then "Health" else "Value"] > 0
       end
     end
