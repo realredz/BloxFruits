@@ -1263,7 +1263,7 @@ local Module = {} do
     local ShootGunEvent = Net:WaitForChild("RE/ShootGunEvent")
     local RegisterHit = Net:WaitForChild("RE/RegisterHit")
     
-    local old_shoot = getupvalue(require(WaitChilds(ReplicatedStorage, "Controllers",CombatController")).Attack, 9)
+    local old_shoot = getupvalue(require(WaitChilds(ReplicatedStorage, "Controllers", "CombatController")).Attack, 9)
     
     local EquipTool = Module.EquipTool
     local IsAlive = Module.IsAlive
