@@ -58,6 +58,14 @@ local function GetEnemyName(string)
   return (string:find("Lv. ") and string:gsub(" %pLv. %d+%p", "") or string):gsub(" %pBoss%p", "")
 end
 
+local function GetCharacterHumanoid(Character)
+  if Character:GetAttribute("IsBoat") or Character.Parent == SeaBeasts then
+    return Character:FindFirstChild("Humanoid")
+  else
+    return Character:FindFirstChildOfClass("Humanoid")
+  end
+end
+
 local Module = {} do
   local CachedBaseParts = {}
   local CachedEnemies = {}
@@ -470,31 +478,11 @@ local Module = {} do
   
   function Module.IsAlive(Character: Model?): boolean
     if Character then
-      local Humanoid = CachedChars[Character]
-      
-      if Humanoid then
-        local IsHumanoid = Humanoid.ClassName == "Humanoid"
-        return Humanoid[IsHumanoid and "Health" or "Value"] > 0
-      end
-      
-      local Humanoid do
-        if Humanoid:GetAttribute("IsBoat") or Humanoid.Parent == SeaBeasts then
-          local HealthValue = Character:FindFirstChild("Health")
-          
-          if HealthValue then
-            CachedChars[Character] = HealthValue
-            return HealthValue.Value > 0
-          else
-            return Character:FindFirstChild("Humanoid")
-          end
-        else
-          Humanoid = Character:FindFirstChildOfClass("Humanoid")
-        end
-      end
+      local Humanoid, NoCache = CachedChars[Character] or GetCharacterHumanoid(Character)
       
       if Humanoid then
         CachedChars[Character] = Humanoid
-        return Humanoid[Humanoid.ClassName == "Humanoid" and "Health" or "Value"] > 0
+        return Humanoid[if Humanoid.ClassName == "Humanoid" then "Health" else "Value"] > 0
       end
     end
   end
