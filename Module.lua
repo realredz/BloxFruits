@@ -22,6 +22,7 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Validator2 = Remotes:WaitForChild("Validator2")
 local Validator = Remotes:WaitForChild("Validator")
 local CommF = Remotes:WaitForChild("CommF_")
 local CommE = Remotes:WaitForChild("CommE")
@@ -1261,6 +1262,8 @@ local Module = {} do
     local ShootGunEvent = Net:WaitForChild("RE/ShootGunEvent")
     local RegisterHit = Net:WaitForChild("RE/RegisterHit")
     
+    local old_shoot = getupvalue(require(WaitChilds(ReplicatedStorage, "Controllers", "CombatController")).Attack, 9)
+    
     local EquipTool = Module.EquipTool
     local IsAlive = Module.IsAlive
     
@@ -1270,6 +1273,34 @@ local Module = {} do
       ["Dual Flintlock"] = 20,
       ["Dragon Storm"] = 25
     }
+    
+    local function GunValidator()
+      local v1 = getupvalue(old_shoot, 15) -- v40, 15
+      local v2 = getupvalue(old_shoot, 13) -- v41, 13
+      local v3 = getupvalue(old_shoot, 16) -- v42, 16
+      local v4 = getupvalue(old_shoot, 17) -- v43, 17
+      local v5 = getupvalue(old_shoot, 14) -- v44, 14
+      local v6 = getupvalue(old_shoot, 12) -- v45, 12
+      local v7 = getupvalue(old_shoot, 18) -- v46, 18
+      
+      local v8 = v6 * v2                  -- v133
+      local v9 = (v5 * v2 + v6 * v1) % v3 -- v134
+      
+      v9 = (v9 * v3 + v8) % v4
+      v5 = math.floor(v9 / v3)
+      v6 = v9 - v5 * v3
+      v7 = v7 + 1
+      
+      setupvalue(old_shoot, 15, v1) -- v40, 15
+      setupvalue(old_shoot, 13, v2) -- v41, 13
+      setupvalue(old_shoot, 16, v3) -- v42, 16
+      setupvalue(old_shoot, 17, v4) -- v43, 17
+      setupvalue(old_shoot, 14, v5) -- v44, 14
+      setupvalue(old_shoot, 12, v6) -- v45, 12
+      setupvalue(old_shoot, 18, v7) -- v45, 18
+      
+      Validator2:FireServer(math.floor(v9 / v4 * 16777215), v7)
+    end
     
     local function ProcessEnemies(OthersEnemies, Folder)
       local BasePart = nil;
@@ -1327,7 +1358,7 @@ local Module = {} do
       end
       
       if #Hits > 0 then
-        Module.GunClick()
+        GunValidator()
         
         for i = 1, Multiplayer do
           ShootGunEvent:FireServer(if Part then Part.Position else Vector3.zero, Hits)
@@ -1373,12 +1404,6 @@ local Module = {} do
           FastAttack:BladeHits()
         end
       end
-    end)
-    
-    task.spawn(function()
-      local old; old = hookfunction(require(Modules.CombatUtil).IsGunReloading, function(...)
-        return false
-      end)
     end)
     
     return FastAttack
