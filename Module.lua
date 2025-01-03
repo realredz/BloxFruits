@@ -1250,7 +1250,7 @@ local Module = {} do
     
     local FastAttack = {
       Distance = 70,
-      GunDistance = 200,
+      GunDistance = 160,
       BoatDistance = 350,
       SeaBeastDistance = 600,
       attackMobs = true,
@@ -1271,8 +1271,8 @@ local Module = {} do
     local GunClickDebounce = 0
     
     local ShootsPerTarget = {
-      ["Dual Flintlock"] = 20,
-      ["Dragon Storm"] = 25
+      ["Dual Flintlock"] = 5,
+      ["Dragon Storm"] = 8
     }
     
     local function GunValidator()
@@ -1349,7 +1349,11 @@ local Module = {} do
       local Hits = {}
       
       for _, Enemy in ipairs(Enemies) do
-        table.insert(Hits, Enemy[2])
+        local BasePart = Enemy[2]
+        
+        if BasePart and (not Hits[1] or (Hits[1].Position - BasePart.Position).Magnitude < 40) then
+          table.insert(Hits, BasePart)
+        end
       end
       
       for _, SeaEvent in ipairs(SeaBeasts:GetChildren()) do
@@ -1381,7 +1385,7 @@ local Module = {} do
       local Part2 = ProcessEnemies(OthersEnemies, Characters, IsGun)
       
       if IsGun then
-        self:GunHits(Part1 or Part2, OthersEnemies, ShootsPerTarget[Equipped.Name] or 3)
+        self:GunHits(Part1 or Part2, OthersEnemies, ShootsPerTarget[Equipped.Name] or 1)
       elseif #OthersEnemies > 0 then
         RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
         RegisterHit:FireServer(Part1 or Part2, OthersEnemies)
