@@ -1247,7 +1247,7 @@ local Module = {} do
     
     local FastAttack = {
       Distance = 65,
-      BoatDistance = 130,
+      BoatDistance = 180,
       SeaBeastDistance = 400,
       attackMobs = true,
       attackPlayers = true,
@@ -1278,10 +1278,10 @@ local Module = {} do
         local IsBoat = Enemy:GetAttribute("IsBoat")
         
         if IsBoat and Enemy:FindFirstChild("Body") and IsAlive(Enemy) then
-          local BasePart = Enemy.Body:FindFirstChildWhichIsA("BasePart")
+          local BasePart = Enemy.Body:FindFirstChildOfClass("MeshPart")
           
           if BasePart and (Position - BasePart.Position).Magnitude < FastAttack.BoatDistance then
-            table.insert(OthersEnemies, { Enemy, Part })
+            table.insert(OthersEnemies, { Enemy, BasePart })
           end
         elseif not IsBoat and IsAlive(Enemy) then
           local Head = Enemy:FindFirstChild("Head")
