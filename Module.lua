@@ -470,13 +470,16 @@ local Module = {} do
   
   function Module.IsAlive(Character: Model?): boolean
     if Character then
-      local Humanoid = CachedChars[Character] or Character:FindFirstChild("Humanoid")
+      local Humanoid = CachedChars[Character]
+      
+      if not Humanoid then
+        local HumanoidName = (Character:GetAttribute("IsBoat") or Character.Parent == SeaBeasts) and "Humanoid" or "Health"
+        Humanoid = Character:FindFirstChild(HumanoidName)
+      end
       
       if Humanoid then
-        local IsHumanoid = Humanoid.ClassName == "Humanoid"
-        
         CachedChars[Character] = Humanoid
-        return Humanoid and Humanoid[IsHumanoid and "Health" or "Value"] > 0
+        return Humanoid and Humanoid[Humanoid.ClassName == "Humanoid" and "Health" or "Value"] > 0
       end
     end
   end
