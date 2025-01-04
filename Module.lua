@@ -1250,9 +1250,6 @@ local Module = {} do
     
     local FastAttack = {
       Distance = 70,
-      GunDistance = 160,
-      BoatDistance = 350,
-      SeaBeastDistance = 600,
       attackMobs = true,
       attackPlayers = true,
       Equipped = nil
@@ -1260,70 +1257,23 @@ local Module = {} do
     _ENV.rz_FastAttack = FastAttack
     
     local RegisterAttack = Net:WaitForChild("RE/RegisterAttack")
-    local ShootGunEvent = Net:WaitForChild("RE/ShootGunEvent")
     local RegisterHit = Net:WaitForChild("RE/RegisterHit")
-    
-    local old_shoot = getupvalue(require(WaitChilds(ReplicatedStorage, "Controllers", "CombatController")).Attack, 9)
     
     local EquipTool = Module.EquipTool
     local IsAlive = Module.IsAlive
     
     local GunClickDebounce = 0
     
-    local ShootsPerTarget = {
-      ["Dual Flintlock"] = 5,
-      ["Dragon Storm"] = 8
-    }
-    
-    local function GunValidator()
-      local v1 = getupvalue(old_shoot, 15) -- v40, 15
-      local v2 = getupvalue(old_shoot, 13) -- v41, 13
-      local v3 = getupvalue(old_shoot, 16) -- v42, 16
-      local v4 = getupvalue(old_shoot, 17) -- v43, 17
-      local v5 = getupvalue(old_shoot, 14) -- v44, 14
-      local v6 = getupvalue(old_shoot, 12) -- v45, 12
-      local v7 = getupvalue(old_shoot, 18) -- v46, 18
-      
-      local v8 = v6 * v2                  -- v133
-      local v9 = (v5 * v2 + v6 * v1) % v3 -- v134
-      
-      v9 = (v9 * v3 + v8) % v4
-      v5 = math.floor(v9 / v3)
-      v6 = v9 - v5 * v3
-      v7 = v7 + 1
-      
-      setupvalue(old_shoot, 15, v1) -- v40, 15
-      setupvalue(old_shoot, 13, v2) -- v41, 13
-      setupvalue(old_shoot, 16, v3) -- v42, 16
-      setupvalue(old_shoot, 17, v4) -- v43, 17
-      setupvalue(old_shoot, 14, v5) -- v44, 14
-      setupvalue(old_shoot, 12, v6) -- v45, 12
-      setupvalue(old_shoot, 18, v7) -- v45, 18
-      
-      Validator2:FireServer(math.floor(v9 / v4 * 16777215), v7)
-    end
-    
-    local function ProcessEnemies(OthersEnemies, Folder, IsGun)
+    local function ProcessEnemies(OthersEnemies, Folder)
       local BasePart = nil;
       
       local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
       
-      local EnemyDistance = if IsGun then FastAttack.GunDistance else FastAttack.Distance
-      local BoatDistance = FastAttack.BoatDistance
-      
       for _, Enemy in Folder:GetChildren() do
-        local IsBoat = Enemy:GetAttribute("IsBoat")
-        
-        if IsBoat and Enemy:FindFirstChild("Body") and IsAlive(Enemy) then
-          local BasePart = Enemy.Body:FindFirstChildOfClass("MeshPart")
-          
-          if BasePart and (Position - BasePart.Position).Magnitude < BoatDistance then
-            table.insert(OthersEnemies, { Enemy, BasePart })
-          end
-        elseif not IsBoat and IsAlive(Enemy) then
+        if not Enemy:GetAttribute("IsBoat") and IsAlive(Enemy) then
           local Head = Enemy:FindFirstChild("Head")
           
-          if Head and (Position - Head.Position).Magnitude < EnemyDistance then
+          if Head and (Position - Head.Position).Magnitude < FastAttack.Distance then
             if Enemy ~= Player.Character then
               table.insert(OthersEnemies, { Enemy, Head })
               BasePart = Head
@@ -1343,37 +1293,6 @@ local Module = {} do
       GunClickDebounce = tick()
       VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1);task.wait(0.05)
       VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
-    end
-    
-    function FastAttack:GunHits(Part, Enemies, Multiplayer)
-      local Hits = {}
-      
-      for _, Enemy in ipairs(Enemies) do
-        local BasePart = Enemy[2]
-        
-        if BasePart and (not Hits[1] or (Hits[1].Position - BasePart.Position).Magnitude < 40) then
-          table.insert(Hits, BasePart)
-        end
-      end
-      
-      for _, SeaEvent in ipairs(SeaBeasts:GetChildren()) do
-        local RootPart = SeaEvent:FindFirstChild("HumanoidRootPart")
-        
-        if RootPart and IsAlive(SeaEvent) and Player:DistanceFromCharacter(RootPart.Position) < self.SeaBeastDistance then
-          Part = RootPart
-          table.insert(Hits, RootPart)
-        end
-      end
-      
-      if #Hits > 0 then
-        GunValidator()
-        
-        for i = 1, Multiplayer do
-          ShootGunEvent:FireServer(if Part then Part.Position else Vector3.zero, Hits)
-        end
-      else
-        task.wait(0.3)
-      end
     end
     
     function FastAttack:AttackNearest(Equipped, ToolTip)
