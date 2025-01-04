@@ -366,7 +366,7 @@ local Module = {} do
       {"Buy Slingshot", {"BuyItem", "Slingshot"}},
       {"Buy Flintlock", {"BuyItem", "Flintlock"}},
       {"Buy Refined Slingshot", {"BuyItem", "Refined Slingshot"}},
-      {"Buy Refined Flintlock", {"BuyItem", "Refined Flintlock"}},
+      {"Buy Dual Flintlock", {"BuyItem", "Dual Flintlock"}},
       {"Buy Cannon", {"BuyItem", "Cannon"}},
       {"Buy Kabucha", {"BlackbeardReward", "Slingshot", "2"}}
     }},
