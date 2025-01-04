@@ -1379,14 +1379,10 @@ local Module = {} do
     function FastAttack:AttackNearest(Equipped, ToolTip)
       local OthersEnemies = {}
       
-      local IsGun = ToolTip == "Gun"
+      local Part1 = ProcessEnemies(OthersEnemies, Enemies)
+      local Part2 = ProcessEnemies(OthersEnemies, Characters)
       
-      local Part1 = ProcessEnemies(OthersEnemies, Enemies, IsGun)
-      local Part2 = ProcessEnemies(OthersEnemies, Characters, IsGun)
-      
-      if IsGun then
-        self:GunHits(Part1 or Part2, OthersEnemies, ShootsPerTarget[Equipped.Name] or 1)
-      elseif #OthersEnemies > 0 then
+      if #OthersEnemies > 0 then
         RegisterAttack:FireServer(Settings.ClickDelay or 0.05)
         RegisterHit:FireServer(Part1 or Part2, OthersEnemies)
       else
@@ -1398,7 +1394,7 @@ local Module = {} do
       local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
       
       if Equipped then
-        if Equipped.ToolTip == "Gun" and not Settings.FastShoot then
+        if Equipped.ToolTip == "Gun" then
           return nil
         end
         
