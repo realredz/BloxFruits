@@ -1403,6 +1403,7 @@ local Module = {} do
           local Combo = if tick() - self.ComboDebounce <= 0.5 then self.M1Combo else 0
           self.ComboDebounce = tick()
           self.M1Combo = if Combo >= 4 then 1 else Combo + 1
+          self.Debounce -= 0.15
           
           return Equipped.LeftClickRemote:FireServer(Direction, Combo)
         end
@@ -1422,11 +1423,11 @@ local Module = {} do
       if not Settings.AutoClick or (tick() - Module.AttackCooldown) <= 1 then return end
       if not IsAlive(Player.Character) then return end
       
-      local Character = Player.Character
-      local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
-      local Equipped = Character:FindFirstChildOfClass("Tool")
-      
       local self = FastAttack
+      local Character = Player.Character
+      local Humanoid = Character.Humanoid
+      
+      local Equipped = Character:FindFirstChildOfClass("Tool")
       local ToolTip = Equipped and Equipped.ToolTip
       local ToolName = Equipped and Equipped.Name
       
@@ -1500,39 +1501,43 @@ local Module = {} do
       NewCharacter(Player.Character)
     end
     
-    Stepped:Connect(function()
-      local Character = Player.Character
+    local function NoClipOnStepped(Character)
+      if not IsAlive(Character) then
+        return nil
+      end
       
-      if _ENV.OnFarm and Character then
-        if Velocity.Parent == Character then
-          Noclip = true
-          for i = 1, #BaseParts do
-            if BaseParts[i].CanCollide ~= false then
-              BaseParts[i].CanCollide = false
-            end
+      if Velocity.Parent then
+        for i = 1, #BaseParts do
+          if BaseParts[i].CanCollide ~= false then
+            BaseParts[i].CanCollide = false
           end
         end
-      elseif Noclip and Character and Character.PrimaryPart then
-        Character.PrimaryPart.CanCollide, Noclip = true, false
+      elseif Character.PrimaryPart and not Character.PrimaryPart.CanCollide then
+        Character.PrimaryPart.CanCollide = true
       end
-    end)
+    end
     
-    Stepped:Connect(function()
-      local Character = Player.Character
+    local function UpdateVelocityOnStepped(Character)
       local PrimaryPart = Character.PrimaryPart
-      local isAlive = IsAlive(Character)
+      local Humanoid = Character:FindFirstChild("Humanoid")
       
-      if isAlive and Velocity ~= Vector3.zero and (not Character.Humanoid.SeatPart or not _ENV.OnFarm) then
+      if Velocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
         Velocity.Velocity = Vector3.zero
       end
       
-      if _ENV.OnFarm and isAlive and PrimaryPart then
+      if _ENV.OnFarm and PrimaryPart then
         if Velocity.Parent ~= PrimaryPart then
           Velocity.Parent = PrimaryPart
         end
       elseif Velocity.Parent ~= nil then
         Velocity.Parent = nil
       end
+    end
+    
+    Stepped:Connect(function()
+      local Character = Player.Character
+      NoClipOnStepped(Character)
+      UpdateVelocityOnStepped(Character)
     end)
     
     return Velocity
