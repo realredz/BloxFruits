@@ -1473,7 +1473,7 @@ local Module = {} do
     
     local Noclip = false
     local IsAlive = Module.IsAlive
-    local Velocity = Instance.new("BodyVelocity")
+    local Velocity = Instance.new("BodyVelocity", workspace)
     Velocity.Name = "hidden_user_folder"
     Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     Velocity.Velocity = Vector3.zero
@@ -1497,6 +1497,8 @@ local Module = {} do
       
       local function NewCharacter(Character)
         table.clear(BaseParts)
+        
+        for _, Object in ipairs(Character:GetDescendants()) do AddObjectToBaseParts(Object) end
         Character.DescendantAdded:Connect(AddObjectToBaseParts)
         Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts)
         
@@ -1513,7 +1515,7 @@ local Module = {} do
         return nil
       end
       
-      if Velocity.Parent then
+      if _ENV.OnFarm then
         for i = 1, #BaseParts do
           if BaseParts[i].CanCollide ~= false then
             BaseParts[i].CanCollide = false
