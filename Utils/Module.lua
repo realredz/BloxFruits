@@ -1356,14 +1356,6 @@ local Module = {} do
       VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
     end
     
-    function FastAttack:HasRigEquipped(Character)
-      if Character.PrimaryPart and Character.PrimaryPart:FindFirstChild("Buddha") then
-        return false
-      end
-      
-      return true
-    end
-    
     function FastAttack:CheckStun(ToolTip, Character, Humanoid)
       local Stun = Character:FindFirstChild("Stun")
       local Busy = Character:FindFirstChild("Busy")
@@ -1371,8 +1363,6 @@ local Module = {} do
       if Humanoid.Sit and (ToolTip == "Sword" or ToolTip == "Melee" or ToolTip == "Gun") then
         return false
       elseif Stun and Stun.Value > 0 or Busy and Busy.Value then
-        return false
-      elseif ToolTip == "Blox Fruit" and self:HasRigEquipped(Character) then
         return false
       end
       
@@ -1474,8 +1464,8 @@ local Module = {} do
     
     local Noclip = false
     local IsAlive = Module.IsAlive
-    local Velocity = Instance.new("BodyVelocity", workspace)
-    Velocity.Name = "hidden_user_folder_"
+    local Velocity = Instance.new("BodyVelocity")
+    Velocity.Name = "hidden_user_folder"
     Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     Velocity.Velocity = Vector3.zero
     
@@ -1526,7 +1516,7 @@ local Module = {} do
       end
     end)
     
-    Heartbeat:Connect(function()
+    Stepped:Connect(function()
       local Character = Player.Character
       local isAlive = IsAlive(Character)
       
