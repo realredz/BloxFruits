@@ -1,0 +1,1 @@
+return { Data = { LastClosestNPC = "" } }
