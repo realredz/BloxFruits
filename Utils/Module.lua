@@ -1312,7 +1312,7 @@ local Module = {} do
     end
     
     Stepped:Connect(UpdateTarget)
-    module:EnabledAim()
+    module:EnableAim()
     
     return module
   end)()
@@ -1427,6 +1427,7 @@ local Module = {} do
       end
       
       local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.4
+      local Nickname = Equipped:FindFirstChild("Nickname") and Equipped.Nickname.Value or "null"
       
       if (tick() - self.Debounce) >= Cooldown and self:CheckStun(ToolTip, Character, Humanoid) then
         self.Equipped = Equipped
@@ -1535,5 +1536,5 @@ local Module = {} do
     
     for i = 1, #AdvancedRaids do table.insert(Module.RaidList, AdvancedRaids[i]) end
     for i = 1, #NormalRaids do table.insert(Module.RaidList, NormalRaids[i]) end
-    end
+  end
 end
