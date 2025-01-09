@@ -1527,16 +1527,16 @@ local Module = {} do
     end
     
     local function UpdateVelocityOnStepped(Character)
-      local PrimaryPart = Character.PrimaryPart
+      local RootPart = Character:FindFirstChild("HumanoidRootPart")
       local Humanoid = Character:FindFirstChild("Humanoid")
       
       if Velocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
         Velocity.Velocity = Vector3.zero
       end
       
-      if _ENV.OnFarm and PrimaryPart then
-        if Velocity.Parent ~= PrimaryPart then
-          Velocity.Parent = PrimaryPart
+      if _ENV.OnFarm and RootPart then
+        if Velocity.Parent ~= RootPart then
+          Velocity.Parent = RootPart
         end
       elseif Velocity.Parent ~= nil then
         Velocity.Parent = nil
