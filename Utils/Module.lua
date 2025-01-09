@@ -1327,7 +1327,10 @@ local Module = {} do
       attackMobs = true,
       attackPlayers = true,
       Equipped = nil,
-      Debounce = 0
+      Debounce = 0,
+      
+      ComboDebounce = 0,
+      M1Combo = 0
     }
     _ENV.rz_FastAttack = FastAttack
     
@@ -1391,13 +1394,18 @@ local Module = {} do
       return FirstRootPart, BladeHits
     end
     
-    function FastAttack:UseFruitM1()
+    function FastAttack:UseFruitM1(Humanoid, Character, Equipped)
+      local Position = Character:GetPivot().Position
+      
       for _, Enemy in ipairs(Enemies:GetChildren()) do
         local PrimaryPart = Enemy.PrimaryPart
         
         if IsAlive(Enemy) and PrimaryPart and Player:DistanceFromCharacter(PrimaryPart.Position) <= 50 then
+          local Direction = (PrimaryPart.Position - Position).Unit
+          local Combo = if tick() - self.ComboDebounce <= 0.4 then self.M1Combo else 0
+          self.ComboDebounce, self.M1Combo = tick(), Combo + 1
           
-          return nil
+          return Equipped.LeftClickRemote:FireServer(Direction, Combo)
         end
       end
     end
@@ -1426,7 +1434,7 @@ local Module = {} do
         return nil
       end
       
-      local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.4
+      local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.3
       local Nickname = Equipped:FindFirstChild("Nickname") and Equipped.Nickname.Value or "null"
       
       if (tick() - self.Debounce) >= Cooldown and self:CheckStun(ToolTip, Character, Humanoid) then
@@ -1436,7 +1444,7 @@ local Module = {} do
         if ToolTip == "Blox Fruit" then
           if ToolName == "Ice-Ice" or ToolName == "Light-Light" then
             return self:UseNormalClick(Humanoid, Character, Cooldown)
-          elseif Equipped:FindFirstChild("") then
+          elseif Equipped:FindFirstChild("LeftClickRemote") then
             return self:UseFruitM1(Humanoid, Character, Equipped)
           end
         else
