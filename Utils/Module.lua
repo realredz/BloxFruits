@@ -1419,14 +1419,15 @@ local Module = {} do
       end
     end
     
-    function FastAttack:Attack()
+    function FastAttack.attack()
       if not Settings.AutoClick or (tick() - Module.AttackCooldown) <= 1 then return end
       if not IsAlive(Player.Character) then return end
       
-      local Humanoid = Player.Character:FindFirstChildWhichIsA("Humanoid")
-      local Equipped = Player.Character:FindFirstChildOfClass("Tool")
+      local Character = Player.Character
+      local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
+      local Equipped = Character:FindFirstChildOfClass("Tool")
       
-      local self = self or FastAttack
+      local self = FastAttack
       local ToolTip = Equipped and Equipped.ToolTip
       local ToolName = Equipped and Equipped.Name
       
@@ -1435,7 +1436,7 @@ local Module = {} do
       end
       
       local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.3
-      local Nickname = Equipped:FindFirstChild("Nickname") and Equipped.Nickname.Value or "null"
+      local Nickname = Equipped:FindFirstChild("Nickname") and Equipped.Nickname.Value or "Null"
       
       if (tick() - self.Debounce) >= Cooldown and self:CheckStun(ToolTip, Character, Humanoid) then
         self.Equipped = Equipped
@@ -1453,7 +1454,7 @@ local Module = {} do
       end
     end
     
-    RunService.Stepped:Connect(FastAttack.Attack)
+    RunService.Stepped:Connect(FastAttack.attack)
     
     return FastAttack
   end)()
