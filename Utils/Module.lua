@@ -1400,8 +1400,9 @@ local Module = {} do
         
         if IsAlive(Enemy) and PrimaryPart and (PrimaryPart.Position - Position).Magnitude <= 50 then
           local Direction = (PrimaryPart.Position - Position).Unit
-          local Combo = if tick() - self.ComboDebounce <= 0.4 then self.M1Combo else 0
-          self.ComboDebounce, self.M1Combo = tick(), Combo + 1
+          local Combo = if tick() - self.ComboDebounce <= 0.5 then self.M1Combo else 0
+          self.ComboDebounce = tick
+          self.M1Combo = if Combo >= 4 then 1 else Combo + 1
           
           return Equipped.LeftClickRemote:FireServer(Direction, Combo)
         end
