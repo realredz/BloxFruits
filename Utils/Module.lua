@@ -1372,7 +1372,7 @@ local Module = {} do
         return false
       elseif Stun and Stun.Value > 0 or Busy and Busy.Value then
         return false
-      elseif self:HasRigEquipped(Character) then
+      elseif ToolTip == "Blox Fruit" and self:HasRigEquipped(Character) then
         return false
       end
       
@@ -1380,17 +1380,19 @@ local Module = {} do
     end
     
     function FastAttack:GetAllBladeHits(Character)
-      local CFrame = if Character.PrimaryPart then Character.PrimaryPart.CFrame else Character:GetPivot()
-      local Position, BladeHits, FirstRootPart = CFrame.Position, {}
+      local CFrame = Character:GetPivot().Position
+      local BladeHits, FirstRootPart = {}
+      local EnemyList = Enemies:GetChildren()
       
-      for _, Enemy in ipairs(Enemies:GetChildren()) do
-        local EnemyRootPart = Enemy.PrimaryPart
+      for i = 1, #EnemyList do
+        local Enemy = EnemyList[i]
+        local RootPart = Enemy.PrimaryPart
         
-        if EnemyRootPart and IsAlive(Enemy) and Player:DistanceFromCharacter(EnemyRootPart.Position) <= self.Distance then
+        if RootPart and IsAlive(Enemy) and Player:DistanceFromCharacter(RootPart.Position) <= self.Distance then
           if not FirstRootPart then
-            FirstRootPart = EnemyRootPart
+            FirstRootPart = RootPart
           else
-            table.insert(BladeHits, { Enemy, EnemyRootPart })
+            table.insert(BladeHits, { Enemy, RootPart })
           end
         end
       end
@@ -1400,8 +1402,10 @@ local Module = {} do
     
     function FastAttack:UseFruitM1(Humanoid, Character, Equipped)
       local Position = Character:GetPivot().Position
+      local EnemyList = Enemies:GetChildren()
       
-      for _, Enemy in ipairs(Enemies:GetChildren()) do
+      for i = 1, #EnemyList do
+        local Enemy = EnemyList[i]
         local PrimaryPart = Enemy.PrimaryPart
         
         if IsAlive(Enemy) and PrimaryPart and (PrimaryPart.Position - Position).Magnitude <= 50 then
