@@ -632,16 +632,17 @@ local Module = {} do
       local Name = ToEnemy.Name
       local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
       local Target = ToEnemy.PrimaryPart.CFrame
+      local BringPositionTag = if SuperBring then "ALL_MOBS" else Name
       
-      if not CachedBring[Name] or (Target.Position - CachedBring[Name].Position).Magnitude > 5 then
-        CachedBring[Name] = Target
+      if not CachedBring[BringPositionTag] or (Target.Position - CachedBring[BringPositionTag].Position).Magnitude > 10 then
+        CachedBring[BringPositionTag] = Target
       end
       
-      local EnemyList = (SuperBring and Enemies:GetChildren()) or self.allMobs[Name]
+      local EnemyList = if SuperBring then Enemies:GetChildren() else self.allMobs[Name]
       
       for i = 1, #EnemyList do
         local Enemy = EnemyList[i]
-        if Enemy.Parent ~= Enemies or Enemy:HasTag(BRING_TAG) then continue end
+        if Enemy.Parent ~= Enemies or Enemy:HasTag(BRING_TAG) or SuperBring) then continue end
         
         local PrimaryPart = Enemy.PrimaryPart
         if self.IsAlive(Enemy) and PrimaryPart then
@@ -958,8 +959,14 @@ local Module = {} do
       local RootPart = Enemy:WaitForChild("HumanoidRootPart")
       
       while Enemy and Enemy:HasTag(BRING_TAG) and RootPart and Humanoid and Humanoid.Health > 0 do
-        if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance and CachedBring[Enemy.Name] then
-          RootPart.CFrame = CachedBring[Enemy.Name]
+        local Target = CachedBring["ALL_MOBS"]
+        
+        if not Target or (Target.Position - RootPart.Position).Magnitude >= Settings.BringDistance then
+          Target = CachedBring[Enemy.Name]
+        end
+        
+        if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance and Target then
+          RootPart.CFrame = Target
         else
           break
         end
