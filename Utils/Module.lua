@@ -958,12 +958,16 @@ local Module = {} do
       local RootPart = Enemy:WaitForChild("HumanoidRootPart")
       
       while Enemy and Enemy:HasTag(BRING_TAG) and RootPart and Humanoid and Humanoid.Health > 0 do
-        if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance then
+        if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance and CachedBring[Enemy.Name] then
           RootPart.CFrame = CachedBring[Enemy.Name]
         else
-          Enemy:RemoveTag(BRING_TAG)
+          break
         end
         task.wait()
+      end
+      
+      if Enemy and Enemy:HasTag(BRING_TAG) then
+        Enemy:RemoveTag(BRING_TAG)
       end
     end
     
@@ -1400,7 +1404,7 @@ local Module = {} do
       for _, Enemy in ipairs(Enemies:GetChildren()) do
         local PrimaryPart = Enemy.PrimaryPart
         
-        if IsAlive(Enemy) and PrimaryPart and Player:DistanceFromCharacter(PrimaryPart.Position) <= 50 then
+        if IsAlive(Enemy) and PrimaryPart and (PrimaryPart.Position - Position).Magnitude <= 50 then
           local Direction = (PrimaryPart.Position - Position).Unit
           local Combo = if tick() - self.ComboDebounce <= 0.4 then self.M1Combo else 0
           self.ComboDebounce, self.M1Combo = tick(), Combo + 1
