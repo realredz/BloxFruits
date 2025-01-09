@@ -642,7 +642,7 @@ local Module = {} do
       
       for i = 1, #EnemyList do
         local Enemy = EnemyList[i]
-        if Enemy.Parent ~= Enemies or Enemy:HasTag(BRING_TAG) or SuperBring) then continue end
+        if Enemy.Parent ~= Enemies or Enemy:HasTag(BRING_TAG) then continue end
         
         local PrimaryPart = Enemy.PrimaryPart
         if self.IsAlive(Enemy) and PrimaryPart then
