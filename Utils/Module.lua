@@ -1401,7 +1401,7 @@ local Module = {} do
         if IsAlive(Enemy) and PrimaryPart and (PrimaryPart.Position - Position).Magnitude <= 50 then
           local Direction = (PrimaryPart.Position - Position).Unit
           local Combo = if tick() - self.ComboDebounce <= 0.5 then self.M1Combo else 0
-          self.ComboDebounce = tick
+          self.ComboDebounce = tick()
           self.M1Combo = if Combo >= 4 then 1 else Combo + 1
           
           return Equipped.LeftClickRemote:FireServer(Direction, Combo)
@@ -1519,15 +1519,16 @@ local Module = {} do
     
     Stepped:Connect(function()
       local Character = Player.Character
+      local PrimaryPart = Character.PrimaryPart
       local isAlive = IsAlive(Character)
       
       if isAlive and Velocity ~= Vector3.zero and (not Character.Humanoid.SeatPart or not _ENV.OnFarm) then
         Velocity.Velocity = Vector3.zero
       end
       
-      if _ENV.OnFarm and isAlive then
-        if Velocity.Parent == nil then
-          Velocity.Parent = Character.PrimaryPart
+      if _ENV.OnFarm and isAlive and PrimaryPart then
+        if Velocity.Parent ~= PrimaryPart then
+          Velocity.Parent = PrimaryPart
         end
       elseif Velocity.Parent ~= nil then
         Velocity.Parent = nil
