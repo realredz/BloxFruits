@@ -957,24 +957,20 @@ local Module = {} do
     local function Bring(Enemy)
       local Humanoid = Enemy:WaitForChild("Humanoid")
       local RootPart = Enemy:WaitForChild("HumanoidRootPart")
+      local EnemyName = Enemy.Name
       
       while Enemy and Enemy:HasTag(BRING_TAG) and RootPart and Humanoid and Humanoid.Health > 0 do
         local Target = CachedBring["ALL_MOBS"]
         
         if not Target or (Target.Position - RootPart.Position).Magnitude >= Settings.BringDistance then
-          Target = CachedBring[Enemy.Name]
+          Target = CachedBring[EnemyName]
         end
         
         if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance and Target then
           RootPart.CFrame = Target
         else
-          break
-        end
-        task.wait()
-      end
-      
-      if Enemy and Enemy:HasTag(BRING_TAG) then
-        Enemy:RemoveTag(BRING_TAG)
+          Enemy:RemoveTag(BRING_TAG)
+        end;task.wait()
       end
     end
     
@@ -1519,7 +1515,7 @@ local Module = {} do
       
       if _ENV.OnFarm then
         for i = 1, #BaseParts do
-          if BaseParts[i].CanCollide ~= false then
+          if not BaseParts[i].CanCollide then
             BaseParts[i].CanCollide = false
           end
         end
@@ -1533,13 +1529,10 @@ local Module = {} do
       local Humanoid = Character:FindFirstChild("Humanoid")
       
       if _ENV.OnFarm and RootPart then
-        if Velocity.Parent ~= RootPart then
+        if not Velocity.Parent then
           Velocity.Parent = RootPart
-          if Velocity.Parent ~= RootPart then
-            Velocity.Parent = Character
-          end
         end
-      elseif Velocity.Parent ~= nil then
+      elseif Velocity.Parent then
         Velocity.Parent = nil
       end
       
