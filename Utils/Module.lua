@@ -1300,14 +1300,14 @@ local Module = {} do
           if typeof(v1) == "Vector3" and not v2 then
             local Target = GetNextTarget("AimBot_Skills")
             
-            if Target then
-              return old_namecall(self, Target.Position)
+            if Target and Target[2] then
+              return old_namecall(self, Target[2].Position)
             end
           elseif v1 == "TAP" and typeof(v2) == "Vector3" then
             local Target = GetNextTarget("AimBot_Tap")
             
-            if Target then
-              return old_namecall(self, "TAP", Target.Position)
+            if Target and Target[2] then
+              return old_namecall(self, "TAP", Target[2].Position)
             end
           end
         end
