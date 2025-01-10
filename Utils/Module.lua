@@ -1476,7 +1476,9 @@ local Module = {} do
     local Velocity = Instance.new("BodyVelocity")
     Velocity.Name = "hidden_user_folder"
     Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    Velocity.P = math.huge
     Velocity.Velocity = Vector3.zero
+    Velocity.Parent = workspace
     
     _ENV.TweenVelocity = Velocity
     
@@ -1533,6 +1535,9 @@ local Module = {} do
       if _ENV.OnFarm and RootPart then
         if Velocity.Parent ~= RootPart then
           Velocity.Parent = RootPart
+          if Velocity.Parent ~= RootPart then
+            Velocity.Parent = Character
+          end
         end
       elseif Velocity.Parent ~= nil then
         Velocity.Parent = nil
