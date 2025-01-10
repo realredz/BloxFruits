@@ -1528,7 +1528,7 @@ local Module = {} do
       local Humanoid = Character:FindFirstChild("Humanoid")
       
       if _ENV.OnFarm and RootPart then
-        if Velocity.Parent ~= RootPart then
+        if not Velocity.Parent or Velocity.Parent ~= RootPart then
           Velocity.Parent = RootPart
         end
       elseif Velocity.Parent then
