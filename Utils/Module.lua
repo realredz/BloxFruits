@@ -1473,7 +1473,7 @@ local Module = {} do
     
     local Noclip = false
     local IsAlive = Module.IsAlive
-    local Velocity = Instance.new("BodyVelocity", workspace)
+    local Velocity = Instance.new("BodyVelocity")
     Velocity.Name = "hidden_user_folder"
     Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     Velocity.Velocity = Vector3.zero
@@ -1530,16 +1530,16 @@ local Module = {} do
       local RootPart = Character:FindFirstChild("HumanoidRootPart")
       local Humanoid = Character:FindFirstChild("Humanoid")
       
-      if Velocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
-        Velocity.Velocity = Vector3.zero
-      end
-      
       if _ENV.OnFarm and RootPart then
         if Velocity.Parent ~= RootPart then
           Velocity.Parent = RootPart
         end
       elseif Velocity.Parent ~= nil then
         Velocity.Parent = nil
+      end
+      
+      if Velocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
+        Velocity.Velocity = Vector3.zero
       end
     end
     
