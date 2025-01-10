@@ -40,7 +40,7 @@ local Net = Modules:WaitForChild("Net")
 local executor = if identifyexecutor then identifyexecutor() else "Null"
 local is_blacklisted_executor = table.find({ "Null", "Xeno", "Swift" }, executor)
 
-local hookmetamethod = (not is_blacklisted_executor and hookmetamethod) or (function(...) return ... end)
+local hookmetamethod = (not is_blacklisted_executor and hookmetamethod)
 local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
 local setupvalue = setupvalue or (debug and debug.setupvalue)
 local getupvalue = getupvalue or (debug and debug.getupvalue)
@@ -50,6 +50,24 @@ local KILLAURA_TAG = _ENV._KillAura_Tag or `k{math.random(120, 2e4)}t`
 
 _ENV._Bring_Tag = BRING_TAG
 _ENV._KillAura_Tag = KILLAURA_TAG
+
+local function LuaInit()
+  if not hookmetamethod and setreadonly and getrawmetatable then
+    hookmetamethod = function(Object, Method, Function)
+      local mt = getrawmetatable(game)
+      setreadonly(mt, false)
+      
+      local old = mt[Method]
+      mt[Method] = function(...)
+        return old(Function(...))
+      end
+      
+      setreadonly(mt, true)
+    end
+  elseif not hookmetamethod then
+    hookmetamethod = function(...) return ... end
+  end
+end
 
 local function GetEnemyName(string)
   return (string:find("Lv. ") and string:gsub(" %pLv. %d+%p", "") or string):gsub(" %pBoss%p", "")
@@ -75,6 +93,8 @@ local function WaitChilds(Instance, ...)
   end
   return Instance
 end
+
+LuaInit()
 
 local Module = {} do
   local CachedEnemies = {}
@@ -1156,6 +1176,110 @@ local Module = {} do
     end
   end)
   
+  task.spawn(function()
+    local RaidModule = require(ReplicatedStorage:WaitForChild("Raids"))
+    local AdvancedRaids = RaidModule.advancedRaids
+    local NormalRaids = RaidModule.raids
+    local RaidList = {}
+    
+    for i = 1, #AdvancedRaids do table.insert(RaidList, AdvancedRaids[i]) end
+    for i = 1, #NormalRaids do table.insert(RaidList, NormalRaids[i]) end
+    
+    Module.RaidList = RaidList
+  end)
+  
+  task.spawn(function()
+    local BodyVelocity = Instance.new("BodyVelocity")
+    BodyVelocity.Velocity = Vector3.zero
+    BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    BodyVelocity.P = 1000
+    
+    if _ENV.tween_bodyvelocity then
+      _ENV.tween_bodyvelocity:Destroy()
+    end
+    
+    Module.Tween = BodyVelocity
+    _ENV.tween_bodyvelocity = BodyVelocity
+    
+    if not _ENV.loaded_tween_velocity then
+      _ENV.loaded_tween_velocity = true
+      
+      local IsAlive = Module.IsAlive
+      
+      local BaseParts = {} do
+        local function AddObjectToBaseParts(Object)
+          if Object:IsA("BasePart") then
+            table.insert(BaseParts, Object)
+          end
+        end
+        
+        local function RemoveObjectsFromBaseParts(BasePart)
+          local index = table.find(BaseParts, BasePart)
+          
+          if index then
+            table.remove(BaseParts, index)
+          end
+        end
+        
+        local function NewCharacter(Character)
+          table.clear(BaseParts)
+          
+          for _, Object in ipairs(Character:GetDescendants()) do AddObjectToBaseParts(Object) end
+          Character.DescendantAdded:Connect(AddObjectToBaseParts)
+          Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts)
+          
+          Character:WaitForChild("Humanoid", 9e9).Died:Wait()
+          table.clear(BaseParts)
+        end
+        
+        Player.CharacterAdded:Connect(NewCharacter)
+        task.spawn(NewCharacter, Player.Character)
+      end
+      
+      local function NoClipOnStepped(Character)
+        if not IsAlive(Character) then
+          return nil
+        end
+        
+        if _ENV.OnFarm then
+          for i = 1, #BaseParts do
+            if BaseParts[i].CanCollide then
+              BaseParts[i].CanCollide = false
+            end
+          end
+        elseif Character.PrimaryPart and not Character.PrimaryPart.CanCollide then
+          Character.PrimaryPart.CanCollide = true
+        end
+      end
+      
+      local function UpdateVelocityOnStepped(Character)
+        local RootPart = Character and Character:FindFirstChild("UpperTorso")
+        local Humanoid = Character and Character:FindFirstChild("Humanoid")
+        local BodyVelocity = _ENV.tween_bodyvelocity
+        
+        if _ENV.OnFarm and RootPart and Humanoid and Humanoid.Health > 0 then
+          if BodyVelocity.Parent ~= RootPart then
+            BodyVelocity.Parent = RootPart
+          end
+        else
+          if BodyVelocity.Parent then
+            BodyVelocity.Parent = nil
+          end
+        end
+        
+        if BodyVelocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
+          BodyVelocity.Velocity = Vector3.zero
+        end
+      end
+      
+      Stepped:Connect(function()
+        local Character = Player.Character
+        UpdateVelocityOnStepped(Character)
+        NoClipOnStepped(Character)
+      end)
+    end
+  end)
+  
   Module.Hooking = (function()
     if _ENV.rz_AimBot then
       return _ENV.rz_AimBot
@@ -1365,7 +1489,7 @@ local Module = {} do
       
       if Humanoid.Sit and (ToolTip == "Sword" or ToolTip == "Melee" or ToolTip == "Gun") then
         return false
-      elseif Stun and Stun.Value > 0 or Busy and Busy.Value then
+      elseif Stun and Stun.Value > 0 --[[ or Busy and Busy.Value ]] then
         return false
       end
       
@@ -1403,10 +1527,10 @@ local Module = {} do
         
         if IsAlive(Enemy) and PrimaryPart and (PrimaryPart.Position - Position).Magnitude <= 50 then
           local Direction = (PrimaryPart.Position - Position).Unit
-          local Combo = if tick() - self.ComboDebounce <= 0.5 then self.M1Combo else 0
+          local Combo = if tick() - self.ComboDebounce <= 0.35 then self.M1Combo else 0
           self.ComboDebounce = tick()
           self.M1Combo = if Combo >= 4 then 1 else Combo + 1
-          self.Debounce -= 0.15
+          self.Debounce -= 0.05
           
           return Equipped.LeftClickRemote:FireServer(Direction, Combo)
         end
@@ -1461,116 +1585,4 @@ local Module = {} do
     
     return FastAttack
   end)()
-  
-  Module.Tween = (function()
-    if not _ENV.loaded_tween_velocity then
-      _ENV.loaded_tween_velocity = true
-      
-      local BodyVelocity, BodyGyro
-      local IsAlive = Module.IsAlive
-      
-      local BaseParts = {} do
-        local function AddObjectToBaseParts(Object)
-          if Object:IsA("BasePart") then
-            table.insert(BaseParts, Object)
-          end
-        end
-        
-        local function RemoveObjectsFromBaseParts(BasePart)
-          local index = table.find(BaseParts, BasePart)
-          
-          if index then
-            table.remove(BaseParts, index)
-          end
-        end
-        
-        local function NewCharacter(Character)
-          table.clear(BaseParts)
-          
-          for _, Object in ipairs(Character:GetDescendants()) do AddObjectToBaseParts(Object) end
-          Character.DescendantAdded:Connect(AddObjectToBaseParts)
-          Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts)
-          
-          Character:WaitForChild("Humanoid", 9e9).Died:Wait()
-          table.clear(BaseParts)
-        end
-        
-        Player.CharacterAdded:Connect(NewCharacter)
-        NewCharacter(Player.Character)
-      end
-      
-      local function CloneVelocityTemplate(Character)
-        local RootPart = Character:FindFirstChild("HumanoidRootPart")
-        
-        if RootPart then
-          BodyVelocity = Instance.new("BodyVelocity")
-          BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-          BodyVelocity.P = 1000
-          BodyVelocity.Velocity = Vector3.zero
-          BodyVelocity.Parent = RootPart
-          
-          BodyGyro = Instance.new("BodyGyro")
-          BodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-          BodyGyro.P = 1000
-          BodyGyro.Parent = RootPart
-          
-          Module.TweenVelocity = BodyVelocity
-        end
-      end
-      
-      local function NoClipOnStepped(Character)
-        if not IsAlive(Character) then
-          return nil
-        end
-        
-        if _ENV.OnFarm then
-          for i = 1, #BaseParts do
-            if BaseParts[i].CanCollide then
-              BaseParts[i].CanCollide = false
-            end
-          end
-        elseif Character.PrimaryPart and not Character.PrimaryPart.CanCollide then
-          Character.PrimaryPart.CanCollide = true
-        end
-      end
-      
-      local function UpdateVelocityOnStepped(Character)
-        if BodyGyro and BodyVelocity then
-          local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
-          local Humanoid = Character and Character:FindFirstChild("Humanoid")
-          
-          if _ENV.OnFarm and RootPart and Humanoid and Humanoid.Health > 0 then
-            if BodyVelocity.Parent ~= RootPart or BodyGyro.Parent ~= RootPart then
-              BodyVelocity.Parent, BodyGyro.Parent = RootPart, RootPart
-            end
-          else
-            if BodyVelocity.Parent or BodyGyro.Parent then
-              BodyVelocity.Parent, BodyGyro.Parent = nil, nil
-            end
-          end
-          
-          if BodyVelocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
-            BodyVelocity.Velocity = Vector3.zero
-          end
-        elseif _ENV.OnFarm and Character then
-          CloneVelocityTemplate(Character)
-        end
-      end
-      
-      Stepped:Connect(function()
-        local Character = Player.Character
-        UpdateVelocityOnStepped(Character)
-        NoClipOnStepped(Character)
-      end)
-    end
-  end)()
-  
-  Module.RaidList = {} do
-    local RaidModule = require(ReplicatedStorage:WaitForChild("Raids"))
-    local AdvancedRaids = RaidModule.advancedRaids
-    local NormalRaids = RaidModule.raids
-    
-    for i = 1, #AdvancedRaids do table.insert(Module.RaidList, AdvancedRaids[i]) end
-    for i = 1, #NormalRaids do table.insert(Module.RaidList, NormalRaids[i]) end
-  end
 end
