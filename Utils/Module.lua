@@ -1478,10 +1478,10 @@ local Module = {} do
     _ENV.TweenVelocity = Velocity
     
     local BaseParts = {} do
-      local function AddObjectToBaseParts(BasePart)
-        if not BasePart:IsA("BasePart") then return end
-        
-        table.insert(BaseParts, Object)
+      local function AddObjectToBaseParts(Object)
+        if Object:IsA("BasePart") then
+          table.insert(BaseParts, Object)
+        end
       end
       
       local function RemoveObjectsFromBaseParts(BasePart)
