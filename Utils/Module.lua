@@ -1252,7 +1252,7 @@ local Module = {} do
         _ENV._Enabled_Speed_Bypass = true
         
         local old_newindex; old_newindex = hookmetamethod(Player, "__newindex", function(self, index, value)
-          if self.Name == "Humanoid" and index == "WalkSpeed" then
+          if tostring(self) == "Humanoid" and index == "WalkSpeed" then
             return old_newindex(self, "WalkSpeed", _ENV.WalkSpeedBypass or value)
           end
           return old_newindex(self, index, value)
@@ -1474,7 +1474,6 @@ local Module = {} do
     Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     Velocity.P = math.huge
     Velocity.Velocity = Vector3.zero
-    Velocity.Parent = workspace
     
     _ENV.TweenVelocity = Velocity
     
@@ -1529,7 +1528,7 @@ local Module = {} do
       local Humanoid = Character:FindFirstChild("Humanoid")
       
       if _ENV.OnFarm and RootPart then
-        if not Velocity.Parent then
+        if Velocity.Parent ~= RootPart then
           Velocity.Parent = RootPart
         end
       elseif Velocity.Parent then
