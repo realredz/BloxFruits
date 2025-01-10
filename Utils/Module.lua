@@ -1463,98 +1463,106 @@ local Module = {} do
   end)()
   
   Module.Tween = (function()
-    if _ENV.TweenVelocity then
-      return _ENV.TweenVelocity
-    end
-    
-    local Noclip = false
-    local IsAlive = Module.IsAlive
-    
-    local BodyVelocity = Instance.new("BodyVelocity")
-    BodyVelocity.Name = "hidden_user_folder"
-    BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    BodyVelocity.P = math.huge
-    BodyVelocity.Velocity = Vector3.zero
-    
-    local BodyGyro = Instance.new("BodyGyro")
-    BodyGyro.Name = "hidden_user_folder"
-    BodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-    BodyGyro.P = 1000
-    
-    _ENV.TweenVelocity = Velocity
-    
-    local BaseParts = {} do
-      local function AddObjectToBaseParts(Object)
-        if Object:IsA("BasePart") then
-          table.insert(BaseParts, Object)
-        end
-      end
+    if not _ENV.loaded_tween_velocity then
+      _ENV.loaded_tween_velocity = true
       
-      local function RemoveObjectsFromBaseParts(BasePart)
-        local index = table.find(BaseParts, BasePart)
-        
-        if index then
-          table.remove(BaseParts, index)
-        end
-      end
+      local BodyVelocity, BodyGyro
+      local IsAlive = Module.IsAlive
       
-      local function NewCharacter(Character)
-        table.clear(BaseParts)
-        
-        for _, Object in ipairs(Character:GetDescendants()) do AddObjectToBaseParts(Object) end
-        Character.DescendantAdded:Connect(AddObjectToBaseParts)
-        Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts)
-        
-        Character:WaitForChild("Humanoid", 9e9).Died:Wait()
-        table.clear(BaseParts)
-      end
-      
-      Player.CharacterAdded:Connect(NewCharacter)
-      NewCharacter(Player.Character)
-    end
-    
-    local function NoClipOnStepped(Character)
-      if not IsAlive(Character) then
-        return nil
-      end
-      
-      if _ENV.OnFarm then
-        for i = 1, #BaseParts do
-          if BaseParts[i].CanCollide then
-            BaseParts[i].CanCollide = false
+      local BaseParts = {} do
+        local function AddObjectToBaseParts(Object)
+          if Object:IsA("BasePart") then
+            table.insert(BaseParts, Object)
           end
         end
-      elseif Character.PrimaryPart and not Character.PrimaryPart.CanCollide then
-        Character.PrimaryPart.CanCollide = true
-      end
-    end
-    
-    local function UpdateVelocityOnStepped(Character)
-      local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
-      local Humanoid = Character and Character:FindFirstChild("Humanoid")
-      
-      if _ENV.OnFarm and RootPart and Humanoid and Humanoid.Health > 0 then
-        if BodyVelocity.Parent ~= RootPart or BodyGyro.Parent ~= RootPart then
-          BodyGyro.Parent, BodyVelocity.Parent = RootPart, RootPart
+        
+        local function RemoveObjectsFromBaseParts(BasePart)
+          local index = table.find(BaseParts, BasePart)
+          
+          if index then
+            table.remove(BaseParts, index)
+          end
         end
-      else
-        if BodyVelocity.Parent or BodyGyro.Parent then
-          BodyGyro.Parent, BodyVelocity.Parent = nil, nil
+        
+        local function NewCharacter(Character)
+          table.clear(BaseParts)
+          
+          for _, Object in ipairs(Character:GetDescendants()) do AddObjectToBaseParts(Object) end
+          Character.DescendantAdded:Connect(AddObjectToBaseParts)
+          Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts)
+          
+          Character:WaitForChild("Humanoid", 9e9).Died:Wait()
+          table.clear(BaseParts)
+        end
+        
+        Player.CharacterAdded:Connect(NewCharacter)
+        NewCharacter(Player.Character)
+      end
+      
+      local function CloneVelocityTemplate(Character)
+        local RootPart = Character:FindFirstChild("HumanoidRootPart")
+        
+        if RootPart then
+          BodyVelocity = Instance.new("BodyVelocity")
+          BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+          BodyVelocity.P = 1000
+          BodyVelocity.Velocity = Vector3.zero
+          BodyVelocity.Parent = RootPart
+          
+          BodyGyro = Instance.new("BodyGyro")
+          BodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+          BodyGyro.P = 1000
+          BodyGyro.Parent = RootPart
+          
+          Module.TweenVelocity = BodyVelocity
         end
       end
       
-      if BodyVelocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
-        BodyVelocity.Velocity = Vector3.zero
+      local function NoClipOnStepped(Character)
+        if not IsAlive(Character) then
+          return nil
+        end
+        
+        if _ENV.OnFarm then
+          for i = 1, #BaseParts do
+            if BaseParts[i].CanCollide then
+              BaseParts[i].CanCollide = false
+            end
+          end
+        elseif Character.PrimaryPart and not Character.PrimaryPart.CanCollide then
+          Character.PrimaryPart.CanCollide = true
+        end
       end
+      
+      local function UpdateVelocityOnStepped(Character)
+        if BodyGyro and BodyVelocity then
+          local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+          local Humanoid = Character and Character:FindFirstChild("Humanoid")
+          
+          if _ENV.OnFarm and RootPart and Humanoid and Humanoid.Health > 0 then
+            if BodyVelocity.Parent ~= RootPart or BodyGyro.Parent ~= RootPart then
+              BodyVelocity.Parent, BodyGyro.Parent = RootPart, RootPart
+            end
+          else
+            if BodyVelocity.Parent or BodyGyro.Parent then
+              BodyVelocity.Parent, BodyGyro.Parent = nil, nil
+            end
+          end
+          
+          if BodyVelocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
+            BodyVelocity.Velocity = Vector3.zero
+          end
+        elseif _ENV.OnFarm and Character then
+          CloneVelocityTemplate(Character)
+        end
+      end
+      
+      Stepped:Connect(function()
+        local Character = Player.Character
+        UpdateVelocityOnStepped(Character)
+        NoClipOnStepped(Character)
+      end)
     end
-    
-    Stepped:Connect(function()
-      local Character = Player.Character
-      UpdateVelocityOnStepped(Character)
-      NoClipOnStepped(Character)
-    end)
-    
-    return Velocity
   end)()
   
   Module.RaidList = {} do
