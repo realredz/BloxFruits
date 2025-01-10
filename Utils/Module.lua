@@ -1470,13 +1470,13 @@ local Module = {} do
     local Noclip = false
     local IsAlive = Module.IsAlive
     
-    local BodyVelocity = Instance.new("BodyVelocity", Player.Character and Player.Character.PrimaryPart)
+    local BodyVelocity = Instance.new("BodyVelocity")
     BodyVelocity.Name = "hidden_user_folder"
     BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     BodyVelocity.P = math.huge
     BodyVelocity.Velocity = Vector3.zero
     
-    local BodyGyro = Instance.new("BodyGyro", Player.Character and Player.Character.PrimaryPart)
+    local BodyGyro = Instance.new("BodyGyro")
     BodyGyro.Name = "hidden_user_folder"
     BodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
     BodyGyro.P = 1000
