@@ -112,6 +112,7 @@ local Module = {} do
   Module.AttackCooldown = 0
   Module.MaxLevel = 2600
   Module.Webhooks = true
+  Module.JobIds = true
   
   Module.allMobs = { __RaidBoss = {}, __Bones = {}, __Elite = {}, __CakePrince = {} }
   Module.Progress = {}
@@ -123,7 +124,7 @@ local Module = {} do
   Module.FruitsId = {
     ["rbxassetid://15060012861"] = "Rocket-Rocket",
     ["rbxassetid://15057683975"] = "Spin-Spin",
-    ["rbxassetid://15104782377"] = "Chop-Chop",
+    ["rbxassetid://15104782377"] = "Blade-Blade",
     ["rbxassetid://15105281957"] = "Spring-Spring",
     ["rbxassetid://15116740364"] = "Bomb-Bomb",
     ["rbxassetid://15116696973"] = "Smoke-Smoke",
