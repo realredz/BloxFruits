@@ -1211,13 +1211,13 @@ local Module = {} do
             local UpperTorso = Character:FindFirstChild("UpperTorso")
             local Magnitude = UpperTorso and (UpperTorso.Position - Position).Magnitude
             
-            if UpperTorso and Magnitude <= 60 then
-              table.insert(ClosestsEnemies, { Enemy, UpperTorso })
+            if UpperTorso and Magnitude <= 50 then
+              table.insert(ClosestsEnemies, { Character, UpperTorso })
             elseif UpperTorso and Magnitude <= Distance then
-              Closest = { Enemy, UpperTorso }
+              Closest = { Character, UpperTorso }
             end
             
-            Distance = Magnitude or Distance
+            Distance = if UpperTorso then Magnitude else Distance
           end
         end
         
@@ -1233,13 +1233,13 @@ local Module = {} do
           if UpperTorso and IsAlive(Enemy) then
             local Magnitude = (UpperTorso.Position - Position).Magnitude
             
-            if Magnitude <= 60 then
+            if Magnitude <= 50 then
               table.insert(ClosestsEnemies, { Enemy, UpperTorso })
             elseif Magnitude <= Distance then
               Closest = { Enemy, UpperTorso }
             end
             
-            Distance = Magnitude or Distance
+            Distance = Magnitude
           end
         end
         
