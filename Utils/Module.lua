@@ -1469,11 +1469,17 @@ local Module = {} do
     
     local Noclip = false
     local IsAlive = Module.IsAlive
-    local Velocity = Instance.new("BodyVelocity")
-    Velocity.Name = "hidden_user_folder"
-    Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    Velocity.P = math.huge
-    Velocity.Velocity = Vector3.zero
+    
+    local BodyVelocity = Instance.new("BodyVelocity", Player.Character and Player.Character.PrimaryPart)
+    BodyVelocity.Name = "hidden_user_folder"
+    BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    BodyVelocity.P = math.huge
+    BodyVelocity.Velocity = Vector3.zero
+    
+    local BodyGyro = Instance.new("BodyGyro", Player.Character and Player.Character.PrimaryPart)
+    BodyGyro.Name = "hidden_user_folder"
+    BodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    BodyGyro.P = 1000
     
     _ENV.TweenVelocity = Velocity
     
@@ -1524,26 +1530,28 @@ local Module = {} do
     end
     
     local function UpdateVelocityOnStepped(Character)
-      local RootPart = Character:FindFirstChild("HumanoidRootPart")
-      local Humanoid = Character:FindFirstChild("Humanoid")
+      local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+      local Humanoid = Character and Character:FindFirstChild("Humanoid")
       
-      if _ENV.OnFarm and RootPart then
-        if not Velocity.Parent or Velocity.Parent ~= RootPart then
-          Velocity.Parent = RootPart
+      if _ENV.OnFarm and RootPart and Humanoid and Humanoid.Health > 0 then
+        if BodyVelocity.Parent ~= RootPart or BodyGyro.Parent ~= RootPart then
+          BodyGyro.Parent, BodyVelocity.Parent = RootPart, RootPart
         end
-      elseif Velocity.Parent then
-        Velocity.Parent = nil
+      else
+        if BodyVelocity.Parent or BodyGyro.Parent then
+          BodyGyro.Parent, BodyVelocity.Parent = nil, nil
+        end
       end
       
-      if Velocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
-        Velocity.Velocity = Vector3.zero
+      if BodyVelocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
+        BodyVelocity.Velocity = Vector3.zero
       end
     end
     
     Stepped:Connect(function()
       local Character = Player.Character
-      NoClipOnStepped(Character)
       UpdateVelocityOnStepped(Character)
+      NoClipOnStepped(Character)
     end)
     
     return Velocity
