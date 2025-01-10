@@ -1514,7 +1514,7 @@ local Module = {} do
       
       if _ENV.OnFarm then
         for i = 1, #BaseParts do
-          if not BaseParts[i].CanCollide then
+          if BaseParts[i].CanCollide then
             BaseParts[i].CanCollide = false
           end
         end
