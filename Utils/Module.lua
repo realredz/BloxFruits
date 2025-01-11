@@ -94,12 +94,12 @@ local function WaitChilds(Instance, ...)
 end
 
 local function FastWait(Seconds, Instance, ...)
-  local Success, Result = pcall(function()
+  local Success, Result = pcall(function(...)
     for _, ChildName in ipairs({...}) do
       Instance = Instance:WaitForChild(ChildName, Seconds)
     end
     return Instance
-  end)
+  end, ...)
   
   return if (Success and Result) then Result else nil
 end
