@@ -981,8 +981,12 @@ local Module = {} do
     end
     
     local function NewEnemyToList(Mobs, Enemy)
-      if not table.find(Mobs, Enemy) then
+      local Humanoid = Enemy:WaitForChild("Humanoid", 10)
+      
+      if Humanoid.Health > 0 not table.find(Mobs, Enemy) then
         table.insert(Mobs, Enemy)
+        Humanoid.Died:Wait()
+        table.remove(Mobs, table.find(Mobs, Enemy))
       end
     end
     
@@ -991,17 +995,17 @@ local Module = {} do
       local RaidBoss = Enemy:GetAttribute("RaidBoss")
       
       if RaidBoss then
-        NewEnemyToList(allMobs.__RaidBoss, Enemy)
+        task.spawn(NewEnemyToList, allMobs.__RaidBoss, Enemy)
       elseif Elites[EnemyName] then
-        NewEnemyToList(allMobs.__Elite, Enemy)
+        task.spawn(NewEnemyToList, allMobs.__Elite, Enemy)
       elseif Bones[EnemyName] then
-        NewEnemyToList(allMobs.__Bones, Enemy)
+        task.spawn(NewEnemyToList, allMobs.__Bones, Enemy)
       elseif CakePrince[EnemyName] then
-        NewEnemyToList(allMobs.__CakePrince, Enemy)
+        task.spawn(NewEnemyToList, allMobs.__CakePrince, Enemy)
       end
       
       allMobs[EnemyName] = allMobs[EnemyName] or {}
-      NewEnemyToList(allMobs[EnemyName], Enemy)
+      task.spawn(NewEnemyToList, allMobs[EnemyName], Enemy)
     end
     
     local function Bring(Enemy)
