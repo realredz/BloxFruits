@@ -1308,11 +1308,12 @@ local Module = {} do
     
     local function GetNextTarget(Mode, ClosestList)
       if (tick() - TargetDebounce) <= 2 or _ENV[Mode] then
-        return if ClosestList then ClosestsEnemies else ClosestsEnemies[1]
+        return if ClosestList then ClosestsEnemies else ClosestsEnemies.Closest
       end
     end
     
     local function UpdateTarget()
+      if (tick() - TargetDebounce) <= 2 then return end
       if (tick() - UpdateDebounce) <= 0.5 then return end
       if not IsAlive(Player.Character) then return end
       
@@ -1325,7 +1326,8 @@ local Module = {} do
         local Position = Player.Character:GetPivot().Position
         local Players = Players:GetPlayers()
         local Enemies = Enemies:GetChildren()
-        local Distance, Closest = if Equipped.ToolTip == "Gun" then 120 else 600
+        local Distance = if Equipped.ToolTip == "Gun" then 120 else 600
+        local ClosestsDistance = if Equipped.ToolTip == "Gun" then 120 else 60
         
         for i = 1, #Players do
           local __Player = Players[i]
@@ -1335,10 +1337,11 @@ local Module = {} do
             local UpperTorso = Character:FindFirstChild("UpperTorso")
             local Magnitude = UpperTorso and (UpperTorso.Position - Position).Magnitude
             
-            if UpperTorso and Magnitude <= 50 then
+            if UpperTorso and Magnitude <= ClosestsDistance then
               table.insert(ClosestsEnemies, { Character, UpperTorso })
-            elseif UpperTorso and Magnitude <= Distance then
-              Closest = { Character, UpperTorso }
+            end
+            if UpperTorso and Magnitude <= Distance then
+              ClosestsEnemies.Closest = { Character, UpperTorso }
             end
             
             Distance = if UpperTorso then Magnitude else Distance
@@ -1346,7 +1349,6 @@ local Module = {} do
         end
         
         if Settings.NoAimMobs then
-          if Closest then table.insert(ClosestsEnemies, Closest) end
           return nil
         end
         
@@ -1357,17 +1359,16 @@ local Module = {} do
           if UpperTorso and IsAlive(Enemy) then
             local Magnitude = (UpperTorso.Position - Position).Magnitude
             
-            if Magnitude <= 50 then
+            if Magnitude <= ClosestsDistance then
               table.insert(ClosestsEnemies, { Enemy, UpperTorso })
-            elseif Magnitude <= Distance then
-              Closest = { Enemy, UpperTorso }
+            end
+            if Magnitude <= Distance then
+              ClosestsEnemies.Closest = { Enemy, UpperTorso }
             end
             
             Distance = Magnitude
           end
         end
-        
-        if Closest then table.insert(ClosestsEnemies, Closest) end
       end
     end
     
