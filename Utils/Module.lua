@@ -749,7 +749,7 @@ local Module = {} do
       
       local Cached = CachedEnemies[index]
       
-      if Cached.PrimaryPart and Module.IsAlive(Cached) then
+      if Module.IsAlive(Cached) and Cached.PrimaryPart then
         return Cached
       end
       
