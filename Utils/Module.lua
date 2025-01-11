@@ -93,6 +93,17 @@ local function WaitChilds(Instance, ...)
   return Instance
 end
 
+local function FastWait(Seconds, Instance, ...)
+  local Success, Result = pcall(function()
+    for _, ChildName in ipairs({...}) do
+      Instance = Instance:WaitForChild(ChildName, Seconds)
+    end
+    return Instance
+  end)
+  
+  return if (Success and Result) then Result else nil
+end
+
 LuaInit()
 
 local Module = {} do
@@ -756,14 +767,23 @@ local Module = {} do
         return Name
       end
       
-      local FruitHandle = WaitChilds(Fruit, "Fruit", "Fruit")
+      local Model = Fruit:WaitForChild("Fruit", 9e9)
+      local Handle = FastWait(0.5, Model, "Fruit")
       
-      if FruitHandle and FruitHandle:IsA("MeshPart") then
-        local RealName = Ids[FruitHandle.MeshId]
+      if Handle and Handle:IsA("MeshPart") then
+        local RealName = Ids[Handle.MeshId]
         
         if RealName and type(RealName) == "string" then
           rawset(self, Fruit, `Fruit [ {RealName} ]`)
           return rawget(self, Fruit)
+        end
+      else
+        if FastWait(1, Model, "RingAuraModel") and FastWait(0.5, Model, "dino.025") then
+          return "Fruit [ Dragon (East)-Dragon (East) ]"
+        elseif FastWait(1, Model, "EyeAura2") and FastWait(0.5, Model, "dino.027") then
+          return "Fruit [ Dragon (West)-Dragon (West) ]"
+        elseif FastWait(1, Model, "Idle") and Model.Idle.AnimationId == "rbxassetid://11911905519" then
+          return "Fruit [ Spirit-Spirit ]"
         end
       end
       
