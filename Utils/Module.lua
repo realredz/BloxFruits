@@ -422,7 +422,7 @@ local Module = {} do
   function GetToolByName(Name: string): Tool?
     local Cached = CachedTools[Name]
     
-    if Cached and Cached.Parent then
+    if Cached and Cached.Parent and (Cached.Parent == Player.Character or Cached.Parent == Player.Backpack) then
       return Cached
     end
     
@@ -452,7 +452,7 @@ local Module = {} do
   function VerifyTool(Name: string): boolean
     local Cached = CachedTools[Name]
     
-    if Cached and Cached.Parent then
+    if Cached and Cached.Parent and (Cached.Parent == Player.Character or Cached.Parent == Player.Backpack) then
       return true
     end
     
