@@ -58,9 +58,7 @@ local function LuaInit()
       setreadonly(mt, false)
       
       local old = mt[Method]
-      mt[Method] = function(...)
-        return old(Function(...))
-      end
+      mt[Method] = Function
       
       setreadonly(mt, true)
       return old
