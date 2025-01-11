@@ -63,6 +63,7 @@ local function LuaInit()
       end
       
       setreadonly(mt, true)
+      return old
     end
   elseif not hookmetamethod then
     hookmetamethod = function(...) return ... end
@@ -93,8 +94,6 @@ local function WaitChilds(Instance, ...)
   end
   return Instance
 end
-
-LuaInit()
 
 local Module = {} do
   local CachedEnemies = {}
