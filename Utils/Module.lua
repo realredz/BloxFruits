@@ -1061,8 +1061,12 @@ local Module = {} do
         EnemyLocations[EnemyName] = {}
       end
       
-      table.insert(EnemyLocations[EnemyName], Part.CFrame + Vector3.new(0, 25, 0))
+      local EnemySpawn = Part.CFrame + Vector3.new(0, 25, 0)
       SpawnLocations[EnemyName] = Part
+      
+      if not table.find(EnemyLocations[EnemyName], EnemySpawn) then
+        table.insert(EnemyLocations[EnemyName], EnemySpawn)
+      end
     end
     
     for _, Spawn in EnemySpawns:GetChildren() do NewSpawn(Spawn) end
