@@ -983,7 +983,7 @@ local Module = {} do
     local function NewEnemyToList(Mobs, Enemy)
       local Humanoid = Enemy:WaitForChild("Humanoid", 10)
       
-      if Humanoid.Health > 0 not table.find(Mobs, Enemy) then
+      if Humanoid.Health > 0 and not table.find(Mobs, Enemy) then
         table.insert(Mobs, Enemy)
         Humanoid.Died:Wait()
         table.remove(Mobs, table.find(Mobs, Enemy))
