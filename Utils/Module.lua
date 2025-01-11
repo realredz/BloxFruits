@@ -605,9 +605,13 @@ local Module = {} do
     local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
     local Distance, Nearest = math.huge
     
-    for _, Enemy in Mobs do
-      if self.IsAlive(Enemy) and Enemy.PrimaryPart then
-        local Magnitude = (Enemy.PrimaryPart.Position - Position).Magnitude
+    for i = 1, #Mobs do
+      local Enemy = Mobs[i]
+      local RootPart = Enemy.PrimaryPart
+      
+      if RootPart and self.IsAlive(Enemy) then
+        local Magnitude = (RootPart.Position - Position).Magnitude
+        
         if Magnitude < Distance then
           Distance, Nearest = Magnitude, Enemy
         end
@@ -734,7 +738,7 @@ local Module = {} do
       
       local Cached = CachedEnemies[index]
       
-      if Module.IsAlive(Cached) then
+      if Cached.PrimaryPart and Module.IsAlive(Cached) then
         return Cached
       end
       
@@ -956,22 +960,28 @@ local Module = {} do
       end
     end
     
+    local function NewEnemyToList(Mobs, Enemy)
+      if not table.find(Mobs, Enemy) then
+        table.insert(Mobs, Enemy)
+      end
+    end
+    
     local function MobAdded(Enemy)
       local EnemyName = Enemy.Name
       local RaidBoss = Enemy:GetAttribute("RaidBoss")
       
       if RaidBoss then
-        table.insert(allMobs.__RaidBoss, Enemy)
+        NewEnemyToList(allMobs.__RaidBoss, Enemy)
       elseif Elites[EnemyName] then
-        table.insert(allMobs.__Elite, Enemy)
+        NewEnemyToList(allMobs.__Elite, Enemy)
       elseif Bones[EnemyName] then
-        table.insert(allMobs.__Bones, Enemy)
+        NewEnemyToList(allMobs.__Bones, Enemy)
       elseif CakePrince[EnemyName] then
-        table.insert(allMobs.__CakePrince, Enemy)
+        NewEnemyToList(allMobs.__CakePrince, Enemy)
       end
       
       allMobs[EnemyName] = allMobs[EnemyName] or {}
-      table.insert(allMobs[EnemyName], Enemy)
+      NewEnemyToList(allMobs[EnemyName], Enemy)
     end
     
     local function Bring(Enemy)
