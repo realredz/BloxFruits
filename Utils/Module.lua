@@ -95,6 +95,8 @@ local function WaitChilds(Instance, ...)
   return Instance
 end
 
+LuaInit()
+
 local Module = {} do
   local CachedEnemies = {}
   local CachedBring = {}
