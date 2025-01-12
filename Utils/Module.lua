@@ -40,7 +40,7 @@ local Net = Modules:WaitForChild("Net")
 local executor = if identifyexecutor then identifyexecutor() else "Null"
 local is_blacklisted_executor = table.find({ "Null", "Xeno", "Swift" }, executor)
 
-local hookmetamethod = (not is_blacklisted_executor and hookmetamethod)
+local hookmetamethod = (not is_blacklisted_executor and hookmetamethod) or (function(...) return ... end)
 local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
 local setupvalue = setupvalue or (debug and debug.setupvalue)
 local getupvalue = getupvalue or (debug and debug.getupvalue)
@@ -50,23 +50,6 @@ local KILLAURA_TAG = _ENV._KillAura_Tag or `k{math.random(120, 2e4)}t`
 
 _ENV._Bring_Tag = BRING_TAG
 _ENV._KillAura_Tag = KILLAURA_TAG
-
-local function LuaInit()
-  if not hookmetamethod and setreadonly and getrawmetatable then
-    hookmetamethod = function(Object, Method, Function)
-      local mt = getrawmetatable(game)
-      setreadonly(mt, false)
-      
-      local old = mt[Method]
-      mt[Method] = Function
-      
-      setreadonly(mt, true)
-      return old
-    end
-  elseif not hookmetamethod then
-    hookmetamethod = function(...) return ... end
-  end
-end
 
 local function GetEnemyName(string)
   return (string:find("Lv. ") and string:gsub(" %pLv. %d+%p", "") or string):gsub(" %pBoss%p", "")
@@ -103,8 +86,6 @@ local function FastWait(Seconds, Instance, ...)
   
   return if (Success and Result) then Result else nil
 end
-
-LuaInit()
 
 local Module = {} do
   local CachedEnemies = {}
@@ -587,6 +568,10 @@ local Module = {} do
     end
     
     return Module:GetEnemyByTag(Enemy)
+  end
+  
+  function Module:IsBlacklistedExecutor()
+    return is_blacklisted_executor
   end
   
   function Module:ServerHop(MaxPlayers: number?, Region: string?): (nil)
@@ -1615,15 +1600,15 @@ local Module = {} do
         return nil
       end
       
-      local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.25
+      local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.2
       local Nickname = Equipped:FindFirstChild("Nickname") and Equipped.Nickname.Value or "Null"
       
       if (tick() - self.Debounce) >= Cooldown and self:CheckStun(ToolTip, Character, Humanoid) then
         local Combo = self:GetCombo()
-        Cooldown += if Combo >= 4 then 0.15 else 0
+        Cooldown += if Combo >= 4 then 0.10101 else 0
         
         self.Equipped = Equipped
-        self.Debounce = if Combo >= 4 then (tick() + 0.15) else tick()
+        self.Debounce = if Combo >= 4 then (tick() + 0.10101) else tick()
         
         if ToolTip == "Blox Fruit" then
           if ToolName == "Ice-Ice" or ToolName == "Light-Light" then
