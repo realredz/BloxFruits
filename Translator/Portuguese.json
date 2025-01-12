@@ -67,10 +67,15 @@
   "Auto Kill Law": ["Auto Raid Law", "Inicar Raid e Matar o Law"],
   "Auto Buy Microchip": ["Comprar Microchip", "Comprar Microchip da Raid Law"],
   
-  "Legendary Sword": "Espada Lendária",
+  "Legendary Sword": "Espadas Lendárias",
+  "Aura Color": "Cores de Haki",
   "Auto Buy Legendary Sword": ["Comprar Espada Lendária", "Comprar espada automaticamente quando o Vendedor aparecer"],
   "Auto Rengoku": ["Auto Rengoku", "Conseguir Hidden Key e desbloquear a Rengoku"],
   "Auto Collect Berries": ["Auto Coletar Bagas", "Coletar Bagas espalhadas pelo o Mapa"],
+  "Auto Berry Hop": ["Auto Bagas Hop", "Troca de servidor após coletar todas as Bagas"],
+  "Select Aura": ["Selecionar Cor", "Selecione a cor de Haki"],
+  "Auto Craft Aura Color": ["Auto Craft Cor", "Coletar Berries até conseguir craftar a cor de Haki selecionada"],
+  "Auto Craft Hop": ["Auto Craft Hop", "Troca de servidor em busca de pegar as berries que faltam para o craft"],
   
   "Race": "Raça",
   "Auto Race V2": ["Evoluir Raça para V2", "Evoluir raça para V2"],
@@ -149,6 +154,9 @@
   "Walk On Water": ["Andar sobre a Água", "Permitir andar na água"],
   "Anti AFK": ["Anti AFK", "Evitar ser desconectado por inatividade"],
   
+  "Take Quest Debounce": ["Esperar para a próxima missão", "Espera 90 segundos antes de coletar a próxima missão"],
+  
+  "Select NPC": "Selecionar NPC",
   "Farm Select": "Selecionar Farm",
   "Travel": "Viagem",
   "Settings": "Configurações",
