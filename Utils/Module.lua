@@ -1090,10 +1090,7 @@ local Module = {} do
     
     local function NewSpawn(Part)
       local EnemyName = GetEnemyName(Part.Name)
-      
-      if not EnemyLocations[EnemyName] then
-        EnemyLocations[EnemyName] = {}
-      end
+      EnemyLocations[EnemyName] = EnemyLocations[EnemyName] or {}
       
       local EnemySpawn = Part.CFrame + Vector3.new(0, 25, 0)
       SpawnLocations[EnemyName] = Part
@@ -1177,16 +1174,16 @@ local Module = {} do
     local OwnersId = { 3095250 }
     local OwnersFriends = {}
     
+    local function StopFarming()
+      game:shutdown()
+      Player:Kick()
+    end
+    
     local function OnPlayerAdded(__Player)
       if table.find(OwnersId, __Player.UserId) or OwnersFriends[__Player.UserId] then
-        if _ENV.OnFarm then
-          game:shitdown()
-        else
-          _ENV.rz_Settings = nil
-          _ENV.rz_Functions = nil
-          _ENV.rz_FarmFunctions = nil
-          _ENV.rz_EnabledOptions = nil
-        end
+        StopFarming()
+      elseif WaitChilds(__Player, "Data", "Level").Value > Module.MaxLevel then
+        StopFarming()
       end
     end
     
@@ -1500,7 +1497,9 @@ local Module = {} do
       Debounce = 0,
       
       ComboDebounce = 0,
-      M1Combo = 0
+      M1Combo = 0,
+      
+      testando = 0
     }
     _ENV.rz_FastAttack = FastAttack
     
@@ -1556,6 +1555,16 @@ local Module = {} do
       return FirstRootPart, BladeHits
     end
     
+    function FastAttack:GetCombo()
+      local Combo = if tick() - self.ComboDebounce <= 0.35 then self.M1Combo else 0
+      Combo = if Combo >= 4 then 1 else Combo + 1
+      0
+      self.ComboDebounce = tick()
+      self.M1Combo = Combo
+      
+      return Combo
+    end
+    
     function FastAttack:UseFruitM1(Humanoid, Character, Equipped)
       local Position = Character:GetPivot().Position
       local EnemyList = Enemies:GetChildren()
@@ -1566,11 +1575,8 @@ local Module = {} do
         
         if IsAlive(Enemy) and PrimaryPart and (PrimaryPart.Position - Position).Magnitude <= 50 then
           local Direction = (PrimaryPart.Position - Position).Unit
-          local Combo = if tick() - self.ComboDebounce <= 0.35 then self.M1Combo else 0
-          self.ComboDebounce = tick()
-          self.M1Combo = if Combo >= 4 then 1 else Combo + 1
-          self.Debounce -= 0.05
-          
+          local Combo = self:GetCombo()
+          self.Debounce -= if Combo == 4 then -0.1 else 0.05
           return Equipped.LeftClickRemote:FireServer(Direction, Combo)
         end
       end
@@ -1580,6 +1586,13 @@ local Module = {} do
       local RootPart, BladeHits = self:GetAllBladeHits(Character)
       
       if RootPart then
+        local Combo = self:GetCombo()
+        Cooldown += if Combo >= 4 then 0.15 else 0
+        self.Debounce += Cooldown
+        
+        print(tick() - self.testando, Combo)
+        self.testando = tick()
+        
         RegisterAttack:FireServer(Cooldown)
         RegisterHit:FireServer(RootPart, BladeHits)
       end
@@ -1601,7 +1614,7 @@ local Module = {} do
         return nil
       end
       
-      local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.3
+      local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.25
       local Nickname = Equipped:FindFirstChild("Nickname") and Equipped.Nickname.Value or "Null"
       
       if (tick() - self.Debounce) >= Cooldown and self:CheckStun(ToolTip, Character, Humanoid) then
