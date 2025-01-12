@@ -168,6 +168,8 @@ local Module = {} do
     ["rbxassetid://15100184583"] = "Control-Control",
     ["rbxassetid://15106768588"] = "Leopard-Leopard",
     ["rbxassetid://15482881956"] = "Kitsune-Kitsune",
+    ["rbxassetid://11911905519"] = "Spirit-Spirit"
+    ["rbxassetid://118054805452821"] = "Gas-Gas",
     ["https://assetdelivery.roblox.com/v1/asset/?id=10395893751"] = "Venom-Venom",
     ["https://assetdelivery.roblox.com/v1/asset/?id=10537896371"] = "Dragon-Dragon"
   }
@@ -768,22 +770,14 @@ local Module = {} do
       end
       
       local Model = Fruit:WaitForChild("Fruit", 9e9)
-      local Handle = FastWait(0.5, Model, "Fruit")
+      local Handle = FastWait(1, Model, "Fruit") or FastWait(1, Model, "Idle")
       
-      if Handle and Handle:IsA("MeshPart") then
-        local RealName = Ids[Handle.MeshId]
+      if Handle and (Handle:IsA("Animation") or Handle:IsA("MeshPart")) then
+        local RealName = Ids[if Handle:IsA("Animation") then "AnimationId" else "MeshId"]
         
         if RealName and type(RealName) == "string" then
           rawset(self, Fruit, `Fruit [ {RealName} ]`)
           return rawget(self, Fruit)
-        end
-      else
-        if FastWait(1, Model, "RingAuraModel") and FastWait(0.5, Model, "dino.025") then
-          return "Fruit [ Dragon (East)-Dragon (East) ]"
-        elseif FastWait(1, Model, "EyeAura2") and FastWait(0.5, Model, "dino.027") then
-          return "Fruit [ Dragon (West)-Dragon (West) ]"
-        elseif FastWait(1, Model, "Idle") and Model.Idle.AnimationId == "rbxassetid://11911905519" then
-          return "Fruit [ Spirit-Spirit ]"
         end
       end
       
