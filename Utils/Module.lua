@@ -1352,7 +1352,7 @@ local Module = {} do
     
     local function UpdateTarget()
       if (tick() - TargetDebounce) <= 2 then return end
-      if (tick() - UpdateDebounce) <= 0.5 then return end
+      if (tick() - UpdateDebounce) <= 0.3 then return end
       if not IsAlive(Player.Character) then return end
       
       local Equipped = Player.Character:FindFirstChildOfClass("Tool")
@@ -1380,9 +1380,8 @@ local Module = {} do
             end
             if UpperTorso and Magnitude <= Distance then
               ClosestsEnemies.Closest = { Character, UpperTorso }
+              Distance = if UpperTorso then Magnitude else Distance
             end
-            
-            Distance = if UpperTorso then Magnitude else Distance
           end
         end
         
@@ -1401,10 +1400,8 @@ local Module = {} do
               table.insert(ClosestsEnemies, { Enemy, UpperTorso })
             end
             if Magnitude <= Distance then
-              ClosestsEnemies.Closest = { Enemy, UpperTorso }
+              Distance, ClosestsEnemies.Closest = Magnitude, { Enemy, UpperTorso }
             end
-            
-            Distance = Magnitude
           end
         end
       end
@@ -1528,7 +1525,7 @@ local Module = {} do
       
       if Humanoid.Sit and (ToolTip == "Sword" or ToolTip == "Melee" or ToolTip == "Gun") then
         return false
-      elseif Stun and Stun.Value > 0 --[[ or Busy and Busy.Value ]] then
+      elseif Stun and Stun.Value > 0 then -- {{ or Busy and Busy.Value }}
         return false
       end
       
