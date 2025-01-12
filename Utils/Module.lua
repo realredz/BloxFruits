@@ -1566,7 +1566,7 @@ local Module = {} do
       return Combo
     end
     
-    function FastAttack:UseFruitM1(Humanoid, Character, Equipped)
+    function FastAttack:UseFruitM1(Character, Equipped, Combo)
       local Position = Character:GetPivot().Position
       local EnemyList = Enemies:GetChildren()
       
@@ -1576,8 +1576,6 @@ local Module = {} do
         
         if IsAlive(Enemy) and PrimaryPart and (PrimaryPart.Position - Position).Magnitude <= 50 then
           local Direction = (PrimaryPart.Position - Position).Unit
-          local Combo = self:GetCombo()
-          self.Debounce -= if Combo == 4 then -0.1 else 0.05
           return Equipped.LeftClickRemote:FireServer(Direction, Combo)
         end
       end
@@ -1587,10 +1585,6 @@ local Module = {} do
       local RootPart, BladeHits = self:GetAllBladeHits(Character)
       
       if RootPart then
-        local Combo = self:GetCombo()
-        Cooldown += if Combo >= 4 then 0.15 else 0
-        self.Debounce += Cooldown
-        
         RegisterAttack:FireServer(Cooldown)
         RegisterHit:FireServer(RootPart, BladeHits)
       end
@@ -1616,14 +1610,17 @@ local Module = {} do
       local Nickname = Equipped:FindFirstChild("Nickname") and Equipped.Nickname.Value or "Null"
       
       if (tick() - self.Debounce) >= Cooldown and self:CheckStun(ToolTip, Character, Humanoid) then
+        local Combo = self:GetCombo()
+        Cooldown += if Combo >= 4 then 0.15 else 0
+        
         self.Equipped = Equipped
-        self.Debounce = tick()
+        self.Debounce = if Combo >= 4 then (tick() + 0.15) else tick()
         
         if ToolTip == "Blox Fruit" then
           if ToolName == "Ice-Ice" or ToolName == "Light-Light" then
             return self:UseNormalClick(Humanoid, Character, Cooldown)
           elseif Equipped:FindFirstChild("LeftClickRemote") then
-            return self:UseFruitM1(Humanoid, Character, Equipped)
+            return self:UseFruitM1(Character, Equipped, Combo)
           end
         else
           return self:UseNormalClick(Humanoid, Character, Cooldown)
