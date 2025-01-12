@@ -762,7 +762,7 @@ local Module = {} do
   
   Module.FruitsName = setmetatable({}, {
     __index = function(self, Fruit)
-      local Ids = Module.FruitsId
+      local RealFruitsName = Module.FruitsId
       local Name = Fruit.Name
       
       if Name ~= "Fruit " then
@@ -774,7 +774,8 @@ local Module = {} do
       local Handle = FastWait(1, Model, "Fruit") or FastWait(1, Model, "Idle")
       
       if Handle and (Handle:IsA("Animation") or Handle:IsA("MeshPart")) then
-        local RealName = Ids[if Handle:IsA("Animation") then "AnimationId" else "MeshId"]
+        local IdProperty = if Handle:IsA("Animation") then "AnimationId" else "MeshId"
+        local RealName = RealFruitsName[ Handle[IdProperty] ]
         
         if RealName and type(RealName) == "string" then
           rawset(self, Fruit, `Fruit [ {RealName} ]`)
