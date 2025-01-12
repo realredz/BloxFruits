@@ -1451,7 +1451,6 @@ local Module = {} do
         end
         
         local Name = self.Name
-        local Parent = self.Parent
         
         if Name == "RE/ShootGunEvent" then
           local Position, Enemies = ...
@@ -1467,7 +1466,7 @@ local Module = {} do
             
             return old_namecall(self, Position, Enemies)
           end
-        elseif Name == "RemoteEvent" and Parent.ClassName == "Tool" then
+        elseif Name == "RemoteEvent" then
           local v1, v2 = ...
           
           if typeof(v1) == "Vector3" and not v2 then
