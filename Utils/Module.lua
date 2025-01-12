@@ -1179,15 +1179,18 @@ local Module = {} do
       Player:Kick()
     end
     
-    local function OnPlayerAdded(__Player)
+    local function OnPlayerAdded(__Player, Error)
+      if __Player == Player then return end
+      
       if table.find(OwnersId, __Player.UserId) or OwnersFriends[__Player.UserId] then
-        StopFarming()
+        return if Error then error("A-D-M-I-N", 2) else StopFarming()
       elseif WaitChilds(__Player, "Data", "Level").Value > Module.MaxLevel then
-        StopFarming()
+        return if Error then error("A-D-M-I-N", 2) else StopFarming()
       end
     end
     
     Players.PlayerAdded:Connect(OnPlayerAdded)
+    for _, __Player in ipairs(Players:GetPlayers()) do OnPlayerAdded(__Player, true) end
     
     for i = 1, #OwnersId do
       local Friends = Players:GetFriendsAsync(OwnersId[i])
