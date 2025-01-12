@@ -1500,9 +1500,7 @@ local Module = {} do
       Debounce = 0,
       
       ComboDebounce = 0,
-      M1Combo = 0,
-      
-      testando = 0
+      M1Combo = 0
     }
     _ENV.rz_FastAttack = FastAttack
     
@@ -1561,7 +1559,7 @@ local Module = {} do
     function FastAttack:GetCombo()
       local Combo = if tick() - self.ComboDebounce <= 0.35 then self.M1Combo else 0
       Combo = if Combo >= 4 then 1 else Combo + 1
-      0
+      
       self.ComboDebounce = tick()
       self.M1Combo = Combo
       
@@ -1592,9 +1590,6 @@ local Module = {} do
         local Combo = self:GetCombo()
         Cooldown += if Combo >= 4 then 0.15 else 0
         self.Debounce += Cooldown
-        
-        print(tick() - self.testando, Combo)
-        self.testando = tick()
         
         RegisterAttack:FireServer(Cooldown)
         RegisterHit:FireServer(RootPart, BladeHits)
