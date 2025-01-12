@@ -742,6 +742,17 @@ local Module = {} do
     return result
   end
   
+  function Module:RemoveBoatCollision(Boat)
+    local Objects = Boat:GetDescendants()
+    
+    for i = 1, #Objects do
+      local BasePart = Objects[i]
+      if BasePart:IsA("BasePart") and BasePart.CanCollide then
+        BasePart.CanCollide = false
+      end
+    end
+  end
+  
   Module.EnemySpawned = setmetatable({}, {
     __index = function(self, index)
       return Module:GetClosestEnemy(index)
