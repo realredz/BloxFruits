@@ -119,6 +119,7 @@ local Module = {} do
   
   Module.Sea = (placeId == 2753915549 and 1) or (placeId == 4442272183 and 2) or (placeId == 7449423635 and 3) or 0
   
+  Module.RemoveCanTouch = 0
   Module.AttackCooldown = 0
   Module.MaxLevel = 2600
   Module.Webhooks = true
@@ -1277,8 +1278,13 @@ local Module = {} do
         
         if _ENV.OnFarm then
           for i = 1, #BaseParts do
-            if BaseParts[i].CanCollide then
-              BaseParts[i].CanCollide = false
+            local BasePart = BaseParts[i]
+            
+            if BasePart.CanTouch and (tick() - Module.RemoveCanTouch) <= 1 then
+              BasePart.CanTouch = false
+            end
+            if BasePart.CanCollide then
+              BasePart.CanCollide = false
             end
           end
         elseif Character.PrimaryPart and not Character.PrimaryPart.CanCollide then
