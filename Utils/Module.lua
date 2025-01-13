@@ -481,13 +481,6 @@ local Module = {} do
     return Dictionary
   end
   
-  function noSit(): (nil)
-    local Char = Player.Character
-    if Module.IsAlive(Char) and Char.Humanoid.Sit then
-      Char.Humanoid.Sit = false
-    end
-  end
-  
   function Module.TravelTo(Sea: number?): (nil)
     if SeaList[Sea] then
       Module.FireRemote(SeaList[Sea])
@@ -1445,7 +1438,10 @@ local Module = {} do
             
             if ClosestList then
               for i = 1, #ClosestList do
-                table.insert(Enemies, ClosestList[i][2])
+                local Part = ClosestList[i][2]
+                if Part and (not Enemies[1] or (Part.Position - Enemies[1].Position).Magnitude <= 15) then
+                  table.insert(Enemies, Part)
+                end
               end
             end
             
@@ -1474,6 +1470,19 @@ local Module = {} do
       
       _ENV.original_namecall = old_namecall
     end
+    
+    task.spawn(function()
+      local Mouse = require(ReplicatedStorage:WaitForChild("Mouse"))
+      
+      Heartbeat:Connect(function()
+        local Target = GetNextTarget("AimBot_Tap")
+        
+        if Target and Target[2] then
+          Mouse.Hit = Target[2].CFrame
+        end
+      end)
+    end)
+  
     
     Stepped:Connect(UpdateTarget)
     module:EnableAim()
