@@ -168,7 +168,7 @@ local Module = {} do
     },
     ["Greybeard"] = {
       RaidBoss = true,
-      Position = CFrame.new(-4807, 21, 4360)
+      Position = CFrame.new(-5043, 25, 4262)
     },
     ["The Gorilla King"] = {
       IsBoss = true,
