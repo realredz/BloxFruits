@@ -1443,6 +1443,8 @@ local Module = {} do
                   table.insert(Enemies, Part)
                 end
               end
+              
+              Position = if Enemies[1] then Enemies[1].Position else Position
             end
             
             return old_namecall(self, Position, Enemies)
