@@ -1265,6 +1265,12 @@ local Module = {} do
           return nil
         end
         
+        if _ENV.OnFarm and not Player:HasTag("Teleporting") then
+          Player:AddTag("Teleporting")
+        elseif not _ENV.OnFarm and Player:HasTag("Teleporting") then
+          Player:RemoveTag("Teleporting")
+        end
+        
         if _ENV.OnFarm then
           for i = 1, #BaseParts do
             local BasePart = BaseParts[i]
