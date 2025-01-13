@@ -37,8 +37,8 @@ local Player = Players.LocalPlayer
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 local Net = Modules:WaitForChild("Net")
 
-local executor = if identifyexecutor then identifyexecutor() else "Null"
-local is_blacklisted_executor = table.find({ "Null", "Xeno", "Swift" }, executor)
+local executor = string.lower(if identifyexecutor then identifyexecutor() else "null")
+local is_blacklisted_executor = table.find({ "null", "xeno", "swift", "jjsploit"}, executor)
 
 local hookmetamethod = (not is_blacklisted_executor and hookmetamethod) or (function(...) return ... end)
 local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
