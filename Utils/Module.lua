@@ -74,6 +74,16 @@ local function GetCharacterHumanoid(Character)
   end
 end
 
+local function CheckPlayerAlly(__Player: Player): boolean
+  if tostring(__Player.Team) == "Marines" and __Player.Team == Player.Team then
+    return false
+  elseif __Player:HasTag(`Ally{Player.Name}`) or Player:HasTag(`Ally{__Player.Name}`) then
+    return false
+  end
+  
+  return true
+end
+
 local function WaitChilds(Instance, ...)
   for _, ChildName in ipairs({...}) do
     Instance = Instance:WaitForChild(ChildName)
@@ -1208,7 +1218,15 @@ local Module = {} do
   end)
   
   task.spawn(function()
-    local RaidModule = require(ReplicatedStorage:WaitForChild("Raids"))
+    local Success, RaidModule = pcall(require, ReplicatedStorage:WaitForChild("Raids"))
+    
+    if not Success then
+      Module.RaidList = {
+        "Phoenix", "Dough", "Flame", "Ice", "Quake", "Light";
+        "Dark", "Spider", "Rumble", "Magma", "Buddha", "Sand";
+      }
+    end
+    
     local AdvancedRaids = RaidModule.advancedRaids
     local NormalRaids = RaidModule.raids
     local RaidList = {}
@@ -1338,16 +1356,6 @@ local Module = {} do
     local TargetDebounce = 0;
     local ClosestsEnemies = {};
     local Skills = ToDictionary({ "Z", "X", "C", "V", "F" });
-    
-    local function CheckPlayerAlly(__Player: Player): boolean
-      if tostring(__Player.Team) == "Marines" and __Player.Team == Player.Team then
-        return false
-      elseif __Player:HasTag(`Ally{Player.Name}`) or Player:HasTag(`Ally{__Player.Name}`) then
-        return false
-      end
-      
-      return true
-    end
     
     local function GetNextTarget(Mode: string, ClosestList: boolean): any?
       if (tick() - TargetDebounce) <= 2 or _ENV[Mode] then
@@ -1554,25 +1562,41 @@ local Module = {} do
       return true
     end
     
-    function FastAttack:GetAllBladeHits(Character: Character): (nil)
-      local CFrame = Character:GetPivot().Position
-      local BladeHits, FirstRootPart = {}
-      local EnemyList = Enemies:GetChildren()
+    function FastAttack:Procress(assert: boolean, Enemies: Folder, BladeHits: table, CFrame: CFrame): (nil)
+      if not assert then return end
       
-      for i = 1, #EnemyList do
-        local Enemy = EnemyList[i]
-        local RootPart = Enemy.PrimaryPart
+      local Mobs = Folder:GetChildren()
+      
+      for i = 1, #Mobs do
+        local Enemy = Mobs[i]
+        local RootPart = Mobs.PrimaryPart
+        local __Player = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
         
-        if RootPart and IsAlive(Enemy) and Player:DistanceFromCharacter(RootPart.Position) <= self.Distance then
-          if not FirstRootPart then
-            FirstRootPart = RootPart
-          else
-            table.insert(BladeHits, { Enemy, RootPart })
+        if Enemy ~= Player.Character and RootPart and (Enemy.Parent ~= Characters or __Player) then
+          local InRange = Player:DistanceFromCharacter(RootPart.Position) <= self.Distance
+          local FirstRoot = self.EnemyRootPart
+          
+          if InRange or FirstRoot and (FirstRoot.Position - RootPart.Position).Magnitude <= self.Distance then
+            if __Player ~= Player and CheckPlayerAlly(Player) then
+              if not FirstRoot then
+                self.EnemyRootPart = RootPart
+              else
+                table.insert(BladeHits, { Enemy, RootPart })
+              end
+            end
           end
         end
       end
+    end
+    
+    function FastAttack:GetAllBladeHits(Character: Character): (nil)
+      local CFrame = Character:GetPivot().Position
+      local BladeHits = {}
       
-      return FirstRootPart, BladeHits
+      self:Process(self.attackMobs, Enemies, BladeHits, CFrame)
+      self:Process(self.attackPlayers, Characters, BladeHits, CFrame)
+      
+      return BladeHits
     end
     
     function FastAttack:GetCombo(): number
@@ -1601,11 +1625,12 @@ local Module = {} do
     end
     
     function FastAttack:UseNormalClick(Humanoid: Humanoid, Character: Character, Cooldown: number): (nil)
-      local RootPart, BladeHits = self:GetAllBladeHits(Character)
+      self.EnemyRootPart = nil
+      local BladeHits = self:GetAllBladeHits(Character)
       
-      if RootPart then
+      if self.EnemyRootPart then
         RegisterAttack:FireServer(Cooldown)
-        RegisterHit:FireServer(RootPart, BladeHits)
+        RegisterHit:FireServer(self.EnemyRootPart, BladeHits)
       end
     end
     
