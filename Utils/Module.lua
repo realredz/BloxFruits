@@ -6,18 +6,18 @@ end
 
 local _ENV = (getgenv or getrenv or getfenv)()
 
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local CollectionService = game:GetService("CollectionService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TeleportService = game:GetService("TeleportService")
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
+local VirtualInputManager: VirtualInputManager = game:GetService("VirtualInputManager")
+local CollectionService: CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService: TeleportService = game:GetService("TeleportService")
+local RunService: RunService = game:GetService("RunService")
+local Players: Players = game:GetService("Players")
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local Validator2 = Remotes:WaitForChild("Validator2")
-local Validator = Remotes:WaitForChild("Validator")
-local CommF = Remotes:WaitForChild("CommF_")
-local CommE = Remotes:WaitForChild("CommE")
+local Validator2: RemoteEvent = Remotes:WaitForChild("Validator2")
+local Validator: RemoteEvent = Remotes:WaitForChild("Validator")
+local CommF: RemoteFunction = Remotes:WaitForChild("CommF_")
+local CommE: RemoteEvent = Remotes:WaitForChild("CommE")
 
 local ChestModels = workspace:WaitForChild("ChestModels")
 local WorldOrigin = workspace:WaitForChild("_WorldOrigin")
@@ -33,6 +33,11 @@ local RenderStepped = RunService.RenderStepped
 local Heartbeat = RunService.Heartbeat
 local Stepped = RunService.Stepped
 local Player = Players.LocalPlayer
+
+local Data = Player:WaitForChild("Data")
+local Level = Data:WaitForChild("Level")
+local Fragments = Data:WaitForChild("Fragments")
+local Money = Data:WaitForChild("Beli")
 
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 local Net = Modules:WaitForChild("Net")
@@ -400,7 +405,11 @@ local Module = {} do
   function EnableBuso()
     local Char = Player.Character
     if Settings.AutoBuso and Module.IsAlive(Char) and not Char:FindFirstChild("HasBuso") then
-      Module.FireRemote("Buso")
+      if Char:HasTag("Buso") then
+        Module.FireRemote("Buso")
+      elseif Money.Value >= 25e3 then
+        Module.FireRemote("BuyHaki", "Buso")
+      end
     end
   end
   
@@ -1332,7 +1341,7 @@ local Module = {} do
     local ClosestsEnemies = {};
     local Skills = ToDictionary({ "Z", "X", "C", "V", "F" });
     
-    local function CheckPlayerAlly(__Player)
+    local function CheckPlayerAlly(__Player: Player): boolean
       if tostring(__Player.Team) == "Marines" and __Player.Team == Player.Team then
         return false
       elseif __Player:HasTag(`Ally{Player.Name}`) or Player:HasTag(`Ally{__Player.Name}`) then
@@ -1342,7 +1351,7 @@ local Module = {} do
       return true
     end
     
-    local function GetNextTarget(Mode, ClosestList)
+    local function GetNextTarget(Mode: string, ClosestList: boolean): any?
       if (tick() - TargetDebounce) <= 2 or _ENV[Mode] then
         return if ClosestList then ClosestsEnemies else ClosestsEnemies.Closest
       end
@@ -1418,7 +1427,7 @@ local Module = {} do
       end
     end
     
-    function module:SetTarget(BasePart)
+    function module:SetTarget(BasePart: BasePart): (nil)
       local Character = BasePart.Parent
       
       if Character and Character:FindFirstChild("UpperTorso") then
@@ -1524,7 +1533,7 @@ local Module = {} do
     
     local GunClickDebounce = 0
     
-    function Module.GunClick()
+    function Module.GunClick(): (nil)
       if (tick() - GunClickDebounce) <= 0.1 then
         return nil
       end
@@ -1534,7 +1543,7 @@ local Module = {} do
       VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
     end
     
-    function FastAttack:CheckStun(ToolTip, Character, Humanoid)
+    function FastAttack:CheckStun(ToolTip: string, Character: Character, Humanoid: Humanoid): boolean
       local Stun = Character:FindFirstChild("Stun")
       local Busy = Character:FindFirstChild("Busy")
       
@@ -1547,7 +1556,7 @@ local Module = {} do
       return true
     end
     
-    function FastAttack:GetAllBladeHits(Character)
+    function FastAttack:GetAllBladeHits(Character: Character): (nil)
       local CFrame = Character:GetPivot().Position
       local BladeHits, FirstRootPart = {}
       local EnemyList = Enemies:GetChildren()
@@ -1568,7 +1577,7 @@ local Module = {} do
       return FirstRootPart, BladeHits
     end
     
-    function FastAttack:GetCombo()
+    function FastAttack:GetCombo(): number
       local Combo = if tick() - self.ComboDebounce <= 0.35 then self.M1Combo else 0
       Combo = if Combo >= 4 then 1 else Combo + 1
       
@@ -1578,7 +1587,7 @@ local Module = {} do
       return Combo
     end
     
-    function FastAttack:UseFruitM1(Character, Equipped, Combo)
+    function FastAttack:UseFruitM1(Character: Character, Equipped: Tool, Combo: number): (nil)
       local Position = Character:GetPivot().Position
       local EnemyList = Enemies:GetChildren()
       
@@ -1593,7 +1602,7 @@ local Module = {} do
       end
     end
     
-    function FastAttack:UseNormalClick(Humanoid, Character, Cooldown)
+    function FastAttack:UseNormalClick(Humanoid: Humanoid, Character: Character, Cooldown: number): (nil)
       local RootPart, BladeHits = self:GetAllBladeHits(Character)
       
       if RootPart then
