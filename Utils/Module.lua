@@ -1570,7 +1570,7 @@ local Module = {} do
       
       for i = 1, #Mobs do
         local Enemy = Mobs[i]
-        local RootPart = Mobs.PrimaryPart
+        local RootPart = Enemy.PrimaryPart
         local CanAttack = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
         
         if Enemy ~= Player.Character and RootPart and (Enemy.Parent ~= Characters or CanAttack) then
