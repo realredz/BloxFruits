@@ -1111,21 +1111,17 @@ local Module = {} do
     
     function Module:UpdateItem(item: table): (nil)
       if type(item) == "table" then
+        if item.Type == "Wear" then
+          item.Type = "Accessory"
+        end
+        
         local Name = item.Name
         
         self.Inventory[Name] = item
         
-        if not self.Unlocked[Name] then
-          self.Unlocked[Name] = true
-        end
-        
-        if item.Count then
-          self.ItemsCount[Name] = item.Count
-        end
-        
-        if item.Mastery then
-          self.ItemsMastery[Name] = item.Mastery
-        end
+        if not self.Unlocked[Name] then self.Unlocked[Name] = true end
+        if item.Count then self.ItemsCount[Name] = item.Count end
+        if item.Mastery then self.ItemsMastery[Name] = item.Mastery end
       end
     end
     
@@ -1140,6 +1136,8 @@ local Module = {} do
     
     local function OnClientEvent(Method, ...)
       if Method == "ItemChanged" then
+        Module:UpdateItem(...)
+      elseif Method == "ItemAdded" then
         Module:UpdateItem(...)
       elseif Method == "ItemRemoved" then
         Module:RemoveItem(...)
