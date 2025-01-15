@@ -1274,9 +1274,10 @@ local Module = {} do
         if _ENV.OnFarm then
           for i = 1, #BaseParts do
             local BasePart = BaseParts[i]
+            local CanTouchValue = if (tick() - Module.RemoveCanTouch) <= 0.5 then false else true
             
-            if BasePart.CanTouch and (tick() - Module.RemoveCanTouch) <= 1 then
-              BasePart.CanTouch = false
+            if BasePart.CanTouch ~= CanTouchValue then
+              BasePart.CanTouch = CanTouchValue
             end
             if BasePart.CanCollide then
               BasePart.CanCollide = false
