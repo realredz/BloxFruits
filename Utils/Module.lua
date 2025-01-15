@@ -1225,6 +1225,7 @@ local Module = {} do
         "Phoenix", "Dough", "Flame", "Ice", "Quake", "Light";
         "Dark", "Spider", "Rumble", "Magma", "Buddha", "Sand";
       }
+      return nil
     end
     
     local AdvancedRaids = RaidModule.advancedRaids
@@ -1562,7 +1563,7 @@ local Module = {} do
       return true
     end
     
-    function FastAttack:Process(assert: boolean, Enemies: Folder, BladeHits: table, CFrame: CFrame): (nil)
+    function FastAttack:Process(assert: boolean, Enemies: Folder, BladeHits: table, Position: Vector3): (nil)
       if not assert then return end
       
       local Mobs = Enemies:GetChildren()
@@ -1570,19 +1571,17 @@ local Module = {} do
       for i = 1, #Mobs do
         local Enemy = Mobs[i]
         local RootPart = Mobs.PrimaryPart
-        local __Player = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
+        local CanAttack = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
         
-        if Enemy ~= Player.Character and RootPart and (Enemy.Parent ~= Characters or __Player) then
-          local InRange = Player:DistanceFromCharacter(RootPart.Position) <= self.Distance
+        if Enemy ~= Player.Character and RootPart and (Enemy.Parent ~= Characters or CanAttack) then
+          local InRange = (Position - RootPart.Position) <= self.Distance
           local FirstRoot = self.EnemyRootPart
           
-          if InRange or FirstRoot and (FirstRoot.Position - RootPart.Position).Magnitude <= self.Distance then
-            if __Player ~= Player and CheckPlayerAlly(Player) then
-              if not FirstRoot then
-                self.EnemyRootPart = RootPart
-              else
-                table.insert(BladeHits, { Enemy, RootPart })
-              end
+          if (not FirstRoot and InRange) or (FirstRoot and (FirstRoot.Position - RootPart.Position).Magnitude <= 10) then
+            if not FirstRoot then
+              self.EnemyRootPart = RootPart
+            else
+              table.insert(BladeHits, { Enemy, RootPart })
             end
           end
         end
@@ -1590,11 +1589,11 @@ local Module = {} do
     end
     
     function FastAttack:GetAllBladeHits(Character: Character): (nil)
-      local CFrame = Character:GetPivot().Position
+      local Position = Character:GetPivot().Position
       local BladeHits = {}
       
-      self:Process(self.attackMobs, Enemies, BladeHits, CFrame)
-      self:Process(self.attackPlayers, Characters, BladeHits, CFrame)
+      self:Process(self.attackMobs, Enemies, BladeHits, Position)
+      self:Process(self.attackPlayers, Characters, BladeHits, Position)
       
       return BladeHits
     end
