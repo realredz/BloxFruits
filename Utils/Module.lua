@@ -1562,7 +1562,7 @@ local Module = {} do
       return true
     end
     
-    function FastAttack:Procress(assert: boolean, Enemies: Folder, BladeHits: table, CFrame: CFrame): (nil)
+    function FastAttack:Process(assert: boolean, Enemies: Folder, BladeHits: table, CFrame: CFrame): (nil)
       if not assert then return end
       
       local Mobs = Folder:GetChildren()
