@@ -1565,7 +1565,7 @@ local Module = {} do
     function FastAttack:Process(assert: boolean, Enemies: Folder, BladeHits: table, CFrame: CFrame): (nil)
       if not assert then return end
       
-      local Mobs = Folder:GetChildren()
+      local Mobs = Enemies:GetChildren()
       
       for i = 1, #Mobs do
         local Enemy = Mobs[i]
