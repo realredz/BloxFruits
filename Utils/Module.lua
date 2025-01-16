@@ -1442,7 +1442,7 @@ local Module = {} do
         table.clear(ClosestsEnemies)
         ClosestsEnemies.Closest = { Character, BasePart }
         
-        for _, Enemy in ipairs(self.allMobs[Character.Name]) do
+        for _, Enemy in ipairs(Module.allMobs[Character.Name]) do
           if Enemy ~= Character and Enemy:FindFirstChild("UpperTorso") then
             table.insert(ClosestsEnemies, { Enemy, Enemy.UpperTorso })
           end
@@ -1468,7 +1468,7 @@ local Module = {} do
           if typeof(Position) == "Vector3" and type(Enemies) == "table" then
             local ClosestList = GetNextTarget("AimBot_Gun", true)
             
-            if ClosestList then
+            if ClosestList and #ClosestList > 0 then
               for i = 1, #ClosestList do
                 local Part = ClosestList[i][2]
                 if Part and (not Enemies[1] or (Part.Position - Enemies[1].Position).Magnitude <= 15) then
@@ -1476,10 +1476,8 @@ local Module = {} do
                 end
               end
               
-              Position = if Enemies[1] then Enemies[1].Position else Position
+              return old_namecall(self, Enemies[1].Position, Enemies)
             end
-            
-            return old_namecall(self, Position, Enemies)
           end
         elseif Name == "RemoteEvent" then
           local v1, v2 = ...
