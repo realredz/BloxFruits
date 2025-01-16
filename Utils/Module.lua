@@ -114,6 +114,7 @@ local Module = {} do
   
   Module.Sea = (placeId == 2753915549 and 1) or (placeId == 4442272183 and 2) or (placeId == 7449423635 and 3) or 0
   
+  Module.IsSuperBring = false
   Module.RemoveCanTouch = 0
   Module.AttackCooldown = 0
   Module.MaxLevel = 2600
@@ -662,12 +663,14 @@ local Module = {} do
     pcall(sethiddenproperty, Player, "SimulationRadius", math.huge)
     
     if Settings.BringMobs then
+      Module.IsSuperBring = if SuperBring then true else false
+      
       local Name = ToEnemy.Name
       local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
       local Target = ToEnemy.PrimaryPart.CFrame
       local BringPositionTag = if SuperBring then "ALL_MOBS" else Name
       
-      if not CachedBring[BringPositionTag] or (Target.Position - CachedBring[BringPositionTag].Position).Magnitude > 10 then
+      if not CachedBring[BringPositionTag] or (Target.Position - CachedBring[BringPositionTag].Position).Magnitude > 25 then
         CachedBring[BringPositionTag] = Target
       end
       
@@ -1016,13 +1019,9 @@ local Module = {} do
       local EnemyName = Enemy.Name
       
       while Enemy and Enemy:HasTag(BRING_TAG) and RootPart and Humanoid and Humanoid.Health > 0 do
-        local Target = CachedBring["ALL_MOBS"]
+        local Target = CachedBring[if Module.IsSuperBring then "ALL_MOBS" else EnemyName]
         
-        if not Target or (Target.Position - RootPart.Position).Magnitude >= Settings.BringDistance then
-          Target = CachedBring[EnemyName]
-        end
-        
-        if Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance and Target then
+        if Target and Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance then
           RootPart.CFrame = Target
         else
           Enemy:RemoveTag(BRING_TAG)
