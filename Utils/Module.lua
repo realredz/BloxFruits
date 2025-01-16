@@ -42,10 +42,10 @@ local Money = Data:WaitForChild("Beli")
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 local Net = Modules:WaitForChild("Net")
 
-local executor = string.lower(if identifyexecutor then identifyexecutor() else "null")
-local is_blacklisted_executor = table.find({ "null", "xeno", "swift", "jjsploit"}, executor)
+local EXECUTOR_NAME = string.upper(if identifyexecutor then identifyexecutor() else "NULL")
+local IS_BLACKLISTED_EXECUTOR = table.find({"NULL", "XENO", "SWIFT", "JJSPLOIT"}, EXECUTOR_NAME)
 
-local hookmetamethod = (not is_blacklisted_executor and hookmetamethod) or (function(...) return ... end)
+local hookmetamethod = (not IS_BLACKLISTED_EXECUTOR and hookmetamethod) or (function(...) return ... end)
 local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
 local setupvalue = setupvalue or (debug and debug.setupvalue)
 local getupvalue = getupvalue or (debug and debug.getupvalue)
@@ -545,8 +545,6 @@ local Module = {} do
       return nil
     end
     
-    Module.Hooking:SetTarget(Target)
-    
     for Skill, Enabled in Skills do
       if Enabled then
         VirtualInputManager:SendKeyEvent(true, Skill, false, game)
@@ -583,7 +581,7 @@ local Module = {} do
   end
   
   function Module:IsBlacklistedExecutor()
-    return is_blacklisted_executor
+    return IS_BLACKLISTED_EXECUTOR
   end
   
   function Module:ServerHop(MaxPlayers: number?, Region: string?): (nil)
@@ -1365,8 +1363,10 @@ local Module = {} do
     end
     
     local function UpdateTarget()
-      if (tick() - TargetDebounce) <= 2 then return end
-      if (tick() - UpdateDebounce) <= 0.3 then return end
+      local tick = tick()
+      
+      if (tick - TargetDebounce) <= 2 then return end
+      if (tick - UpdateDebounce) <= 0.3 then return end
       if not IsAlive(Player.Character) then return end
       
       local Equipped = Player.Character:FindFirstChildOfClass("Tool")
@@ -1434,12 +1434,21 @@ local Module = {} do
       end
     end
     
-    function module:SetTarget(BasePart: BasePart): (nil)
-      local Character = BasePart.Parent
+    function module:SetTarget(BasePart: BasePart, Character: Model?, IsEnemy: boolean?): (nil)
+      local Closest = ClosestsEnemies.Closest
       
-      if Character and Character:FindFirstChild("UpperTorso") then
+      if IsEnemy then
         TargetDebounce = tick()
-        table.insert(ClosestsEnemies, { Character, Character.UpperTorso })
+        table.clear(ClosestsEnemies)
+        ClosestsEnemies.Closest = { Character, BasePart }
+        
+        for _, Enemy in ipairs(self.allMobs[Character.Name]) do
+          if Enemy ~= Character and Enemy:FindFirstChild("UpperTorso") then
+            table.insert(ClosestsEnemies, { Enemy, Enemy.UpperTorso })
+          end
+        end
+      elseif not Closest or Closest[2] ~= BasePart then
+        ClosestsEnemies.Closest = { false, BasePart }
       end
     end
     
