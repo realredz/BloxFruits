@@ -1574,11 +1574,8 @@ local Module = {} do
         local CanAttack = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
         
         if Enemy ~= Player.Character and RootPart and (Enemy.Parent ~= Characters or CanAttack) then
-          local InRange = (Position - RootPart.Position).Magnitude <= self.Distance
-          local FirstRoot = self.EnemyRootPart
-          
-          if (not FirstRoot and InRange) or (FirstRoot and (FirstRoot.Position - RootPart.Position).Magnitude <= 10) then
-            if not FirstRoot then
+          if (Position - RootPart.Position).Magnitude <= self.Distance then
+            if not self.EnemyRootPart then
               self.EnemyRootPart = RootPart
             else
               table.insert(BladeHits, { Enemy, RootPart })
