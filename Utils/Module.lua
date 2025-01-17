@@ -1537,6 +1537,10 @@ local Module = {} do
       return getupvalue(require(ReplicatedStorage.Controllers.CombatController).Attack, 9)
     end)
     
+    local SUCCESS_HIT, HIT_FUNCTION = pcall(function()
+      return (getmenv or getsenv)(Net)._G.SendHitsToServer
+    end)
+    
     local IsAlive = Module.IsAlive
     
     function FastAttack:ShootInTarget(TargetPosition: Vector3): (nil)
@@ -1670,7 +1674,12 @@ local Module = {} do
       
       if self.EnemyRootPart then
         RE_RegisterAttack:FireServer(Cooldown)
-        RE_RegisterHit:FireServer(self.EnemyRootPart, BladeHits)
+        
+        if SUCCESS_HIT and HIT_FUNCTION then
+          HIT_FUNCTION(self.EnemyRootPart, BladeHits)
+        else
+          RE_RegisterHit:FireServer(self.EnemyRootPart, BladeHits)
+        end
       end
     end
     
