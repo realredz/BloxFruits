@@ -679,6 +679,7 @@ local Module = {} do
       for i = 1, #EnemyList do
         local Enemy = EnemyList[i]
         if Enemy.Parent ~= Enemies or Enemy:HasTag(BRING_TAG) then continue end
+        if not Enemy:FindFirstChild("CharacterReady") then continue end
         
         local PrimaryPart = Enemy.PrimaryPart
         if self.IsAlive(Enemy) and PrimaryPart then
@@ -1585,8 +1586,9 @@ local Module = {} do
         local Enemy = Mobs[i]
         local RootPart = Enemy.PrimaryPart
         local CanAttack = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
+        local IsReady = Enemy:FindFirstChild("CharacterReady")
         
-        if Enemy ~= Player.Character and RootPart and (Enemy.Parent ~= Characters or CanAttack) then
+        if IsReady and Enemy ~= Player.Character and RootPart and (Enemy.Parent ~= Characters or CanAttack) then
           if IsAlive(Enemy) and (Position - RootPart.Position).Magnitude <= Distance then
             if not self.EnemyRootPart then
               self.EnemyRootPart = RootPart
