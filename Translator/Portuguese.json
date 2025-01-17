@@ -116,7 +116,7 @@
   "Mirage Island": "Ilha da Miragem",
   "Teleport To Gear": ["Teleportar para Engrenagem", "Ir até Engrenagem se disponível"],
   "Teleport To Mirage": ["Teleportar para Mirage", "Ir até a ilha da Miragem"],
-  "Teleport To Fruit Dealer": ["Teleportar para Comerciante de Frutas", "Ir até o vendedor de frutas"],
+  "Teleport To Fruit Dealer": ["Teleportar para Vendedor de Frutas", "Ir até o vendedor de frutas da miragem"],
   
   "Teleport to Sea 1": ["Ir para o Mar 1", "Teleportar para o Primero Mar"],
   "Teleport to Sea 2": ["Ir para o Mar 2", "Teleportar para o Segundo Mar"],
@@ -155,7 +155,11 @@
   "Anti AFK": ["Anti AFK", "Evitar ser desconectado por inatividade"],
   
   "Take Quest Debounce": ["Esperar para a próxima missão", "Espera 90 segundos antes de coletar a próxima missão"],
+  "Smooth Farm Mode": ["Modo de Farm suave", "reduz cálculos do script para deixar o jogo mais Leve"],
   
+  "Only on Sea 2 and 3": "Raid disponíveis apenas no Segundo e terceiro Mar",
+  "Acessories": "Acessórios",
+  "Gun": "Arma",
   "Select NPC": "Selecionar NPC",
   "Farm Select": "Selecionar Farm",
   "Travel": "Viagem",
