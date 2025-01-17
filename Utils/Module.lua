@@ -1533,6 +1533,10 @@ local Module = {} do
     local RE_ShootGunEvent = Net:WaitForChild("RE/ShootGunEvent")
     local RE_RegisterHit = Net:WaitForChild("RE/RegisterHit")
     
+    local SUCCESS_FLAGS, COMBAT_REMOTE_THREAD = pcall(function()
+      return require(Modules.Flags).COMBAT_REMOTE_THREAD or false
+    end)
+    
     local SUCCESS_SHOOT, SHOOT_FUNCTION = pcall(function()
       return getupvalue(require(ReplicatedStorage.Controllers.CombatController).Attack, 9)
     end)
@@ -1675,7 +1679,7 @@ local Module = {} do
       if self.EnemyRootPart then
         RE_RegisterAttack:FireServer(Cooldown)
         
-        if SUCCESS_HIT and HIT_FUNCTION then
+        if SUCCESS_FLAGS and COMBAT_REMOTE_THREAD and SUCCESS_HIT and HIT_FUNCTION then
           HIT_FUNCTION(self.EnemyRootPart, BladeHits)
         else
           RE_RegisterHit:FireServer(self.EnemyRootPart, BladeHits)
