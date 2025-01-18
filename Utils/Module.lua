@@ -1035,16 +1035,22 @@ local Module = {} do
       local Humanoid = Enemy:WaitForChild("Humanoid")
       local EnemyName = Enemy.Name
       
+      local BodyVelocity = Instance.new("BodyVelocity", RootPart)
+      BodyVelocity.Velocity = Vector3.zero
+      BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+      BodyVelocity.P = 1000
+      
       while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do task.wait()
         local Target = CachedBring[if Module.IsSuperBring then "ALL_MOBS" else EnemyName]
         
         if Target and (PlayerRootPart.Position - RootPart.Position).Magnitude <= Settings.BringDistance then
-          if (Target.Position - RootPart.Position).Magnitude <= 5 then
-            RootPart.CFrame, Humanoid.WalkSpeed = Target, 0
+          if (Target.Position - RootPart.Position).Magnitude >= 10 then
+            BodyVelocity.Velocity = (Target.Position - RootPart.Position).Unit * 250
           else
-            Humanoid.WalkSpeed = 100
-            Humanoid:MoveTo(Target.Position)
+            RootPart.CFrame, BodyVelocity.Velocity = Target, Vector3.zero
           end
+        else
+          BodyVelocity.Velocity = Vector3.zero
         end
       end
       
@@ -1271,95 +1277,91 @@ local Module = {} do
     Module.Tween = BodyVelocity
     _ENV.tween_bodyvelocity = BodyVelocity
     
-    if not _ENV.loaded_tween_velocity then
-      _ENV.loaded_tween_velocity = true
-      
-      local IsAlive = Module.IsAlive
-      
-      local BaseParts = {} do
-        local function AddObjectToBaseParts(Object)
-          if Object:IsA("BasePart") then
-            table.insert(BaseParts, Object)
-          end
-        end
-        
-        local function RemoveObjectsFromBaseParts(BasePart)
-          local index = table.find(BaseParts, BasePart)
-          
-          if index then
-            table.remove(BaseParts, index)
-          end
-        end
-        
-        local function NewCharacter(Character)
-          table.clear(BaseParts)
-          
-          for _, Object in ipairs(Character:GetDescendants()) do AddObjectToBaseParts(Object) end
-          table.insert(Connections, Character.DescendantAdded:Connect(AddObjectToBaseParts))
-          table.insert(Connections, Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts))
-          
-          Character:WaitForChild("Humanoid", 9e9).Died:Wait()
-          table.clear(BaseParts)
-        end
-        
-        table.insert(Connections, Player.CharacterAdded:Connect(NewCharacter))
-        task.spawn(NewCharacter, Player.Character)
-      end
-      
-      local function NoClipOnStepped(Character)
-        if not IsAlive(Character) then
-          return nil
-        end
-        
-        if _ENV.OnFarm and not Player:HasTag("Teleporting") then
-          Player:AddTag("Teleporting")
-        elseif not _ENV.OnFarm and Player:HasTag("Teleporting") then
-          Player:RemoveTag("Teleporting")
-        end
-        
-        if _ENV.OnFarm then
-          for i = 1, #BaseParts do
-            local BasePart = BaseParts[i]
-            local CanTouchValue = if (tick() - Module.RemoveCanTouch) <= 0.5 then false else true
-            
-            if BasePart.CanTouch ~= CanTouchValue then
-              BasePart.CanTouch = CanTouchValue
-            end
-            if BasePart.CanCollide then
-              BasePart.CanCollide = false
-            end
-          end
-        elseif Character.PrimaryPart and not Character.PrimaryPart.CanCollide then
-          Character.PrimaryPart.CanCollide = true
+    local IsAlive = Module.IsAlive
+    
+    local BaseParts = {} do
+      local function AddObjectToBaseParts(Object)
+        if Object:IsA("BasePart") then
+          table.insert(BaseParts, Object)
         end
       end
       
-      local function UpdateVelocityOnStepped(Character)
-        local RootPart = Character and Character:FindFirstChild("UpperTorso")
-        local Humanoid = Character and Character:FindFirstChild("Humanoid")
-        local BodyVelocity = _ENV.tween_bodyvelocity
+      local function RemoveObjectsFromBaseParts(BasePart)
+        local index = table.find(BaseParts, BasePart)
         
-        if _ENV.OnFarm and RootPart and Humanoid and Humanoid.Health > 0 then
-          if BodyVelocity.Parent ~= RootPart then
-            BodyVelocity.Parent = RootPart
-          end
-        else
-          if BodyVelocity.Parent then
-            BodyVelocity.Parent = nil
-          end
-        end
-        
-        if BodyVelocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
-          BodyVelocity.Velocity = Vector3.zero
+        if index then
+          table.remove(BaseParts, index)
         end
       end
       
-      table.insert(Connections, Stepped:Connect(function()
-        local Character = Player.Character
-        UpdateVelocityOnStepped(Character)
-        NoClipOnStepped(Character)
-      end))
+      local function NewCharacter(Character)
+        table.clear(BaseParts)
+        
+        for _, Object in ipairs(Character:GetDescendants()) do AddObjectToBaseParts(Object) end
+        Character.DescendantAdded:Connect(AddObjectToBaseParts)
+        Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts)
+        
+        Character:WaitForChild("Humanoid", 9e9).Died:Wait()
+        table.clear(BaseParts)
+      end
+      
+      table.insert(Connections, Player.CharacterAdded:Connect(NewCharacter))
+      task.spawn(NewCharacter, Player.Character)
     end
+    
+    local function NoClipOnStepped(Character)
+      if not IsAlive(Character) then
+        return nil
+      end
+      
+      if _ENV.OnFarm and not Player:HasTag("Teleporting") then
+        Player:AddTag("Teleporting")
+      elseif not _ENV.OnFarm and Player:HasTag("Teleporting") then
+        Player:RemoveTag("Teleporting")
+      end
+      
+      if _ENV.OnFarm then
+        for i = 1, #BaseParts do
+          local BasePart = BaseParts[i]
+          local CanTouchValue = if (tick() - Module.RemoveCanTouch) <= 0.5 then false else true
+          
+          if BasePart.CanTouch ~= CanTouchValue then
+            BasePart.CanTouch = CanTouchValue
+          end
+          if BasePart.CanCollide then
+            BasePart.CanCollide = false
+          end
+        end
+      elseif Character.PrimaryPart and not Character.PrimaryPart.CanCollide then
+        Character.PrimaryPart.CanCollide = true
+      end
+    end
+    
+    local function UpdateVelocityOnStepped(Character)
+      local RootPart = Character and Character:FindFirstChild("UpperTorso")
+      local Humanoid = Character and Character:FindFirstChild("Humanoid")
+      local BodyVelocity = _ENV.tween_bodyvelocity
+      
+      if _ENV.OnFarm and RootPart and Humanoid and Humanoid.Health > 0 then
+        if BodyVelocity.Parent ~= RootPart then
+          BodyVelocity.Parent = RootPart
+        end
+      else
+        if BodyVelocity.Parent then
+          BodyVelocity.Parent = nil
+        end
+      end
+      
+      if BodyVelocity.Velocity ~= Vector3.zero and (not Humanoid or not Humanoid.SeatPart or not _ENV.OnFarm) then
+        BodyVelocity.Velocity = Vector3.zero
+      end
+    end
+    
+    table.insert(Connections, Stepped:Connect(function()
+      local Character = Player.Character
+      UpdateVelocityOnStepped(Character)
+      NoClipOnStepped(Character)
+    end))
   end)
   
   Module.Hooking = (function()
