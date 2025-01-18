@@ -1045,7 +1045,7 @@ local Module = {} do
       
       local BodyPosition = Instance.new("BodyPosition", RootPart)
       BodyPosition.Position = RootPart.Position
-      BodyPosition.P, BodyPosition.D = 5000, 1000
+      BodyPosition.P, BodyPosition.D = 25000, 1250
       BodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
       
       while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do
@@ -1056,12 +1056,9 @@ local Module = {} do
         end;task.wait()
       end
       
-      if BodyPosition then
-        BodyPosition:Destroy()
-      end
-      if Enemy and Enemy:HasTag(BRING_TAG) then
-        Enemy:RemoveTag(BRING_TAG)
-      end
+      if BodyVelocity then BodyVelocity:Destroy() end
+      if BodyPosition then BodyPosition:Destroy() end
+      if Enemy and Enemy:HasTag(BRING_TAG) then Enemy:RemoveTag(BRING_TAG) end
     end
     
     local function KillAura(Enemy)
