@@ -1054,6 +1054,9 @@ local Module = {} do
         end
       end
       
+      if BodyVelocity then
+        BodyVelocity:Destroy()
+      end
       if Enemy and Enemy:HasTag(BRING_TAG) then
         Enemy:RemoveTag(BRING_TAG)
       end
