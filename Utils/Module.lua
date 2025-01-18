@@ -7,6 +7,7 @@ end
 local _ENV = (getgenv or getrenv or getfenv)()
 
 local VirtualInputManager: VirtualInputManager = game:GetService("VirtualInputManager")
+local PathfindingService: PathfindingService = game:GetService("PathfindingService")
 local CollectionService: CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TeleportService: TeleportService = game:GetService("TeleportService")
@@ -54,6 +55,16 @@ local KILLAURA_TAG = _ENV._KillAura_Tag or `k{math.random(120, 2e4)}t`
 
 _ENV._Bring_Tag = BRING_TAG
 _ENV._KillAura_Tag = KILLAURA_TAG
+
+local Connections = {} do
+  if _ENV.rz_connections then
+    for _, Connection in ipairs(_ENV.rz_connections) do
+      Connection:Disconnect()
+    end
+  end
+  
+  _ENV.rz_connections = Connections
+end
 
 local function GetEnemyName(string)
   return (string:find("Lv. ") and string:gsub(" %pLv. %d+%p", "") or string):gsub(" %pBoss%p", "")
@@ -684,10 +695,6 @@ local Module = {} do
         local PrimaryPart = Enemy.PrimaryPart
         if self.IsAlive(Enemy) and PrimaryPart then
           if (Position - PrimaryPart.Position).Magnitude < Settings.BringDistance then
-            PrimaryPart.Size = HitBoxSize
-            PrimaryPart.CanCollide = false
-            Enemy.Humanoid.WalkSpeed = 0
-            Enemy.Humanoid.JumpPower = 0
             Enemy:AddTag(BRING_TAG)
           end
         end
@@ -928,7 +935,7 @@ local Module = {} do
       end
     end
     
-    CollectionService:GetInstanceAddedSignal("BasicMob"):Connect(IsPirateRaidEnemy)
+    table.insert(Connections, CollectionService:GetInstanceAddedSignal("BasicMob"):Connect(IsPirateRaidEnemy))
     for _, Mob in CollectionService:GetTagged("BasicMob") do IsPirateRaidEnemy(Mob) end
   end
   
@@ -938,6 +945,14 @@ local Module = {} do
     local Elites = ToDictionary({ "Deandre", "Diablo", "Urban" })
     local Bones = ToDictionary({ "Reborn Skeleton", "Living Zombie", "Demonic Soul", "Posessed Mummy" })
     local CakePrince = ToDictionary({ "Head Baker", "Baking Staff", "Cake Guard", "Cookie Crafter" })
+    
+    local BringPath = PathfindingService:CreatePath({
+      AgentRadius = 2,
+      AgentJumpHeight = 7.2,
+      AgentMaxSlope = 89,
+      AgentCanJump = false,
+      AgentCanClimb = true
+    })
     
     function Module:GetClosestByTag(Tag)
       local Cached = CachedEnemies[Tag]
@@ -1015,18 +1030,26 @@ local Module = {} do
     end
     
     local function Bring(Enemy)
-      local Humanoid = Enemy:WaitForChild("Humanoid")
+      local PlayerRootPart = (Player.Character or Player.CharacterAdded()):WaitForChild("HumanoidRootPart")
       local RootPart = Enemy:WaitForChild("HumanoidRootPart")
+      local Humanoid = Enemy:WaitForChild("Humanoid")
       local EnemyName = Enemy.Name
       
-      while Enemy and Enemy:HasTag(BRING_TAG) and RootPart and Humanoid and Humanoid.Health > 0 do
+      while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do task.wait()
         local Target = CachedBring[if Module.IsSuperBring then "ALL_MOBS" else EnemyName]
         
-        if Target and Player:DistanceFromCharacter(RootPart.Position) < Settings.BringDistance then
-          RootPart.CFrame = Target
-        else
-          Enemy:RemoveTag(BRING_TAG)
-        end;task.wait()
+        if Target and (PlayerRootPart.Position - RootPart.Position).Magnitude <= Settings.BringDistance then
+          if (Target.Position - RootPart.Position).Magnitude <= 5 then
+            RootPart.CFrame, Humanoid.WalkSpeed = Target, 0
+          else
+            Humanoid.WalkSpeed = 100
+            Humanoid:MoveTo(Target.Position)
+          end
+        end
+      end
+      
+      if Enemy and Enemy:HasTag(BRING_TAG) then
+        Enemy:RemoveTag(BRING_TAG)
       end
     end
     
@@ -1047,24 +1070,24 @@ local Module = {} do
     end
     
     for _, Enemy in CollectionService:GetTagged("BasicMob") do MobAdded(Enemy) end
-    CollectionService:GetInstanceAddedSignal("BasicMob"):Connect(MobAdded)
+    table.insert(Connections, CollectionService:GetInstanceAddedSignal("BasicMob"):Connect(MobAdded))
     
-    CollectionService:GetInstanceAddedSignal(KILLAURA_TAG):Connect(KillAura)
-    CollectionService:GetInstanceAddedSignal(BRING_TAG):Connect(Bring)
+    table.insert(Connections, CollectionService:GetInstanceAddedSignal(KILLAURA_TAG):Connect(KillAura))
+    table.insert(Connections, CollectionService:GetInstanceAddedSignal(BRING_TAG):Connect(Bring))
   end)
   
   task.spawn(function()
     local BossesName = Module.BossesName
     local Fruits = Module.SpawnedFruits
     
-    workspace.ChildAdded:Connect(function(Part)
+    table.insert(Connections, workspace.ChildAdded:Connect(function(Part)
       if Module.IsFruit(Part) then
         table.insert(Fruits, Part)
         Part:GetPropertyChangedSignal("Parent"):Once(function()
           table.remove(Fruits, table.find(Fruits, Part))
         end)
       end
-    end)
+    end))
     
     for Name, _ in Module.Bosses do
       table.insert(BossesName, Name)
@@ -1103,8 +1126,8 @@ local Module = {} do
     end
     
     for _, Spawn in EnemySpawns:GetChildren() do NewSpawn(Spawn) end
-    EnemySpawns.ChildAdded:Connect(NewSpawn)
-    Locations.ChildAdded:Connect(NewIslandAdded)
+    table.insert(Connections, EnemySpawns.ChildAdded:Connect(NewSpawn))
+    table.insert(Connections, Locations.ChildAdded:Connect(NewIslandAdded))
   end)
   
   task.spawn(function()
@@ -1157,7 +1180,7 @@ local Module = {} do
     Module.Unlocked = {}
     
     for _, Tool in ipairs(Module.FireRemote("getInventory")) do Module:UpdateItem(Tool) end
-    CommE.OnClientEvent:Connect(OnClientEvent)
+    table.insert(Connections, CommE.OnClientEvent:Connect(OnClientEvent))
   end)
   
   task.spawn(function()
@@ -1189,7 +1212,7 @@ local Module = {} do
       end
     end
     
-    Players.PlayerAdded:Connect(OnPlayerAdded)
+    table.insert(Connections, Players.PlayerAdded:Connect(OnPlayerAdded))
     for _, __Player in ipairs(Players:GetPlayers()) do OnPlayerAdded(__Player, true) end
     
     for i = 1, #OwnersId do
@@ -1272,14 +1295,14 @@ local Module = {} do
           table.clear(BaseParts)
           
           for _, Object in ipairs(Character:GetDescendants()) do AddObjectToBaseParts(Object) end
-          Character.DescendantAdded:Connect(AddObjectToBaseParts)
-          Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts)
+          table.insert(Connections, Character.DescendantAdded:Connect(AddObjectToBaseParts))
+          table.insert(Connections, Character.DescendantRemoving:Connect(RemoveObjectsFromBaseParts))
           
           Character:WaitForChild("Humanoid", 9e9).Died:Wait()
           table.clear(BaseParts)
         end
         
-        Player.CharacterAdded:Connect(NewCharacter)
+        table.insert(Connections, Player.CharacterAdded:Connect(NewCharacter))
         task.spawn(NewCharacter, Player.Character)
       end
       
@@ -1331,11 +1354,11 @@ local Module = {} do
         end
       end
       
-      Stepped:Connect(function()
+      table.insert(Connections, Stepped:Connect(function()
         local Character = Player.Character
         UpdateVelocityOnStepped(Character)
         NoClipOnStepped(Character)
-      end)
+      end))
     end
   end)
   
@@ -1502,7 +1525,7 @@ local Module = {} do
       end
     end
     
-    Stepped:Connect(UpdateTarget)
+    table.insert(Connections, Stepped:Connect(UpdateTarget))
     module:EnableAim()
     
     return module
@@ -1789,11 +1812,7 @@ local Module = {} do
       end
     end
     
-    if _ENV.fast_attack then
-      _ENV.fast_attack:Disconnect()
-    end
-    
-    _ENV.fast_attack = Stepped:Connect(FastAttack.attack)
+    table.insert(Connections, Stepped:Connect(FastAttack.attack))
     
     return FastAttack
   end)()
