@@ -1045,14 +1045,18 @@ local Module = {} do
       
       local BodyPosition = Instance.new("BodyPosition", RootPart)
       BodyPosition.Position = RootPart.Position
-      BodyPosition.P, BodyPosition.D = 25000, 1250
+      BodyPosition.P, BodyPosition.D = 1e4, 1e3
       BodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
       
       while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do
         local Target = CachedBring[if Module.IsSuperBring then "ALL_MOBS" else EnemyName]
         
         if Target and (PlayerRootPart.Position - RootPart.Position).Magnitude <= Settings.BringDistance then
-          BodyPosition.Position = Target.Position
+          if (RootPart.Position - Target.Position).Magnitude <= 5 then
+            RootPart.CFrame = Target
+          else
+            BodyPosition.Position = Target.Position
+          end
         end;task.wait()
       end
       
