@@ -154,7 +154,7 @@
   "Walk On Water": ["Andar sobre a Água", "Permitir andar na água"],
   "Anti AFK": ["Anti AFK", "Evitar ser desconectado por inatividade"],
   
-  "Take Quest Debounce": ["Esperar para a próxima missão", "Espera 90 segundos antes de coletar a próxima missão"],
+  "Take Quest Debounce": ["Esperar para a próxima missão", "Espera 75 segundos antes de coletar a próxima missão"],
   "Smooth Farm Mode": ["Modo de Farm suave", "reduz cálculos do script para deixar o jogo mais Leve"],
   
   "Only on Sea 2 and 3": "Raid disponíveis apenas no Segundo e terceiro Mar",
