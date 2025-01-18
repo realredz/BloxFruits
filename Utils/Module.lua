@@ -113,6 +113,7 @@ local function FastWait(Seconds, Instance, ...)
 end
 
 local Module = {} do
+  local SkillsDebounce = {}
   local CachedEnemies = {}
   local CachedBring = {}
   local CachedChars = {}
@@ -551,15 +552,18 @@ local Module = {} do
     return Module.Bosses[Name] and true
   end
   
-  function Module.UseSkills(Target: BasePart, Skills: table?): (nil)
-    if Player:DistanceFromCharacter(Target.Position) >= 120 then
+  function Module.UseSkills(Target: any?, Skills: table?): (nil)
+    if Player:DistanceFromCharacter(Target.Position) >= 60 then
       return nil
     end
     
     for Skill, Enabled in Skills do
-      if Enabled then
+      local Debounce = SkillsDebounce[Skill]
+      
+      if Enabled and (not Debounce or (tick() - Debounce) >= 1) then
         VirtualInputManager:SendKeyEvent(true, Skill, false, game)
         VirtualInputManager:SendKeyEvent(false, Skill, false, game)
+        SkillsDebounce[Skill] = tick()
       end
     end
   end
