@@ -1039,27 +1039,21 @@ local Module = {} do
       local Humanoid = Enemy:WaitForChild("Humanoid")
       local EnemyName = Enemy.Name
       
-      local BodyVelocity = Instance.new("BodyVelocity", RootPart)
-      BodyVelocity.Velocity = Vector3.zero
-      BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-      BodyVelocity.P = 1000
+      local BodyPosition = Instance.new("BodyPosition", RootPart)
+      BodyPosition.Position = RootPart.Position
+      BodyPosition.P, BodyPosition.D = 10000, 100
+      BodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
       
-      while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do task.wait()
+      while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do
         local Target = CachedBring[if Module.IsSuperBring then "ALL_MOBS" else EnemyName]
         
         if Target and (PlayerRootPart.Position - RootPart.Position).Magnitude <= Settings.BringDistance then
-          if (Target.Position - RootPart.Position).Magnitude >= 10 then
-            BodyVelocity.Velocity = (Target.Position - RootPart.Position).Unit * 250
-          else
-            RootPart.CFrame, BodyVelocity.Velocity = Target, Vector3.zero
-          end
-        else
-          BodyVelocity.Velocity = Vector3.zero
-        end
+          BodyPosition.Position = Target.Position
+        end;task.wait()
       end
       
-      if BodyVelocity then
-        BodyVelocity:Destroy()
+      if BodyPosition then
+        BodyPosition:Destroy()
       end
       if Enemy and Enemy:HasTag(BRING_TAG) then
         Enemy:RemoveTag(BRING_TAG)
