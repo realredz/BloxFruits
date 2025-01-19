@@ -7,7 +7,6 @@ end
 local _ENV = (getgenv or getrenv or getfenv)()
 
 local VirtualInputManager: VirtualInputManager = game:GetService("VirtualInputManager")
-local PathfindingService: PathfindingService = game:GetService("PathfindingService")
 local CollectionService: CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage: ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TeleportService: TeleportService = game:GetService("TeleportService")
@@ -950,14 +949,6 @@ local Module = {} do
     local Bones = ToDictionary({ "Reborn Skeleton", "Living Zombie", "Demonic Soul", "Posessed Mummy" })
     local CakePrince = ToDictionary({ "Head Baker", "Baking Staff", "Cake Guard", "Cookie Crafter" })
     
-    local BringPath = PathfindingService:CreatePath({
-      AgentRadius = 2,
-      AgentJumpHeight = 7.2,
-      AgentMaxSlope = 89,
-      AgentCanJump = false,
-      AgentCanClimb = true
-    })
-    
     function Module:GetClosestByTag(Tag)
       local Cached = CachedEnemies[Tag]
       local Mobs = allMobs[Tag]
@@ -1557,7 +1548,8 @@ local Module = {} do
         ["Skull Guitar"] = "TAP",
         ["Bazooka"] = "Position",
         ["Cannon"] = "Position"
-      }
+      },
+      HitboxLimbs = {"RightLowerArm", "RightUpperArm", "LeftLowerArm", "LeftUpperArm", "RightHand", "LeftHand"}
     }
     
     local RE_RegisterAttack = Net:WaitForChild("RE/RegisterAttack")
@@ -1619,20 +1611,24 @@ local Module = {} do
     function FastAttack:Process(assert: boolean, Enemies: Folder, BladeHits: table, Position: Vector3, Distance: number): (nil)
       if not assert then return end
       
+      local HitboxLimbs = self.HitboxLimbs
       local Mobs = Enemies:GetChildren()
       
       for i = 1, #Mobs do
         local Enemy = Mobs[i]
-        local RootPart = Enemy.PrimaryPart
-        local CanAttack = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
-        local IsReady = Enemy:FindFirstChild("CharacterReady")
+        local BasePart = Enemy:FindFirstChild(HitboxLimbs[math.random(#HitboxLimbs)])
         
-        if IsReady and Enemy ~= Player.Character and RootPart and (Enemy.Parent ~= Characters or CanAttack) then
-          if IsAlive(Enemy) and (Position - RootPart.Position).Magnitude <= Distance then
+        if not BasePart then continue end
+        if not Enemy:FindFirstChild("CharacterReady") then continue end
+        
+        local CanAttack = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
+        
+        if Enemy ~= Player.Character and (Enemy.Parent ~= Characters or CanAttack) then
+          if IsAlive(Enemy) and (Position - BasePart.Position).Magnitude <= Distance then
             if not self.EnemyRootPart then
-              self.EnemyRootPart = RootPart
+              self.EnemyRootPart = BasePart
             else
-              table.insert(BladeHits, { Enemy, RootPart })
+              table.insert(BladeHits, { Enemy, BasePart })
             end
           end
         end
