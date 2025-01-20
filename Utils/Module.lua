@@ -1336,7 +1336,7 @@ local Module = {} do
         for i = 1, #BaseParts do
           local BasePart = BaseParts[i]
           
-          if CanTouchObjects[BasePart] then
+          if CanCollideObjects[BasePart] then
             BasePart.CanCollide = true
           end
           if CanTouchObjects[BasePart] then
