@@ -1045,6 +1045,7 @@ local Module = {} do
   Module.Enemies = (function()
     local EnemiesModule = {
       __CakePrince = {},
+      __PirateRaid = {},
       __RaidBoss = {},
       __Bones = {},
       __Elite = {},
@@ -1053,6 +1054,7 @@ local Module = {} do
     
     local Signals = Module.Signals
     local IsAlive = Module.IsAlive
+    local SeaCastle = CFrame.new(-5556, 314, -2988)
     
     local Elites = ToDictionary({ "Deandre", "Diablo", "Urban" })
     local Bones = ToDictionary({ "Reborn Skeleton", "Living Zombie", "Demonic Soul", "Posessed Mummy" })
@@ -1065,6 +1067,16 @@ local Module = {} do
         table.insert(List, Enemy)
         Humanoid.Died:Wait()
         table.remove(List, table.find(List, Enemy))
+      end
+    end
+    
+    local function PirateRaidEnemy(Enemy)
+      local HumanoidRootPart = Enemy:WaitForChild("HumanoidRootPart")
+      
+      if Enemy.Name ~= "rip_indra True Form" and Enemy.Name ~= "Blank Buddy" then
+        if (HumanoidRootPart.Position - SeaCastle.Position).Magnitude <= 750 then
+          task.spawn(newEnemy, EnemiesModule.__PirateRaid, Enemy)
+        end
       end
     end
     
@@ -1082,6 +1094,10 @@ local Module = {} do
         task.spawn(newEnemy, EnemiesModule.__Bones, Enemy)
       elseif CakePrince[Name] then
         task.spawn(newEnemy, EnemiesModule.__CakePrince, Enemy)
+      end
+      
+      if Module.GameData.Sea == 3 then
+        task.spawn(PirateRaidEnemy, Enemy)
       end
       
       Others[Name] = Others[Name] or {}
