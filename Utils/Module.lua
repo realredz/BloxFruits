@@ -537,6 +537,7 @@ local Module = {} do
     
     Module.RemoveCanTouch = 0
     Module.AttackCooldown = 0
+    Module.PirateRaid = 0
     
     Module.Webhooks = true
     Module.JobIds = true
@@ -1076,6 +1077,7 @@ local Module = {} do
       if Enemy.Name ~= "rip_indra True Form" and Enemy.Name ~= "Blank Buddy" then
         if (HumanoidRootPart.Position - SeaCastle.Position).Magnitude <= 750 then
           task.spawn(newEnemy, EnemiesModule.__PirateRaid, Enemy)
+          Module.PirateRaid = tick()
         end
       end
     end
