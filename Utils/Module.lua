@@ -75,6 +75,8 @@ local function GetCharacterHumanoid(Character)
     
     if HealthValue then
       return HealthValue
+    elseif Character:FindFirstChild("Humanoid") then
+      return true
     end
   else
     return Character:FindFirstChildOfClass("Humanoid")
@@ -714,10 +716,14 @@ local Module = {} do
   
   function Module.IsAlive(Character)
     if Character then
-      local Humanoid, NoCache = Cached.Humanoids[Character] or GetCharacterHumanoid(Character)
+      local Humanoid = Cached.Humanoids[Character] or GetCharacterHumanoid(Character)
+      
+      if Humanoid == true then
+        return true
+      end
       
       if Humanoid then
-        if NoCache ~= true and not Cached.Humanoids[Character] then
+        if not Cached.Humanoids[Character] then
           Cached.Humanoids[Character] = Humanoid
         end
         
