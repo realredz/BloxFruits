@@ -1276,10 +1276,13 @@ local Module = {} do
     
     local IsAlive = Module.IsAlive
     
-    local BaseParts = {} do
+    local BaseParts, CanCollideObjects, CanTouchObjects = {}, {}, {} do
       local function AddObjectToBaseParts(Object)
-        if Object:IsA("BasePart") then
+        if Object:IsA("BasePart") and (Object.CanCollide or Object.CanTouch) then
           table.insert(BaseParts, Object)
+          
+          if Object.CanCollide then CanCollideObjects[Object] = true end
+          if Object.CanTouch then CanTouchObjects[Object] = true end
         end
       end
       
@@ -1322,18 +1325,23 @@ local Module = {} do
           local BasePart = BaseParts[i]
           local CanTouchValue = if (tick() - Module.RemoveCanTouch) <= 1 then false else true
           
-          if BasePart.CanTouch ~= CanTouchValue then
+          if CanTouchObjects[BasePart] and BasePart.CanTouch ~= CanTouchValue then
             BasePart.CanTouch = CanTouchValue
           end
-          if BasePart.CanCollide then
+          if CanCollideObjects[BasePart] and BasePart.CanCollide then
             BasePart.CanCollide = false
           end
         end
       elseif Character.PrimaryPart and (not Character.PrimaryPart.CanCollide or not Character.PrimaryPart.CanTouch) then
         for i = 1, #BaseParts do
           local BasePart = BaseParts[i]
-          BasePart.CanCollide = true
-          BasePart.CanTouch = true
+          
+          if CanTouchObjects[BasePart] then
+            BasePart.CanCollide = true
+          end
+          if CanTouchObjects[BasePart] then
+            BasePart.CanTouch = true
+          end
         end
       end
     end
