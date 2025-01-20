@@ -1007,6 +1007,10 @@ local Module = {} do
     end
     
     local function MobAdded(Enemy)
+      if not Enemy:IsA("Model") or not Enemy:GetAttribute("ID") or Enemy:GetAttribute("IsBoat") then
+        return nil
+      end
+      
       local EnemyName = Enemy.Name
       local RaidBoss = Enemy:GetAttribute("RaidBoss")
       
@@ -1074,6 +1078,7 @@ local Module = {} do
     
     for _, Enemy in CollectionService:GetTagged("BasicMob") do MobAdded(Enemy) end
     table.insert(Connections, CollectionService:GetInstanceAddedSignal("BasicMob"):Connect(MobAdded))
+    table.insert(Connections, Enemies.ChildAdded:Connect(MobAdded))
     
     table.insert(Connections, CollectionService:GetInstanceAddedSignal(KILLAURA_TAG):Connect(KillAura))
     table.insert(Connections, CollectionService:GetInstanceAddedSignal(BRING_TAG):Connect(Bring))
