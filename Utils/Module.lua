@@ -818,6 +818,9 @@ local Module = {} do
   end
   
   function Module.EquipTool(ToolName: string, ByType: boolean?): (nil)
+    ByType = if not ToolName then true else ByType
+    ToolName = ToolName or Settings.FarmTool
+    
     if not Module.IsAlive(Player.Character) then
       return nil
     end
@@ -833,17 +836,15 @@ local Module = {} do
     end
     
     if ToolName and not ByType then
-      local BackpackTool = Player.Backpack:FindFirstChild(Name)
+      local BackpackTool = Player.Backpack:FindFirstChild(ToolName)
       
       if BackpackTool then
         Cached.Equipped = BackpackTool
         Player.Character.Humanoid:EquipTool(BackpackTool)
       end
     else
-      local ToolTip = if ByType then ToolName else Settings.FarmTool
-      
       for _, Tool in Player.Backpack:GetChildren() do
-        if Tool:IsA("Tool") and Tool.ToolTip == ToolTip then
+        if Tool:IsA("Tool") and Tool.ToolTip == ToolName then
           Cached.Equipped = Tool
           Player.Character.Humanoid:EquipTool(Tool)
           return nil
