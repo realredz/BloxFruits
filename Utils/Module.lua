@@ -1798,7 +1798,7 @@ local Module = {} do
       if IsEnemy then
         Debounce.TargetDebounce = tick()
         table.clear(ClosestsEnemies)
-        ClosestsEnemies.Closest = { Character, BasePart }
+        ClosestsEnemies.Closest = BasePart
         
         for _, Enemy in ipairs(Module.Enemies:GetTagged(Character.Name)) do
           if Enemy ~= Character and Enemy:FindFirstChild("UpperTorso") then
