@@ -2075,7 +2075,9 @@ function VerifyToolTip(ToolTip)
     return Cached
   end
   
-  return GetToolTip(ToolTip, Player.Backpack) or IsAlive(Player.Character) and GetToolTip(ToolTip, Player.Character)
+  local Character = IsAlive(Player.Character) and Player.Character
+  
+  return GetToolTip(ToolTip, Player.Backpack) or Character and GetToolTip(ToolTip, Character)
 end
 
 function VerifyTool(Name)
