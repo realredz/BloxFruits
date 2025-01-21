@@ -558,7 +558,7 @@ local Module = {} do
     Signals.OptionChanged = Signal.new()
     Signals.EnemyAdded = Signal.new()
     Signals.EnemyDied = Signal.new()
-    Signals.Notify = Signals.new()
+    Signals.Notify = Signal.new()
     Signals.Error = Signal.new()
 
     Signals.Error:Connect(function(ErrorMessage)
