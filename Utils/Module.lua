@@ -1424,10 +1424,9 @@ local Module = {} do
       
       for i = 1, #Mobs do
         local Enemy = Mobs[i]
-        local BasePart = Enemy:FindFirstChild(HitboxLimbs[math.random(#HitboxLimbs)])
+        local BasePart = Enemy:FindFirstChild(HitboxLimbs[math.random(#HitboxLimbs)]) or Enemy.PrimaryPart
         
         if not BasePart then continue end
-        if not Enemy:FindFirstChild("CharacterReady") then continue end
         
         local CanAttack = Enemy.Parent == Characters and CheckPlayerAlly(Players:GetPlayerFromCharacter(Enemy))
         
