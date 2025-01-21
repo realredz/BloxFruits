@@ -558,8 +558,9 @@ local Module = {} do
     Signals.OptionChanged = Signal.new()
     Signals.EnemyAdded = Signal.new()
     Signals.EnemyDied = Signal.new()
+    Signals.Notify = Signals.new()
     Signals.Error = Signal.new()
-    
+
     Signals.Error:Connect(function(ErrorMessage)
       _ENV.loadedFarm = false
       _ENV.OnFarm = false
@@ -1323,6 +1324,8 @@ local Module = {} do
         Inventory:UpdateItem(...)
       elseif Method == "ItemRemoved" then
         Inventory:RemoveItem(...)
+      elseif Method == "Notify" then
+        Module.Signals.Notify:Fire(...)
       end
     end
     
