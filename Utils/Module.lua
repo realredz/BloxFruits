@@ -1792,20 +1792,21 @@ local Module = {} do
     end
     
     function Hooking:SetTarget(BasePart: BasePart, Character: Model?, IsEnemy: boolean?): (nil)
+      local ClosestsEnemies = Hooking.ClosestsEnemies
       local Closest = ClosestsEnemies.Closest
       
       if IsEnemy then
         Debounce.TargetDebounce = tick()
         table.clear(ClosestsEnemies)
-        Hooking.ClosestsEnemies.Closest = { Character, BasePart }
+        ClosestsEnemies.Closest = { Character, BasePart }
         
         for _, Enemy in ipairs(Module.Enemies:GetTagged(Character.Name)) do
           if Enemy ~= Character and Enemy:FindFirstChild("UpperTorso") then
-            table.insert(Hooking.ClosestsEnemies, { Enemy, Enemy.UpperTorso })
+            table.insert(ClosestsEnemies, { Enemy, Enemy.UpperTorso })
           end
         end
       elseif not Closest or Closest[2] ~= BasePart then
-        Hooking.ClosestsEnemies.Closest = { false, BasePart }
+        ClosestsEnemies.Closest = { false, BasePart }
       end
     end
     
