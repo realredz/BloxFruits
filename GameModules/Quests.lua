@@ -5,10 +5,6 @@ return {
       Name = "Sea Soldier",
       Task = {
         ["Sea Soldier"] = 8
-      },
-      Reward = {
-        Exp = 47000000,
-        Beli = 12250
       }
     },
     {
@@ -16,10 +12,6 @@ return {
       Name = "Water Fighter",
       Task = {
         ["Water Fighter"] = 8
-      },
-      Reward = {
-        Exp = 49000000,
-        Beli = 12500
       }
     },
     {
@@ -27,10 +19,6 @@ return {
       Name = "Tide Keeper",
       Task = {
         ["Tide Keeper"] = 1
-      },
-      Reward = {
-        Exp = 51000000,
-        Beli = 12500
       }
     }
   },
@@ -40,10 +28,6 @@ return {
       Name = "Demonic Soul",
       Task = {
         ["Demonic Soul"] = 8
-      },
-      Reward = {
-        Exp = 96000000,
-        Beli = 13500
       }
     },
     {
@@ -51,10 +35,6 @@ return {
       Name = "Posessed Mummy",
       Task = {
         ["Posessed Mummy"] = 8
-      },
-      Reward = {
-        Exp = 98500000,
-        Beli = 13750
       }
     }
   },
@@ -64,10 +44,6 @@ return {
       Name = "Sky Bandit",
       Task = {
         ["Sky Bandit"] = 7
-      },
-      Reward = {
-        Exp = 315000,
-        Beli = 7000
       }
     },
     {
@@ -75,10 +51,6 @@ return {
       Name = "Dark Master",
       Task = {
         ["Dark Master"] = 8
-      },
-      Reward = {
-        Exp = 450000,
-        Beli = 7500
       }
     }
   },
@@ -88,10 +60,6 @@ return {
       Name = "Warden",
       Task = {
         Warden = 1
-      },
-      Reward = {
-        Exp = 850000,
-        Beli = 6000
       }
     },
     {
@@ -99,10 +67,6 @@ return {
       Name = "Chief Warden",
       Task = {
         ["Chief Warden"] = 1
-      },
-      Reward = {
-        Exp = 1000000,
-        Beli = 10000
       }
     },
     {
@@ -110,10 +74,6 @@ return {
       Name = "Swan",
       Task = {
         Swan = 1
-      },
-      Reward = {
-        Exp = 1600000,
-        Beli = 15000
       }
     }
   },
@@ -123,10 +83,6 @@ return {
       Name = "Sun-kissed Warrior",
       Task = {
         ["Sun-kissed Warrior"] = 8
-      },
-      Reward = {
-        Exp = 137000000,
-        Beli = 15250
       }
     },
     {
@@ -134,10 +90,6 @@ return {
       Name = "Isle Champion",
       Task = {
         ["Isle Champion"] = 8
-      },
-      Reward = {
-        Exp = 139000000,
-        Beli = 15500
       }
     }
   },
@@ -147,10 +99,6 @@ return {
       Name = "Raider",
       Task = {
         Raider = 8
-      },
-      Reward = {
-        Exp = 8750000,
-        Beli = 10250
       }
     },
     {
@@ -158,10 +106,6 @@ return {
       Name = "Mercenary",
       Task = {
         Mercenary = 8
-      },
-      Reward = {
-        Exp = 9750000,
-        Beli = 10500
       }
     },
     {
@@ -169,10 +113,6 @@ return {
       Name = "Diamond",
       Task = {
         Diamond = 1
-      },
-      Reward = {
-        Exp = 12500000,
-        Beli = 25000
       }
     }
   },
@@ -182,10 +122,6 @@ return {
       Name = "Fishman Raider",
       Task = {
         ["Fishman Raider"] = 8
-      },
-      Reward = {
-        Exp = 73000000,
-        Beli = 13000
       }
     },
     {
@@ -193,10 +129,6 @@ return {
       Name = "Fishman Captain",
       Task = {
         ["Fishman Captain"] = 8
-      },
-      Reward = {
-        Exp = 75500000,
-        Beli = 15000
       }
     }
   },
@@ -206,10 +138,6 @@ return {
       Name = "Candy Pirate",
       Task = {
         ["Candy Pirate"] = 8
-      },
-      Reward = {
-        Exp = 129000000,
-        Beli = 14950
       }
     },
     {
@@ -217,10 +145,6 @@ return {
       Name = "Snow Demon",
       Task = {
         ["Snow Demon"] = 8
-      },
-      Reward = {
-        Exp = 131000000,
-        Beli = 15000
       }
     }
   },
@@ -230,10 +154,6 @@ return {
       Name = "Magma Ninja",
       Task = {
         ["Magma Ninja"] = 8
-      },
-      Reward = {
-        Exp = 29000000,
-        Beli = 12250
       }
     },
     {
@@ -241,10 +161,6 @@ return {
       Name = "Lava Pirate",
       Task = {
         ["Lava Pirate"] = 8
-      },
-      Reward = {
-        Exp = 31000000,
-        Beli = 12500
       }
     }
   },
@@ -254,10 +170,6 @@ return {
       Name = "Monkeys",
       Task = {
         Monkey = 6
-      },
-      Reward = {
-        Exp = 2300,
-        Beli = 800
       }
     },
     {
@@ -265,10 +177,6 @@ return {
       Name = "Gorillas",
       Task = {
         Gorilla = 8
-      },
-      Reward = {
-        Exp = 4500,
-        Beli = 1200
       }
     },
     {
@@ -276,10 +184,6 @@ return {
       Name = "Gorilla King",
       Task = {
         ["The Gorilla King"] = 1
-      },
-      Reward = {
-        Exp = 9500,
-        Beli = 2000
       }
     }
   },
@@ -289,10 +193,6 @@ return {
       Name = "Galley Pirate",
       Task = {
         ["Galley Pirate"] = 8
-      },
-      Reward = {
-        Exp = 7500000,
-        Beli = 10000
       }
     },
     {
@@ -300,10 +200,6 @@ return {
       Name = "Galley Captain",
       Task = {
         ["Galley Captain"] = 9
-      },
-      Reward = {
-        Exp = 8500000,
-        Beli = 10000
       }
     },
     {
@@ -311,10 +207,6 @@ return {
       Name = "Cyborg",
       Task = {
         Cyborg = 1
-      },
-      Reward = {
-        Exp = 10000000,
-        Beli = 20000
       }
     }
   },
@@ -324,10 +216,6 @@ return {
       Name = "Desert Bandit",
       Task = {
         ["Desert Bandit"] = 8
-      },
-      Reward = {
-        Exp = 45000,
-        Beli = 4000
       }
     },
     {
@@ -335,10 +223,6 @@ return {
       Name = "Desert Officer",
       Task = {
         ["Desert Officer"] = 6
-      },
-      Reward = {
-        Exp = 65000,
-        Beli = 4500
       }
     }
   },
@@ -348,10 +232,6 @@ return {
       Name = "Snow Bandit",
       Task = {
         ["Snow Bandit"] = 7
-      },
-      Reward = {
-        Exp = 90000,
-        Beli = 5000
       }
     },
     {
@@ -359,10 +239,6 @@ return {
       Name = "Snowman",
       Task = {
         Snowman = 8
-      },
-      Reward = {
-        Exp = 150000,
-        Beli = 5500
       }
     },
     {
@@ -370,10 +246,6 @@ return {
       Name = "Yeti",
       Task = {
         Yeti = 1
-      },
-      Reward = {
-        Exp = 220000,
-        Beli = 10000
       }
     }
   },
@@ -383,10 +255,6 @@ return {
       Name = "Marine Commodore",
       Task = {
         ["Marine Commodore"] = 8
-      },
-      Reward = {
-        Exp = 68000000,
-        Beli = 13000
       }
     },
     {
@@ -394,10 +262,6 @@ return {
       Name = "Marine Rear Admiral",
       Task = {
         ["Marine Rear Admiral"] = 8
-      },
-      Reward = {
-        Exp = 70500000,
-        Beli = 15000
       }
     },
     {
@@ -405,10 +269,6 @@ return {
       Name = "Kilo Admiral",
       Task = {
         ["Kilo Admiral"] = 1
-      },
-      Reward = {
-        Exp = 78000000,
-        Beli = 35000
       }
     }
   },
@@ -418,10 +278,6 @@ return {
       Name = "Reborn Skeleton",
       Task = {
         ["Reborn Skeleton"] = 8
-      },
-      Reward = {
-        Exp = 91000000,
-        Beli = 13000
       }
     },
     {
@@ -429,10 +285,6 @@ return {
       Name = "Living Zombie",
       Task = {
         ["Living Zombie"] = 8
-      },
-      Reward = {
-        Exp = 93500000,
-        Beli = 13250
       }
     }
   },
@@ -442,10 +294,6 @@ return {
       Name = "Forest Pirate",
       Task = {
         ["Forest Pirate"] = 8
-      },
-      Reward = {
-        Exp = 78000000,
-        Beli = 13000
       }
     },
     {
@@ -453,10 +301,6 @@ return {
       Name = "Mythological Pirate",
       Task = {
         ["Mythological Pirate"] = 8
-      },
-      Reward = {
-        Exp = 81000000,
-        Beli = 13000
       }
     },
     {
@@ -464,10 +308,6 @@ return {
       Name = "Captain Elephant",
       Task = {
         ["Captain Elephant"] = 1
-      },
-      Reward = {
-        Exp = 90000000,
-        Beli = 40000
       }
     }
   },
@@ -477,10 +317,6 @@ return {
       Name = "Pirates",
       Task = {
         Pirate = 8
-      },
-      Reward = {
-        Exp = 13000,
-        Beli = 3000
       }
     },
     {
@@ -488,10 +324,6 @@ return {
       Name = "Brute",
       Task = {
         Brute = 8
-      },
-      Reward = {
-        Exp = 22000,
-        Beli = 3500
       }
     },
     {
@@ -499,10 +331,6 @@ return {
       Name = "Bobby",
       Task = {
         Bobby = 1
-      },
-      Reward = {
-        Exp = 45000,
-        Beli = 8000
       }
     }
   },
@@ -512,10 +340,6 @@ return {
       Name = "Swan Pirate",
       Task = {
         ["Swan Pirate"] = 8
-      },
-      Reward = {
-        Exp = 11500000,
-        Beli = 10750
       }
     },
     {
@@ -523,10 +347,6 @@ return {
       Name = "Factory Staff",
       Task = {
         ["Factory Staff"] = 8
-      },
-      Reward = {
-        Exp = 13000000,
-        Beli = 11000
       }
     },
     {
@@ -534,10 +354,6 @@ return {
       Name = "Jeremy",
       Task = {
         Jeremy = 1
-      },
-      Reward = {
-        Exp = 16000000,
-        Beli = 25000
       }
     }
   },
@@ -547,10 +363,6 @@ return {
       Name = "God's Guard",
       Task = {
         ["God's Guard"] = 7
-      },
-      Reward = {
-        Exp = 4250000,
-        Beli = 8750
       }
     },
     {
@@ -558,10 +370,6 @@ return {
       Name = "Shanda",
       Task = {
         Shanda = 9
-      },
-      Reward = {
-        Exp = 5000000,
-        Beli = 9000
       }
     },
     {
@@ -569,10 +377,6 @@ return {
       Name = "Wysper",
       Task = {
         Wysper = 1
-      },
-      Reward = {
-        Exp = 5700000,
-        Beli = 15000
       }
     }
   },
@@ -582,10 +386,6 @@ return {
       Name = "Zombie",
       Task = {
         Zombie = 8
-      },
-      Reward = {
-        Exp = 19000000,
-        Beli = 11750
       }
     },
     {
@@ -593,10 +393,6 @@ return {
       Name = "Vampire",
       Task = {
         Vampire = 8
-      },
-      Reward = {
-        Exp = 20500000,
-        Beli = 12000
       }
     }
   },
@@ -606,10 +402,6 @@ return {
       Name = "Baking Staff",
       Task = {
         ["Baking Staff"] = 8
-      },
-      Reward = {
-        Exp = 115000000,
-        Beli = 14400
       }
     },
     {
@@ -617,10 +409,6 @@ return {
       Name = "Head Baker",
       Task = {
         ["Head Baker"] = 8
-      },
-      Reward = {
-        Exp = 117500000,
-        Beli = 14500
       }
     }
   },
@@ -630,10 +418,6 @@ return {
       Name = "Snow Trooper",
       Task = {
         ["Snow Trooper"] = 8
-      },
-      Reward = {
-        Exp = 22500000,
-        Beli = 12250
       }
     },
     {
@@ -641,10 +425,6 @@ return {
       Name = "Winter Warrior",
       Task = {
         ["Winter Warrior"] = 9
-      },
-      Reward = {
-        Exp = 24000000,
-        Beli = 12500
       }
     }
   },
@@ -654,10 +434,6 @@ return {
       Name = "Ship Deckhand",
       Task = {
         ["Ship Deckhand"] = 8
-      },
-      Reward = {
-        Exp = 33000000,
-        Beli = 12250
       }
     },
     {
@@ -665,10 +441,6 @@ return {
       Name = "Ship Engineer",
       Task = {
         ["Ship Engineer"] = 8
-      },
-      Reward = {
-        Exp = 35500000,
-        Beli = 12500
       }
     }
   },
@@ -678,10 +450,6 @@ return {
       Name = "Jungle Pirate",
       Task = {
         ["Jungle Pirate"] = 8
-      },
-      Reward = {
-        Exp = 85000000,
-        Beli = 13000
       }
     },
     {
@@ -689,10 +457,6 @@ return {
       Name = "Musketeer Pirate",
       Task = {
         ["Musketeer Pirate"] = 8
-      },
-      Reward = {
-        Exp = 87500000,
-        Beli = 15000
       }
     },
     {
@@ -700,10 +464,6 @@ return {
       Name = "Beautiful Pirate",
       Task = {
         ["Beautiful Pirate"] = 1
-      },
-      Reward = {
-        Exp = 100000000,
-        Beli = 50000
       }
     }
   },
@@ -713,10 +473,6 @@ return {
       Name = "Arctic Warrior",
       Task = {
         ["Arctic Warrior"] = 8
-      },
-      Reward = {
-        Exp = 41000000,
-        Beli = 12250
       }
     },
     {
@@ -724,10 +480,6 @@ return {
       Name = "Snow Lurker",
       Task = {
         ["Snow Lurker"] = 8
-      },
-      Reward = {
-        Exp = 43000000,
-        Beli = 12500
       }
     },
     {
@@ -735,10 +487,6 @@ return {
       Name = "Ice Admiral",
       Task = {
         ["Awakened Ice Admiral"] = 1
-      },
-      Reward = {
-        Exp = 45000000,
-        Beli = 20000
       }
     }
   },
@@ -748,10 +496,6 @@ return {
       Name = "Pirate Millionaire",
       Task = {
         ["Pirate Millionaire"] = 8
-      },
-      Reward = {
-        Exp = 53000000,
-        Beli = 13000
       }
     },
     {
@@ -759,10 +503,6 @@ return {
       Name = "Pistol Billionaire",
       Task = {
         ["Pistol Billionaire"] = 8
-      },
-      Reward = {
-        Exp = 55500000,
-        Beli = 15000
       }
     },
     {
@@ -770,10 +510,6 @@ return {
       Name = "Stone",
       Task = {
         Stone = 1
-      },
-      Reward = {
-        Exp = 60000000,
-        Beli = 25000
       }
     }
   },
@@ -783,10 +519,6 @@ return {
       Name = "Prisoner",
       Task = {
         Prisoner = 8
-      },
-      Reward = {
-        Exp = 550000,
-        Beli = 7000
       }
     },
     {
@@ -794,10 +526,6 @@ return {
       Name = "Dangerous Prisoner",
       Task = {
         ["Dangerous Prisoner"] = 8
-      },
-      Reward = {
-        Exp = 780000,
-        Beli = 7500
       }
     }
   },
@@ -807,10 +535,6 @@ return {
       Name = "Marine Lieutenant",
       Task = {
         ["Marine Lieutenant"] = 8
-      },
-      Reward = {
-        Exp = 15000000,
-        Beli = 11250
       }
     },
     {
@@ -818,10 +542,6 @@ return {
       Name = "Marine Captain",
       Task = {
         ["Marine Captain"] = 9
-      },
-      Reward = {
-        Exp = 16500000,
-        Beli = 11500
       }
     },
     {
@@ -829,10 +549,6 @@ return {
       Name = "Fajita",
       Task = {
         Fajita = 1
-      },
-      Reward = {
-        Exp = 19000000,
-        Beli = 25000
       }
     }
   },
@@ -842,10 +558,6 @@ return {
       Name = "Bandits",
       Task = {
         Bandit = 5
-      },
-      Reward = {
-        Exp = 300,
-        Beli = 350
       }
     }
   },
@@ -855,10 +567,6 @@ return {
       Name = "Dragon Crew Warrior",
       Task = {
         ["Dragon Crew Warrior"] = 8
-      },
-      Reward = {
-        Exp = 58000000,
-        Beli = 13000
       }
     },
     {
@@ -866,10 +574,6 @@ return {
       Name = "Dragon Crew Archer",
       Task = {
         ["Dragon Crew Archer"] = 8
-      },
-      Reward = {
-        Exp = 60500000,
-        Beli = 15000
       }
     }
   },
@@ -879,10 +583,6 @@ return {
       Name = "Mil. Soldier",
       Task = {
         ["Military Soldier"] = 7
-      },
-      Reward = {
-        Exp = 1700000,
-        Beli = 8250
       }
     },
     {
@@ -890,10 +590,6 @@ return {
       Name = "Mil. Spy",
       Task = {
         ["Military Spy"] = 8
-      },
-      Reward = {
-        Exp = 2000000,
-        Beli = 8500
       }
     },
     {
@@ -901,10 +597,6 @@ return {
       Name = "Magma Admiral",
       Task = {
         ["Magma Admiral"] = 1
-      },
-      Reward = {
-        Exp = 3000000,
-        Beli = 15000
       }
     }
   },
@@ -914,10 +606,6 @@ return {
       Name = "Hydra Enforcer",
       Task = {
         ["Hydra Enforcer"] = 8
-      },
-      Reward = {
-        Exp = 62500000,
-        Beli = 13000
       }
     },
     {
@@ -925,10 +613,6 @@ return {
       Name = "Venomous Assailant",
       Task = {
         ["Venomous Assailant"] = 8
-      },
-      Reward = {
-        Exp = 64500000,
-        Beli = 15000
       }
     },
     {
@@ -936,10 +620,6 @@ return {
       Name = "Hydra Leader",
       Task = {
         ["Hydra Leader"] = 1
-      },
-      Reward = {
-        Exp = 70000000,
-        Beli = 30000
       }
     }
   },
@@ -949,10 +629,6 @@ return {
       Name = "Cookie Crafter",
       Task = {
         ["Cookie Crafter"] = 8
-      },
-      Reward = {
-        Exp = 110000000,
-        Beli = 14200
       }
     },
     {
@@ -960,10 +636,6 @@ return {
       Name = "Cake Guard",
       Task = {
         ["Cake Guard"] = 8
-      },
-      Reward = {
-        Exp = 112500000,
-        Beli = 14300
       }
     }
   },
@@ -973,10 +645,6 @@ return {
       Name = "Serpent Hunter",
       Task = {
         ["Serpent Hunter"] = 8
-      },
-      Reward = {
-        Exp = 141000000,
-        Beli = 15750
       }
     },
     {
@@ -984,10 +652,6 @@ return {
       Name = "Skull Slayer",
       Task = {
         ["Skull Slayer"] = 8
-      },
-      Reward = {
-        Exp = 143000000,
-        Beli = 16000
       }
     }
   },
@@ -997,10 +661,6 @@ return {
       Name = "Isle Outlaw",
       Task = {
         ["Isle Outlaw"] = 8
-      },
-      Reward = {
-        Exp = 133000000,
-        Beli = 15100
       }
     },
     {
@@ -1008,10 +668,6 @@ return {
       Name = "Island Boy",
       Task = {
         ["Island Boy"] = 8
-      },
-      Reward = {
-        Exp = 135000000,
-        Beli = 15200
       }
     }
   },
@@ -1021,10 +677,6 @@ return {
       Name = "Royal Squad",
       Task = {
         ["Royal Squad"] = 8
-      },
-      Reward = {
-        Exp = 5800000,
-        Beli = 9500
       }
     },
     {
@@ -1032,10 +684,6 @@ return {
       Name = "Royal Soldier",
       Task = {
         ["Royal Soldier"] = 8
-      },
-      Reward = {
-        Exp = 6300000,
-        Beli = 9750
       }
     },
     {
@@ -1043,10 +691,6 @@ return {
       Name = "Thunder God",
       Task = {
         ["Thunder God"] = 1
-      },
-      Reward = {
-        Exp = 8000000,
-        Beli = 20000
       }
     }
   },
@@ -1056,10 +700,6 @@ return {
       Name = "Chief Petty Officer",
       Task = {
         ["Chief Petty Officer"] = 8
-      },
-      Reward = {
-        Exp = 225000,
-        Beli = 6000
       }
     },
     {
@@ -1067,10 +707,6 @@ return {
       Name = "Vice Admiral",
       Task = {
         ["Vice Admiral"] = 1
-      },
-      Reward = {
-        Exp = 415000,
-        Beli = 15000
       }
     }
   },
@@ -1080,10 +716,6 @@ return {
       Name = "Lab Subordinate",
       Task = {
         ["Lab Subordinate"] = 8
-      },
-      Reward = {
-        Exp = 25500000,
-        Beli = 12250
       }
     },
     {
@@ -1091,10 +723,6 @@ return {
       Name = "Horned Warrior",
       Task = {
         ["Horned Warrior"] = 9
-      },
-      Reward = {
-        Exp = 27000000,
-        Beli = 12500
       }
     },
     {
@@ -1102,10 +730,6 @@ return {
       Name = "Smoke Admiral",
       Task = {
         ["Smoke Admiral"] = 1
-      },
-      Reward = {
-        Exp = 32500000,
-        Beli = 20000
       }
     }
   },
@@ -1115,10 +739,6 @@ return {
       Name = "Toga Warrior",
       Task = {
         ["Toga Warrior"] = 7
-      },
-      Reward = {
-        Exp = 1100000,
-        Beli = 7000
       }
     },
     {
@@ -1126,10 +746,6 @@ return {
       Name = "Gladiator",
       Task = {
         Gladiator = 8
-      },
-      Reward = {
-        Exp = 1300000,
-        Beli = 7500
       }
     }
   },
@@ -1139,10 +755,6 @@ return {
       Name = "Ship Steward",
       Task = {
         ["Ship Steward"] = 8
-      },
-      Reward = {
-        Exp = 37500000,
-        Beli = 12250
       }
     },
     {
@@ -1150,10 +762,6 @@ return {
       Name = "Ship Officer",
       Task = {
         ["Ship Officer"] = 8
-      },
-      Reward = {
-        Exp = 39500000,
-        Beli = 12500
       }
     }
   },
@@ -1163,10 +771,6 @@ return {
       Name = "Peanut Scout",
       Task = {
         ["Peanut Scout"] = 8
-      },
-      Reward = {
-        Exp = 100000000,
-        Beli = 14000
       }
     },
     {
@@ -1174,10 +778,6 @@ return {
       Name = "Peanut President",
       Task = {
         ["Peanut President"] = 8
-      },
-      Reward = {
-        Exp = 102500000,
-        Beli = 14100
       }
     }
   },
@@ -1187,10 +787,6 @@ return {
       Name = "Ice Cream Chef",
       Task = {
         ["Ice Cream Chef"] = 8
-      },
-      Reward = {
-        Exp = 105000000,
-        Beli = 14200
       }
     },
     {
@@ -1198,10 +794,6 @@ return {
       Name = "Ice Cream Commander",
       Task = {
         ["Ice Cream Commander"] = 8
-      },
-      Reward = {
-        Exp = 107500000,
-        Beli = 14300
       }
     },
     {
@@ -1209,10 +801,6 @@ return {
       Name = "Cake Queen",
       Task = {
         ["Cake Queen"] = 1
-      },
-      Reward = {
-        Exp = 112500000,
-        Beli = 30000
       }
     }
   },
@@ -1222,10 +810,6 @@ return {
       Name = "Fishman Warrior",
       Task = {
         ["Fishman Warrior"] = 8
-      },
-      Reward = {
-        Exp = 3050000,
-        Beli = 8750
       }
     },
     {
@@ -1233,10 +817,6 @@ return {
       Name = "Fishman Commando",
       Task = {
         ["Fishman Commando"] = 7
-      },
-      Reward = {
-        Exp = 3350000,
-        Beli = 9000
       }
     },
     {
@@ -1244,10 +824,6 @@ return {
       Name = "Fishman Lord",
       Task = {
         ["Fishman Lord"] = 1
-      },
-      Reward = {
-        Exp = 4250000,
-        Beli = 15000
       }
     }
   },
@@ -1257,10 +833,6 @@ return {
       Name = "Cocoa Warrior",
       Task = {
         ["Cocoa Warrior"] = 8
-      },
-      Reward = {
-        Exp = 120000000,
-        Beli = 14600
       }
     },
     {
@@ -1268,10 +840,6 @@ return {
       Name = "Chocolate Bar Battler",
       Task = {
         ["Chocolate Bar Battler"] = 8
-      },
-      Reward = {
-        Exp = 122500000,
-        Beli = 14700
       }
     }
   },
@@ -1281,10 +849,6 @@ return {
       Name = "Sweet Thief",
       Task = {
         ["Sweet Thief"] = 8
-      },
-      Reward = {
-        Exp = 125000000,
-        Beli = 14800
       }
     },
     {
@@ -1292,10 +856,6 @@ return {
       Name = "Candy Rebel",
       Task = {
         ["Candy Rebel"] = 8
-      },
-      Reward = {
-        Exp = 127500000,
-        Beli = 14900
       }
     }
   }
