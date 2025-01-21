@@ -1802,11 +1802,11 @@ local Module = {} do
         
         for _, Enemy in ipairs(Module.Enemies:GetTagged(Character.Name)) do
           if Enemy ~= Character and Enemy:FindFirstChild("UpperTorso") then
-            table.insert(ClosestsEnemies, { Enemy, Enemy.UpperTorso })
+            table.insert(ClosestsEnemies, Enemy.UpperTorso)
           end
         end
-      elseif not Closest or Closest[2] ~= BasePart then
-        ClosestsEnemies.Closest = { false, BasePart }
+      elseif not Closest or Closest ~= BasePart then
+        ClosestsEnemies.Closest = BasePart
       end
     end
     
