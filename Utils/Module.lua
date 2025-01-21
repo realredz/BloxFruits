@@ -2075,7 +2075,7 @@ function VerifyToolTip(ToolTip)
     return Cached
   end
   
-  local Character = IsAlive(Player.Character) and Player.Character
+  local Character = Module.IsAlive(Player.Character) and Player.Character
   
   return GetToolTip(ToolTip, Player.Backpack) or Character and GetToolTip(ToolTip, Character)
 end
