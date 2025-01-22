@@ -1386,24 +1386,28 @@ local Module = {} do
     local IsAlive = Module.IsAlive
     
     function FastAttack:ShootInTarget(TargetPosition: Vector3): (nil)
-      if not SUCCESS_SHOOT or not SHOOT_FUNCTION then return end
-      
       local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
       
       if Equipped and Equipped.ToolTip == "Gun" then
         if Equipped:FindFirstChild("Cooldown") and (tick() - self.ShootDebounce) >= Equipped.Cooldown.Value then
-          local ShootType = self.SpecialShoots[Equipped.Name] or "Normal"
-          
-          if ShootType == "Position" or (ShootType == "TAP" and Equipped:FindFirstChild("RemoteEvent")) then
-            Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
-            GunValidator:FireServer(self:GetValidator2())
+          if SUCCESS_SHOOT and SHOOT_FUNCTION then
+            local ShootType = self.SpecialShoots[Equipped.Name] or "Normal"
             
-            if ShootType == "TAP" then
-              Equipped.RemoteEvent:FireServer("TAP", TargetPosition)
-            else
-              RE_ShootGunEvent:FireServer(TargetPosition)
+            if ShootType == "Position" or (ShootType == "TAP" and Equipped:FindFirstChild("RemoteEvent")) then
+              Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
+              GunValidator:FireServer(self:GetValidator2())
+              
+              if ShootType == "TAP" then
+                Equipped.RemoteEvent:FireServer("TAP", TargetPosition)
+              else
+                RE_ShootGunEvent:FireServer(TargetPosition)
+              end
+              
+              self.ShootDebounce = tick()
             end
-            
+          else
+            VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1);task.wait(0.05)
+            VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1);task.wait(0.05)
             self.ShootDebounce = tick()
           end
         end
@@ -1799,7 +1803,6 @@ local Module = {} do
     
     function Hooking:SetTarget(BasePart: BasePart, Character: Model?, IsEnemy: boolean?): (nil)
       local ClosestsEnemies = Hooking.ClosestsEnemies
-      local Closest = ClosestsEnemies.Closest
       
       if IsEnemy then
         Debounce.TargetDebounce = tick()
@@ -1811,7 +1814,9 @@ local Module = {} do
             table.insert(ClosestsEnemies, Enemy.UpperTorso)
           end
         end
-      elseif not Closest or Closest ~= BasePart then
+      else
+        table.clear(ClosestsEnemies)
+        Debounce.TargetDebounce = tick()
         ClosestsEnemies.Closest = BasePart
       end
     end
