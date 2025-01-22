@@ -545,7 +545,6 @@ local Module = {} do
     Module.JobIds = true
     
     Module.Progress = {}
-    Module.BossesName = {}
     Module.EnemyLocations = {}
     Module.SpawnLocations = {}
     
@@ -762,13 +761,34 @@ local Module = {} do
       return nil
     end
     
-    for Skill, Enabled in Skills do
-      local Debounce = Module.Debounce.Skills[Skill]
+    local Equipped = Player.Character and Player.Character:FindFirstChildOfClass("Tool")
+    local MasteryRequirements = Module.Inventory.MasteryRequirements
+    
+    if Equipped then
+      local Level = Equipped:GetAttribute("Level") or 0
+      local Mastery = MasteryRequirements[Equipped.Name]
       
-      if Enabled and (not Debounce or (tick() - Debounce) >= 0.5) then
-        VirtualInputManager:SendKeyEvent(true, Skill, false, game)
-        VirtualInputManager:SendKeyEvent(false, Skill, false, game)
-        Module.Debounce.Skills[Skill] = tick()
+      if Mastery == nil and Equipped:FindFirstChild("Data") then
+        local Success, Requirements = pcall(require, Equipped.Data)
+        
+        if Success and type(Requirements) == "table" then
+          MasteryRequirements[Equipped.Name] = Requirements.Lvl or false
+        else
+          MasteryRequirements[Equipped.Name] = false
+        end
+      end
+      
+      for Skill, Enabled in Skills do
+        if Mastery and not Mastery[Skill] then continue end
+        if Mastery and Level < Mastery[Skill] then continue end
+        
+        local Debounce = Module.Debounce.Skills[Skill]
+        
+        if Enabled and (not Debounce or (tick() - Debounce) >= 0.5) then
+          VirtualInputManager:SendKeyEvent(true, Skill, false, game)
+          VirtualInputManager:SendKeyEvent(false, Skill, false, game)
+          Module.Debounce.Skills[Skill] = tick()
+        end
       end
     end
   end
@@ -798,7 +818,7 @@ local Module = {} do
   end
   
   function Module:TravelTo(Sea: number?): (nil)
-    Module.FireRemote(`Travel{self.GameData.SeasName[self.GameData.Sea]}`)
+    Module.FireRemote(`Travel{self.GameData.SeasName[Sea]}`)
   end
   
   function Module:ServerHop(MaxPlayers: number?, Region: string?): (nil)
@@ -1246,7 +1266,7 @@ local Module = {} do
       
       local BodyPosition = Instance.new("BodyPosition", RootPart)
       BodyPosition.Position = RootPart.Position
-      BodyPosition.P, BodyPosition.D = 1e4, 1e3
+      BodyPosition.P, BodyPosition.D = 2e4, 1e2
       BodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
       
       while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do
@@ -1297,6 +1317,7 @@ local Module = {} do
       Unlocked = setmetatable({}, { __index = function() return false end }),
       Mastery = setmetatable({}, { __index = function() return 0 end }),
       Count = setmetatable({}, { __index = function() return 0 end }),
+      MasteryRequirements = {},
       Items = {},
     }
     
@@ -1313,6 +1334,7 @@ local Module = {} do
         if not self.Unlocked[Name] then self.Unlocked[Name] = true end
         if item.Count then self.Count[Name] = item.Count end
         if item.Mastery then self.Mastery[Name] = item.Mastery end
+        if item.MasteryRequirements then self.MasteryRequirements[Name] = item.MasteryRequirements end
       end
     end
     
@@ -1995,14 +2017,6 @@ local Module = {} do
         
         Friends:AdvanceToNextPageAsync()
       end
-    end
-  end)
-  
-  task.spawn(function()
-    local BossesName = Module.BossesName
-    
-    for Name, _ in ipairs(Module.Bosses) do
-      table.insert(BossesName, Name)
     end
   end)
   
