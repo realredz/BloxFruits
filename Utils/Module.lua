@@ -1065,6 +1065,10 @@ local Module = {} do
     local CakePrince = ToDictionary({ "Head Baker", "Baking Staff", "Cake Guard", "Cookie Crafter" })
     
     local function newEnemy(List, Enemy)
+      if table.find(List, Enemy) then
+        return nil
+      end
+      
       local Humanoid = Enemy:WaitForChild("Humanoid")
       
       if Humanoid and Humanoid.Health > 0 then
@@ -1140,14 +1144,17 @@ local Module = {} do
       
       if Enemies and #Enemies > 0 then
         for i = 1, #Enemies do
-          if IsAlive(Enemies[i]) then
-            return Enemies[i]
+          local Enemy = Enemies[i]
+          
+          if IsAlive(Enemy) then
+            Cached.Enemies[TagName] = Enemy
+            return Enemy
           end
         end
       end
     end
     
-    function EnemiesModule:GetClosest(Enemies: table)
+    function EnemiesModule:GetClosest(Enemies: table): Model?
       local SpecialTag = table.concat(Enemies, ".")
       local CachedEnemy = Cached.Enemies[SpecialTag]
       
