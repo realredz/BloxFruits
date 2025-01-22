@@ -450,8 +450,8 @@ local Module = {} do
       ["Hydra Leader"] = {
         IsBoss = true,
         Level = 1675,
-        Position = CFrame.new(5730, 602, 199),
-        Quest = {"VenomCrewQuest", CFrame.new(5448, 602, 748)}
+        Position = CFrame.new(5836, 1019, -83),
+        Quest = {"VenomCrewQuest", CFrame.new(5214, 1004, 761)}
       },
       ["Kilo Admiral"] = {
         IsBoss = true,
@@ -1597,8 +1597,7 @@ local Module = {} do
         return nil
       end
       
-      local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.25
-      local Nickname = Equipped:FindFirstChild("Nickname") and Equipped.Nickname.Value or "Null"
+      local Cooldown = Equipped:FindFirstChild("Cooldown") and Equipped.Cooldown.Value or 0.3
       
       if (tick() - self.Debounce) >= Cooldown and self:CheckStun(ToolTip, Character, Humanoid) then
         local Combo = self:GetCombo()
@@ -1606,7 +1605,7 @@ local Module = {} do
         
         self.Equipped = Equipped
         self.Debounce = if Combo >= 4 and ToolTip ~= "Gun" then (tick() + 0.05) else tick()
-    
+          
         if ToolTip == "Blox Fruit" then
           if ToolName == "Ice-Ice" or ToolName == "Light-Light" then
             return self:UseNormalClick(Humanoid, Character, Cooldown)
