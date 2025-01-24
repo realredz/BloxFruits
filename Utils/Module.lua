@@ -1266,7 +1266,7 @@ local Module = {} do
       
       local BodyPosition = Instance.new("BodyPosition", RootPart)
       BodyPosition.Position = RootPart.Position
-      BodyPosition.P, BodyPosition.D = 2e4, 1e2
+      BodyPosition.P, BodyPosition.D = 100000, 1000
       BodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
       
       while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do
