@@ -902,6 +902,8 @@ local Module = {} do
         local PrimaryPart = Enemy.PrimaryPart
         if self.IsAlive(Enemy) and PrimaryPart then
           if (Position - PrimaryPart.Position).Magnitude < Settings.BringDistance then
+            Enemy.Humanoid.WalkSpeed = 0
+            Enemy.Humanoid.JumpPower = 0
             Enemy:AddTag(BRING_TAG)
           end
         end
@@ -1084,6 +1086,16 @@ local Module = {} do
     local Bones = ToDictionary({ "Reborn Skeleton", "Living Zombie", "Demonic Soul", "Posessed Mummy" })
     local CakePrince = ToDictionary({ "Head Baker", "Baking Staff", "Cake Guard", "Cookie Crafter" })
     
+    local Attachment = Instance.new("Attachment") do
+      local AlignPosition = Instance.new("AlignPosition")
+      AlignPosition.Mode = Enum.PositionAlignmentMode.OneAttachment
+      AlignPosition.Position = Vector3.new(0, 20, 0)
+      AlignPosition.Responsiveness = 200
+      AlignPosition.MaxForce = math.huge
+      AlignPosition.Parent = Attachment
+      AlignPosition.Attachment0 = Attachment
+    end
+    
     local function newEnemy(List, Enemy)
       if table.find(List, Enemy) then
         return nil
@@ -1255,35 +1267,31 @@ local Module = {} do
     end
     
     local function Bring(Enemy)
-      local PlayerRootPart = (Player.Character or Player.CharacterAdded()):WaitForChild("HumanoidRootPart")
       local RootPart = Enemy:WaitForChild("HumanoidRootPart")
       local Humanoid = Enemy:WaitForChild("Humanoid")
       local EnemyName = Enemy.Name
       
-      local BodyVelocity = Instance.new("BodyVelocity", RootPart)
-      BodyVelocity.Velocity = Vector3.zero
-      BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+      local CloneAttachment = Attachment:Clone()
+      local AlignPosition = CloneAttachment.AlignPosition
+      CloneAttachment.Parent = RootPart
       
-      local BodyPosition = Instance.new("BodyPosition", RootPart)
-      BodyPosition.Position = RootPart.Position
-      BodyPosition.P, BodyPosition.D = 100000, 1000
-      BodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-      
-      while PlayerRootPart and RootPart and Humanoid and Humanoid.Health > 0 and Enemy do
+      while Enemy and Enemy.Parent == Enemies and Enemy:HasTag(BRING_TAG) do
+        if not Humanoid or Humanoid.Health <= 0 then break end
+        if not RootPart or RootPart.Parent ~= Enemy then break end
+        
         local Target = Cached.Bring[if Module.IsSuperBring then "ALL_MOBS" else EnemyName]
         
-        if Target and (PlayerRootPart.Position - RootPart.Position).Magnitude <= Settings.BringDistance then
-          if (RootPart.Position - Target.Position).Magnitude <= 5 then
-            RootPart.CFrame = Target
-          else
-            BodyPosition.Position = Target.Position
+        if Target and (Target.Position - RootPart.Position).Magnitude <= Settings.BringDistance then
+          if AlignPosition.Position ~= Target.Position then
+            AlignPosition.Position = Target.Position
           end
+        else
+          break
         end;task.wait()
       end
       
-      if BodyVelocity then BodyVelocity:Destroy() end
-      if BodyPosition then BodyPosition:Destroy() end
       if Enemy and Enemy:HasTag(BRING_TAG) then Enemy:RemoveTag(BRING_TAG) end
+      if CloneAttachment then CloneAttachment:Destroy() end
     end
     
     local function KillAura(Enemy)
