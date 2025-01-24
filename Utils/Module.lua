@@ -1664,11 +1664,10 @@ local Module = {} do
     local Success, RaidModule = pcall(require, ReplicatedStorage:WaitForChild("Raids"))
     
     if not Success then
-      Module.RaidList = {
+      return {
         "Phoenix", "Dough", "Flame", "Ice", "Quake", "Light";
         "Dark", "Spider", "Rumble", "Magma", "Buddha", "Sand";
       }
-      return nil
     end
     
     local AdvancedRaids = RaidModule.advancedRaids
