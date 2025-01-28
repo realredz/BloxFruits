@@ -918,7 +918,7 @@ local Module = {} do
   end
   
   function Module:GetRaidIsland(): Instance?
-    if Cached.RaidIsland then
+    if Cached.RaidIsland and Cached.RaidIsland:IsDescendantOf(Locations) then
       return Cached.RaidIsland
     end
     
