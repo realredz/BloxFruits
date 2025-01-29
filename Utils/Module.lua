@@ -554,6 +554,7 @@ local Module = {} do
   Module.Signals = {} do
     local Signals = Module.Signals
     
+    Signals.PossibleStaff = Signal.new()
     Signals.OptionChanged = Signal.new()
     Signals.EnemyAdded = Signal.new()
     Signals.EnemyDied = Signal.new()
@@ -1984,45 +1985,78 @@ local Module = {} do
   end)
   
   task.defer(function()
-    local OwnersId = { 3095250 }
+    local OwnersId = { 3095250, 17884881 }
     local OwnersFriends = {}
     
-    local function StopFarming()
-      game:shutdown()
-      Player:Kick()
+    local LocalPlayer = Player
+    
+    local StaffsItems = {
+      ["Triple Dark Blade"] = true
+    }
+    
+    local function PossibleStaff(Player)
+      Player:Kick(`{Player.DisplayName}/@{Player.Name} maybe it's a blox fruits admin`)
+      Module.Signals.PossibleStaff:Fire(Player, Player.Data.Money, Player.Data.Level)
     end
     
-    local function OnPlayerAdded(__Player, Error)
-      if __Player == Player then return end
+    local function StaffCheck(Player)
+      if Player == LocalPlayer then return end
       
-      if table.find(OwnersId, __Player.UserId) or OwnersFriends[__Player.UserId] then
-        return if Error then error("A-D-M-I-N", 2) else StopFarming()
-      elseif WaitChilds(__Player, "Data", "Level").Value > Module.GameData.MaxLevel then
-        return if Error then error("A-D-M-I-N", 2) else StopFarming()
+      local Data = Player:WaitForChild("Data", 30)
+      local Level = Data:WaitForChild("Level", 10)
+      local Money = Data:WaitForChild("Money", 10)
+      
+      if not Level or not Money then return end
+      
+      if Level.Value >= Module.GameData.MaxLevel then
+        return PossibleStaff(Player)
+      elseif Money.Value >= 3e8 and Level.Value <= 700 then
+        return PossibleStaff(Player)
+      elseif OwnersFriends[Player.UserId] then
+        return PossibleStaff(Player)
+      end
+      
+      if Level.Value < 700 and Module.GameData.Sea > 1 then
+        return PossibleStaff(Player)
+      elseif Level.Value < 1500 and Module.GameData.Sea > 2 then
+        return PossibleStaff(Player)
+      end
+      
+      if Player:GetAttribute("GANKS") or Player:GetAttribute("GANKSVolley") or Player:GetAttribute("AAIM") then
+        return PossibleStaff(Player)
+      end
+      
+      local BountyHornor = Player:WaitForChild("leaderstats"):WaitForChild("Bounty/Honor")
+      local MaxBountyHonor = 3e7 + 250000
+      
+      if BountyHornor.Value >= MaxBountyHonor or BountyHornor.Value < 0 then
+        return PossibleStaff(Player)
       end
     end
     
-    table.insert(Connections, Players.PlayerAdded:Connect(OnPlayerAdded))
-    for _, __Player in ipairs(Players:GetPlayers()) do OnPlayerAdded(__Player, true) end
+    task.spawn(function()
+      table.insert(Connections, Players.PlayerAdded:Connect(StaffCheck))
+      for _, Player in ipairs(Players:GetPlayers()) do task.defer(StaffCheck, Player) end
+    end)
     
     for i = 1, #OwnersId do
-      local Friends = Players:GetFriendsAsync(OwnersId[i])
+      local FriendsPages = Players:GetFriendsAsync(OwnersId[i])
       
-      while not Friends.IsFinished do
-        local FriendsList = Friends:GetCurrentPage()
+      while not FriendsPages.IsFinished do
+        local FriendsList = FriendsPages:GetCurrentPage()
         
         for i = 1, #FriendsList do
           local Friend = FriendsList[i]
-          local __Player = Players:GetPlayerByUserId(Friend.Id)
+          local Player = Players:GetPlayerByUserId(Friend.Id)
           
-          if __Player then
-            OnPlayerAdded(__Player)
+          if Player then
+            task.defer(PossibleStaff, Player)
           else
-            table.insert(OwnersFriends, Friend.Id)
+            OwnersFriends[Friend.Id] = true
           end
         end
         
-        Friends:AdvanceToNextPageAsync()
+        FriendsPages:AdvanceToNextPageAsync()
       end
     end
   end)
