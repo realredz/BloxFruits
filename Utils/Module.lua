@@ -849,6 +849,10 @@ local Module = {} do
     local Equipped = Cached.Equipped
     
     if Equipped and Equipped.Parent and Equipped[if ByType then "ToolTip" else "Name"] == ToolName then
+      if Equipped:GetAttribute("Locks") then
+        Equipped:SetAttribute("Locks", nil)
+      end
+      
       if Equipped.Parent == Player.Backpack then
         Player.Character.Humanoid:EquipTool(Equipped)
       elseif Equipped.Parent == Player.Character then
@@ -1387,13 +1391,21 @@ local Module = {} do
       ShootDebounce = 0,
       M1Combo = 0,
       
+      Overheat = {
+        ["Dragonstorm"] = {
+          Seconds = 3,
+          Cooldown = 0.08,
+          Shoots = 25
+        }
+      },
       ShootsPerTarget = {
         ["Dual Flintlock"] = 2
       },
       SpecialShoots = {
         ["Skull Guitar"] = "TAP",
         ["Bazooka"] = "Position",
-        ["Cannon"] = "Position"
+        ["Cannon"] = "Position",
+        ["Dragonstorm"] = "Overheat"
       },
       HitboxLimbs = {"RightLowerArm", "RightUpperArm", "LeftLowerArm", "LeftUpperArm", "RightHand", "LeftHand"}
     }
@@ -1594,17 +1606,31 @@ local Module = {} do
     function FastAttack:UseGunShoot(Character, Equipped)
       local ShootType = self.SpecialShoots[Equipped.Name] or "Normal"
       
-      if ShootType == "Normal" then
+      if ShootType == "Normal" or ShootType == "Overheat" then
         local Hits = self:GetGunHits(Character, 120)
         
         if #Hits > 0 then
           local Target = Hits[1].Position
           
-          Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
-          GunValidator:FireServer(self:GetValidator2())
-          
-          for i = 1, (self.ShootsPerTarget[Equipped.Name] or 1) do
-            RE_ShootGunEvent:FireServer(Target, Hits)
+          if ShootType == "Overheat" then
+            local Overheat = self.Overheat[Equipped.Name]
+            local Start = tick()
+            
+            self.Debounce = tick() + (Overheat.Seconds * 2)
+            
+            while Equipped and Equipped.Parent == Player.Character and (tick() - Start) < Overheat.Seconds do
+              Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
+              GunValidator:FireServer(self:GetValidator2())
+              RE_ShootGunEvent:FireServer(Target, Hits)
+              task.wait(Overheat.Cooldown)
+            end
+          else
+            Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
+            GunValidator:FireServer(self:GetValidator2())
+            
+            for i = 1, (self.ShootsPerTarget[Equipped.Name] or 1) do
+              RE_ShootGunEvent:FireServer(Target, Hits)
+            end
           end
         end
       elseif ShootType == "Position" or (ShootType == "TAP" and Equipped:FindFirstChild("RemoteEvent")) then
@@ -2026,10 +2052,10 @@ local Module = {} do
         return PossibleStaff(Player)
       end
       
-      local BountyHornor = Player:WaitForChild("leaderstats"):WaitForChild("Bounty/Honor")
+      local BountyHonor = Player:WaitForChild("leaderstats"):WaitForChild("Bounty/Honor")
       local MaxBountyHonor = 3e7 + 250000
       
-      if BountyHornor.Value >= MaxBountyHonor or BountyHornor.Value < 0 then
+      if BountyHonor.Value >= MaxBountyHonor or BountyHonor.Value < 0 then
         return PossibleStaff(Player)
       end
     end
