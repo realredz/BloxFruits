@@ -1395,7 +1395,7 @@ local Module = {} do
         ["Dragonstorm"] = {
           Seconds = 3,
           Cooldown = 0.08,
-          Shoots = 25
+          Debounce = 0
         }
       },
       ShootsPerTarget = {
@@ -1616,7 +1616,11 @@ local Module = {} do
             local Overheat = self.Overheat[Equipped.Name]
             local Start = tick()
             
-            self.Debounce = tick() + (Overheat.Seconds * 2)
+            if (Start - Overheat.Debounce) <= (Overheat.Seconds * 2) then
+              return nil
+            end
+            
+            Overheat.Debounce = tick()
             
             while Equipped and Equipped.Parent == Player.Character and (tick() - Start) < Overheat.Seconds do
               Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
