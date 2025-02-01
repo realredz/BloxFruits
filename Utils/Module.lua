@@ -1394,9 +1394,11 @@ local Module = {} do
       
       Overheat = {
         ["Dragonstorm"] = {
-          Seconds = 3,
-          Cooldown = 0.08,
-          Debounce = 0
+          MaxOverheat = 3,
+          Cooldown = 0,
+          TotalOverheat = 0,
+          Distance = 350,
+          Shooting = false
         }
       },
       ShootsPerTarget = {
@@ -1508,7 +1510,7 @@ local Module = {} do
       return BladeHits
     end
     
-    function FastAttack:GetClosestEnemyPosition(Character: Character, Distance: number?): (nil)
+    function FastAttack:GetClosestEnemy(Character: Character, Distance: number?): (nil)
       local BladeHits = self:GetAllBladeHits(Character, Distance)
       
       local Distance, Closest = math.huge
@@ -1521,7 +1523,7 @@ local Module = {} do
         end
       end
       
-      return if Closest then Closest.Position else nil
+      return Closest
     end
     
     function FastAttack:GetGunHits(Character: Character, Distance: number?)
@@ -1608,28 +1610,40 @@ local Module = {} do
       local ShootType = self.SpecialShoots[Equipped.Name] or "Normal"
       
       if ShootType == "Normal" or ShootType == "Overheat" then
-        local Hits = self:GetGunHits(Character, 120)
-        
-        if #Hits > 0 then
-          local Target = Hits[1].Position
+        if ShootType == "Overheat" then
+          local Data = self.Overheat[Equipped.Name]
           
-          if ShootType == "Overheat" then
-            local Overheat = self.Overheat[Equipped.Name]
-            local Start = tick()
+          if Data.Shooting then
+            return nil
+          end
+          
+          local Target = self:GetClosestEnemy(Character, Data.Distance or 100)
+          
+          if Target then
+            Data.Shooting = true
             
-            if (Start - Overheat.Debounce) <= (Overheat.Seconds * 2) then
-              return nil
+            while Equipped and Equipped.Parent and Data.TotalOverheat < Data.MaxOverheat do
+              if Target and Target.Parent and IsAlive(Target.Parent) then
+                Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
+                GunValidator:FireServer(self:GetValidator2())
+                RE_ShootGunEvent:FireServer(Target.Position, { Target })
+                Data.TotalOverheat += task.wait(Data.Cooldown)
+              else
+                break
+              end
             end
             
-            Overheat.Debounce = tick()
-            
-            while Equipped and Equipped.Parent == Player.Character and (tick() - Start) < Overheat.Seconds do
-              Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
-              GunValidator:FireServer(self:GetValidator2())
-              RE_ShootGunEvent:FireServer(Target, Hits)
-              task.wait(Overheat.Cooldown)
+            while Data.TotalOverheat > 0 do
+              Data.TotalOverheat = math.clamp(Data.TotalOverheat - task.wait(), 0, Data.MaxOverheat)
             end
-          else
+            
+            Data.Shooting = false
+          end
+        else
+          local Hits = self:GetGunHits(Character, 120)
+          local Target = Hits[1] and Hits[1].Position
+          
+          if Target then
             Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
             GunValidator:FireServer(self:GetValidator2())
             
@@ -1639,16 +1653,16 @@ local Module = {} do
           end
         end
       elseif ShootType == "Position" or (ShootType == "TAP" and Equipped:FindFirstChild("RemoteEvent")) then
-        local Target = self:GetClosestEnemyPosition(Character, 200)
+        local Target = self:GetClosestEnemy(Character, 200)
         
         if Target then
           Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
           GunValidator:FireServer(self:GetValidator2())
           
           if ShootType == "TAP" then
-            Equipped.RemoteEvent:FireServer("TAP", Target)
+            Equipped.RemoteEvent:FireServer("TAP", Target.Position)
           else
-            RE_ShootGunEvent:FireServer(Target)
+            RE_ShootGunEvent:FireServer(Target.Position)
           end
         end
       end
