@@ -287,6 +287,7 @@ local Module = {} do
       ["rbxassetid://11911905519"] = "Spirit-Spirit",
       ["rbxassetid://118054805452821"] = "Gas-Gas",
       ["rbxassetid://115276580506154"] = "Yeti-Yeti",
+      ["rbxassetid://95749033139458"] = "Dragon (East)-Dragon (East)",
       ["https://assetdelivery.roblox.com/v1/asset/?id=10395893751"] = "Venom-Venom",
       ["https://assetdelivery.roblox.com/v1/asset/?id=10537896371"] = "Dragon-Dragon"
     }
