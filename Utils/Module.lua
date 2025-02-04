@@ -248,48 +248,52 @@ local Module = {} do
   
   do
     Module.FruitsId = {
-      ["rbxassetid://15060012861"] = "Rocket-Rocket",
-      ["rbxassetid://15057683975"] = "Spin-Spin",
-      ["rbxassetid://15104782377"] = "Blade-Blade",
-      ["rbxassetid://15105281957"] = "Spring-Spring",
-      ["rbxassetid://15116740364"] = "Bomb-Bomb",
-      ["rbxassetid://15116696973"] = "Smoke-Smoke",
-      ["rbxassetid://15107005807"] = "Spike-Spike",
-      ["rbxassetid://15111584216"] = "Flame-Flame",
-      ["rbxassetid://15112469964"] = "Falcon-Falcon",
-      ["rbxassetid://15100433167"] = "Ice-Ice",
-      ["rbxassetid://15111517529"] = "Sand-Sand",
-      ["rbxassetid://15111553409"] = "Dark-Dark",
-      ["rbxassetid://15112600534"] = "Diamond-Diamond",
-      ["rbxassetid://15100283484"] = "Light-Light",
-      ["rbxassetid://15104817760"] = "Rubber-Rubber",
-      ["rbxassetid://15100485671"] = "Barrier-Barrier",
-      ["rbxassetid://15112333093"] = "Ghost-Ghost",
-      ["rbxassetid://15105350415"] = "Magma-Magma",
-      ["rbxassetid://15057718441"] = "Quake-Quake",
-      ["rbxassetid://15100313696"] = "Buddha-Buddha",
-      ["rbxassetid://15116730102"] = "Love-Love",
-      ["rbxassetid://15116967784"] = "Spider-Spider",
-      ["rbxassetid://14661873358"] = "Sound-Sound",
-      ["rbxassetid://15100246632"] = "Phoenix-Phoenix",
-      ["rbxassetid://15112215862"] = "Portal-Portal",
-      ["rbxassetid://15116747420"] = "Rumble-Rumble",
-      ["rbxassetid://15116721173"] = "Pain-Pain",
-      ["rbxassetid://15100384816"] = "Blizzard-Blizzard",
-      ["rbxassetid://15100299740"] = "Gravity-Gravity",
-      ["rbxassetid://14661837634"] = "Mammoth-Mammoth",
-      ["rbxassetid://15708895165"] = "T-Rex-T-Rex",
-      ["rbxassetid://15100273645"] = "Dough-Dough",
-      ["rbxassetid://15112263502"] = "Shadow-Shadow",
-      ["rbxassetid://15100184583"] = "Control-Control",
-      ["rbxassetid://15106768588"] = "Leopard-Leopard",
-      ["rbxassetid://15482881956"] = "Kitsune-Kitsune",
-      ["rbxassetid://11911905519"] = "Spirit-Spirit",
-      ["rbxassetid://118054805452821"] = "Gas-Gas",
-      ["rbxassetid://115276580506154"] = "Yeti-Yeti",
-      ["rbxassetid://95749033139458"] = "Dragon (East)-Dragon (East)",
-      ["https://assetdelivery.roblox.com/v1/asset/?id=10395893751"] = "Venom-Venom",
-      ["https://assetdelivery.roblox.com/v1/asset/?id=10537896371"] = "Dragon-Dragon"
+      ["15124425041"] = "Rocket-Rocket",
+      ["15123685330"] = "Spin-Spin",
+      ["15123613404"] = "Blade-Blade",
+      ["15123689268"] = "Spring-Spring",
+      ["15123595806"] = "Bomb-Bomb",
+      ["15123677932"] = "Smoke-Smoke",
+      ["15124220207"] = "Spike-Spike",
+      ["15123629861"] = "Flame-Flame",
+      ["15123627377"] = "Falcon-Falcon",
+      ["15100433167"] = "Ice-Ice",
+      ["15123673019"] = "Sand-Sand",
+      ["15123618591"] = "Dark-Dark",
+      ["15112600534"] = "Diamond-Diamond",
+      ["15123640714"] = "Light-Light",
+      ["15123668008"] = "Rubber-Rubber",
+      ["15100485671"] = "Barrier-Barrier",
+      ["15123662036"] = "Ghost-Ghost",
+      ["15123645682"] = "Magma-Magma",
+      ["15123606541"] = "Quake-Quake",
+      ["15123606541"] = "Buddha-Buddha",
+      ["15123643097"] = "Love-Love",
+      ["15123681598"] = "Spider-Spider",
+      ["15123679712"] = "Sound-Sound",
+      ["15123654553"] = "Phoenix-Phoenix",
+      ["15123656798"] = "Portal-Portal",
+      ["15123670514"] = "Rumble-Rumble",
+      ["15123652069"] = "Pain-Pain",
+      ["15123587371"] = "Blizzard-Blizzard",
+      ["15123633312"] = "Gravity-Gravity",
+      ["15123648309"] = "Mammoth-Mammoth",
+      -- ["15708895165"] = "T-Rex-T-Rex",
+      ["15123624401"] = "Dough-Dough",
+      ["15123675904"] = "Shadow-Shadow",
+      ["10773719142"] = "Venom-Venom",
+      ["15123616275"] = "Control-Control",
+      ["11911905519"] = "Spirit-Spirit",
+      ["15123638064"] = "Leopard-Leopard",
+      ["15487764876"] = "Kitsune-Kitsune",
+      ["115276580506154"] = "Yeti-Yeti",
+      ["118054805452821"] = "Gas-Gas",
+      ["95749033139458"] = "Dragon (East)-Dragon (East)"
+    }
+    
+    Module.VisualFruits = {
+      ["Yeti Fruit"] = "rbxassetid://80842873714277",
+      ["Dragon (East) Fruit"] = "rbxassetid://139644774592846"
     }
     
     Module.Bosses = {
@@ -1057,11 +1061,11 @@ local Module = {} do
       end
       
       local Model = Fruit:WaitForChild("Fruit", 9e9)
-      local Handle = FastWait(1, Model, "Fruit") or FastWait(1, Model, "Idle")
+      local Idle = FastWait(2, Model, "Idle") or FastWait(1, Model, "Animation") or FastWait(1, Model, "Fruit")
       
-      if Handle and (Handle:IsA("Animation") or Handle:IsA("MeshPart")) then
-        local IdProperty = if Handle:IsA("Animation") then "AnimationId" else "MeshId"
-        local RealName = RealFruitsName[ Handle[IdProperty] ]
+      if Idle and (Idle:IsA("Animation") or Idle:IsA("MeshPart")) then
+        local Property = if Idle:IsA("MeshPart") then "MeshId" else "AnimationId"
+        local RealName = "rbxassetid://" .. (RealFruitsName[ Idle[Property] ] or 0)
         
         if RealName and type(RealName) == "string" then
           rawset(self, Fruit, `Fruit [ {RealName} ]`)
