@@ -291,11 +291,6 @@ local Module = {} do
       ["95749033139458"] = "Dragon (East)-Dragon (East)"
     }
     
-    Module.VisualFruits = {
-      ["Yeti Fruit"] = "rbxassetid://80842873714277",
-      ["Dragon (East) Fruit"] = "rbxassetid://139644774592846"
-    }
-    
     Module.Bosses = {
       -- Bosses Sea 1
       ["Saber Expert"] = {
@@ -1065,7 +1060,7 @@ local Module = {} do
       
       if Idle and (Idle:IsA("Animation") or Idle:IsA("MeshPart")) then
         local Property = if Idle:IsA("MeshPart") then "MeshId" else "AnimationId"
-        local RealName = "rbxassetid://" .. (RealFruitsName[ Idle[Property] ] or 0)
+        local RealName = RealFruitsName[ "rbxassetid://" .. (Idle[Property] or 0) ]
         
         if RealName and type(RealName) == "string" then
           rawset(self, Fruit, `Fruit [ {RealName} ]`)
