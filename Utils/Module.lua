@@ -1060,7 +1060,8 @@ local Module = {} do
       
       if Idle and (Idle:IsA("Animation") or Idle:IsA("MeshPart")) then
         local Property = if Idle:IsA("MeshPart") then "MeshId" else "AnimationId"
-        local RealName = RealFruitsName[(Idle[Property] or ""):gsub("rbxassetid://", "")]
+        local FruitId = tonumber(string.gsub(Idle[Property] or "", "rbxassetid://", ""))
+        local RealName = RealFruitsName[FruitId]
         
         if RealName and type(RealName) == "string" then
           rawset(self, Fruit, `Fruit [ {RealName} ]`)
