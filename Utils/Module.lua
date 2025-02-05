@@ -2054,8 +2054,7 @@ local Module = {} do
     }
     
     local function PossibleStaff(Player)
-      Player:Kick(`{Player.DisplayName}/@{Player.Name} maybe it's a blox fruits admin`)
-      Module.Signals.PossibleStaff:Fire(Player, Player.Data.Money, Player.Data.Level)
+      return LocalPlayer:Kick(`{Player.DisplayName}/@{Player.Name} maybe it's a blox fruits admin`)
     end
     
     local function StaffCheck(Player)
