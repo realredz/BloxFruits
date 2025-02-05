@@ -1415,6 +1415,7 @@ local Module = {} do
     local RE_RegisterAttack = Net:WaitForChild("RE/RegisterAttack")
     local RE_ShootGunEvent = Net:WaitForChild("RE/ShootGunEvent")
     local RE_RegisterHit = Net:WaitForChild("RE/RegisterHit")
+    local Events = ReplicatedStorage:WaitForChild("Events")
     
     local SUCCESS_FLAGS, COMBAT_REMOTE_THREAD = pcall(function()
       return require(Modules.Flags).COMBAT_REMOTE_THREAD or false
@@ -1430,11 +1431,21 @@ local Module = {} do
     
     local IsAlive = Module.IsAlive
     
+    FastAttack.ShootsFunctions = {
+      ["Skull Guitar"] = function(self, Equipped, Position)
+        Events.ShootSoulGuitar:Invoke(Position)
+      end
+    }
+    
     function FastAttack:ShootInTarget(TargetPosition: Vector3): (nil)
       local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
       
       if Equipped and Equipped.ToolTip == "Gun" then
         if Equipped:FindFirstChild("Cooldown") and (tick() - self.ShootDebounce) >= Equipped.Cooldown.Value then
+          if self.ShootsFunctions[self.Name] then
+            return self.ShootsFunctions[self.Name](self, Equipped, TargetPosition)
+          end
+          
           if SUCCESS_SHOOT and SHOOT_FUNCTION then
             local ShootType = self.SpecialShoots[Equipped.Name] or "Normal"
             
