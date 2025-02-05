@@ -1055,6 +1055,8 @@ local Module = {} do
         return Name
       end
       
+      rawset(self, Fruit, "Fruit [ ??? ]")
+      
       local Model = Fruit:WaitForChild("Fruit", 9e9)
       local Idle = FastWait(2, Model, "Idle") or FastWait(1, Model, "Animation") or FastWait(1, Model, "Fruit")
       
@@ -1064,12 +1066,10 @@ local Module = {} do
         
         if RealName and type(RealName) == "string" then
           rawset(self, Fruit, `Fruit [ {RealName} ]`)
-          return rawget(self, Fruit)
         end
       end
       
-      rawset(self, Fruit, "Fruit [ ??? ]")
-      return "Fruit [ ??? ]"
+      return rawget(self, Fruit)
     end
   })
   
