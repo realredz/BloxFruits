@@ -1442,8 +1442,8 @@ local Module = {} do
       
       if Equipped and Equipped.ToolTip == "Gun" then
         if Equipped:FindFirstChild("Cooldown") and (tick() - self.ShootDebounce) >= Equipped.Cooldown.Value then
-          if self.ShootsFunctions[self.Name] then
-            return self.ShootsFunctions[self.Name](self, Equipped, TargetPosition)
+          if self.ShootsFunctions[Equipped.Name] then
+            return self.ShootsFunctions[Equipped.Name](self, Equipped, TargetPosition)
           end
           
           if SUCCESS_SHOOT and SHOOT_FUNCTION then
@@ -1666,6 +1666,10 @@ local Module = {} do
         local Target = self:GetClosestEnemy(Character, 200)
         
         if Target then
+          if self.ShootsFunctions[Equipped.Name] then
+            return self.ShootsFunctions[Equipped.Name](self, Equipped, Target.Position)
+          end
+          
           Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
           GunValidator:FireServer(self:GetValidator2())
           
