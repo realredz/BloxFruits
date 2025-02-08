@@ -45,7 +45,9 @@ local EXECUTOR_NAME = string.upper(if identifyexecutor then identifyexecutor() e
 local IS_BLACKLISTED_EXECUTOR = table.find({"NULL", "SOLARA", "XENO", "SWIFT", "JJSPLOIT"}, EXECUTOR_NAME)
 
 local hookmetamethod = (not IS_BLACKLISTED_EXECUTOR and hookmetamethod) or (function(...) return ... end)
+local hookfunction = (not IS_BLACKLISTED_EXECUTOR and hookfunction) or (function(...) return ... end)
 local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
+
 local setupvalue = setupvalue or (debug and debug.setupvalue)
 local getupvalue = getupvalue or (debug and debug.getupvalue)
 
@@ -288,7 +290,7 @@ local Module = {} do
       ["rbxassetid://15487764876"] = "Kitsune-Kitsune",
       ["rbxassetid://115276580506154"] = "Yeti-Yeti",
       ["rbxassetid://118054805452821"] = "Gas-Gas",
-      ["rbxassetid://95749033139458"] = "Dragon (East)-Dragon (East)"
+      ["rbxassetid://95749033139458"] = "Dragon \(East\)-Dragon \(East\)"
     }
     
     Module.Bosses = {
@@ -1432,8 +1434,8 @@ local Module = {} do
     local IsAlive = Module.IsAlive
     
     FastAttack.ShootsFunctions = {
-      ["Skull Guitar"] = function(self, Equipped, Position)
-        Events.ShootSoulGuitar:Invoke(Position)
+      ["Skull Guitar"] = function(self: FastAttack, Equipped: Tool, Position: Vector3)
+        Events.ShootSoulGuitar:Invoke(Position) -- Equipped.RemoteEvent:FireServer("TAP", Position)
       end
     }
     
@@ -1617,6 +1619,8 @@ local Module = {} do
     end
     
     function FastAttack:UseGunShoot(Character, Equipped)
+      if not Equipped.Enabled then return end
+      
       local ShootType = self.SpecialShoots[Equipped.Name] or "Normal"
       
       if ShootType == "Normal" or ShootType == "Overheat" then
@@ -1632,7 +1636,7 @@ local Module = {} do
           if Target then
             Data.Shooting = true
             
-            while Equipped and Equipped.Parent and Data.TotalOverheat < Data.MaxOverheat do
+            while Equipped and Equipped.Parent == Player.Character and Data.TotalOverheat < Data.MaxOverheat do
               if Target and Target.Parent and IsAlive(Target.Parent) then
                 Equipped:SetAttribute("LocalTotalShots", (Equipped:GetAttribute("LocalTotalShots") or 0) + 1)
                 GunValidator:FireServer(self:GetValidator2())
