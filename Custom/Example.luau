@@ -3,7 +3,7 @@ local CustomFunctions = function(self)
   local Functions = self.Functions
   local Managers = self.Managers
   local Module = self.Module
-  
+
   local IslandManager = Managers.IslandManager
   local QuestManager = Managers.QuestManager
   local FarmManager = Managers.FarmManager
