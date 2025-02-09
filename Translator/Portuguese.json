@@ -99,6 +99,7 @@
   "Select Chip": ["Selecionar Chip de Raid", "Escolher chip para iniciar raids"],
   "Auto Farm Raid": ["Farmar Raid Automaticamente", "Farmar raids, despertar e atacar automaticamente"],
   "Auto Buy Chip": ["Comprar Chip de Raid Automaticamente", "Adquirir chips para raids"],
+  "Unstore Common Fruits": ["Desarmazenar Frutas Comuns", "Desarmazena frutas comuns para serem trocadas por Microchip"],
   
   "Islands": "Ilhas",
   "Islands Stats": "Ilhas Spawnadas",
@@ -107,6 +108,7 @@
   "Auto Kill Lava Golem": ["Matar Golem de Lava", "Derrotar Golem de Lava com 'Kill Aura'"],
   "Auto Collect Dinosaur Bones": ["Coletar Ossos", "Coletar ossos Após terminar ilha Pré-Histórica"],
   "Auto Collect Dragon Egg": ["Coletar Ovo do Dragão", "Coletar ovo do Dragão"],
+  "Reset after finishing": ["Resetar após terminar", "Reseta o personagem após terminar a Prehistoric Island"],
   
   "Kitsune Island": "Ilha Kitsune",
   "Trade Azure Ember Amount": ["Quantida da troca", "Definir quantidade para troca de Azure Ember"],
@@ -143,8 +145,12 @@
   "Join Marines Team": ["Entrar na Equipe Marinha", "Juntar-se à marinha"],
   
   "Devil Fruit Shop": ["Loja de Frutas", "Abrir a loja de frutas"],
+  "Advanced Fruit Dealer": ["Loja de Frutas Avançadas", "Abrir a loja de frutas da Miragem"],
   "Titles": ["Títulos", "Exibir seus títulos"],
   "Haki Color": ["Cor do Haki", "Alterar a cor do seu Haki"],
+  
+  "Auto Active Race V3": ["Auto Ativar Raça V3", "Ativa a Raça V3 a cada 30 segundos"],
+  "Auto Active Race V4": ["Auto Ativar Raça V4", "Ativa a Raça V4 quando a carga chegar ao Máximo"],
   
   "Remove Fog": ["Remover Névoa", "Remover a névoa do mapa"],
   
@@ -156,6 +162,11 @@
   
   "Take Quest Debounce": ["Esperar para a próxima missão", "Espera 75 segundos antes de coletar a próxima missão"],
   "Smooth Farm Mode": ["Modo de Farm suave", "reduz cálculos do script para deixar o jogo mais Leve"],
+  
+  "Race Reroll": "Girar Raça",
+  "Reset Stats": "Resetar Status",
+  
+  "Auto Draco V2 & V3": ["Auto Draco V2 & V3", "Evolui a raça draco para V2 e V3 Automaticamente"],
   
   "Only on Sea 2 and 3": "Raid disponíveis apenas no Segundo e terceiro Mar",
   "Acessories": "Acessórios",
@@ -190,5 +201,7 @@
   "Misc": "Diversos",
   "Others": "Outros",
   "Race V4": "Raça V4",
-  "Enemies": "Inimigos"
+  "Enemies": "Inimigos",
+  "Frags": "Fragmentos",
+  "Accessories": "Acessórios"
 }
