@@ -290,7 +290,7 @@ local Module = {} do
       ["rbxassetid://15487764876"] = "Kitsune-Kitsune",
       ["rbxassetid://115276580506154"] = "Yeti-Yeti",
       ["rbxassetid://118054805452821"] = "Gas-Gas",
-      ["rbxassetid://95749033139458"] = "Dragon \(East\)-Dragon \(East\)"
+      ["rbxassetid://95749033139458"] = "Dragon East-Dragon East"
     }
     
     Module.Bosses = {
@@ -975,7 +975,7 @@ local Module = {} do
   end
   
   Module.Chests = setmetatable({}, {
-    __call = function(self, ...)
+    __call = function(self, SelectedIsland)
       if self.Cached and not self.Cached:GetAttribute("IsDisabled")  then
         return self.Cached
       end
@@ -997,8 +997,10 @@ local Module = {} do
         local Chest = Chests[i]
         local Magnitude = (Chest:GetPivot().Position - Position).Magnitude
         
-        if not Chest:GetAttribute("IsDisabled") and Magnitude < Distance then
-          Distance, Nearest = Magnitude, Chest
+        if not SelectedIsland or Chest:IsDescendantOf(SelectedIsland) then
+          if not Chest:GetAttribute("IsDisabled") and Magnitude < Distance then
+            Distance, Nearest = Magnitude, Chest
+          end
         end
       end
       
