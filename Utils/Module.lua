@@ -48,11 +48,16 @@ local hookmetamethod = (not IS_BLACKLISTED_EXECUTOR and hookmetamethod) or (func
 local hookfunction = (not IS_BLACKLISTED_EXECUTOR and hookfunction) or (function(...) return ... end)
 local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
 
-local setupvalue = setupvalue or (debug and debug.setupvalue)
-local getupvalue = getupvalue or (debug and debug.getupvalue)
+local setupvalue: (any, number, any?) -> (nil) = setupvalue or (debug and debug.setupvalue)
+local getupvalue: (any, number) -> any = getupvalue or (debug and debug.getupvalue)
 
-local BRING_TAG = _ENV._Bring_Tag or `b{math.random(80, 2e4)}t`
-local KILLAURA_TAG = _ENV._KillAura_Tag or `k{math.random(120, 2e4)}t`
+local BRING_TAG: string = _ENV._Bring_Tag or `b{math.random(80, 2e4)}t`
+local KILLAURA_TAG: string = _ENV._KillAura_Tag or `k{math.random(120, 2e4)}t`
+
+local HIDDEN_SETTINGS: { [string]: any } = {
+  SKILL_COOLDOWN = 0.5,
+  CLEAR_AFTER = 50
+}
 
 _ENV._Bring_Tag = BRING_TAG
 _ENV._KillAura_Tag = KILLAURA_TAG
@@ -67,18 +72,14 @@ local Connections = {} do
   _ENV.rz_connections = Connections
 end
 
-local function GetEnemyName(string)
+local function GetEnemyName(string: string): string
   return (string:find("Lv. ") and string:gsub(" %pLv. %d+%p", "") or string):gsub(" %pBoss%p", "")
 end
 
 local function GetCharacterHumanoid(Character)
   if Character:GetAttribute("IsBoat") or Character.Parent == SeaBeasts then
-    local HealthValue = Character:FindFirstChild("Health")
-    
-    if HealthValue then
-      return HealthValue
-    elseif Character:FindFirstChild("Humanoid") then
-      return true
+    if Character:FindFirstChild("Health") then
+      return Character.Health
     end
   else
     return Character:FindFirstChildOfClass("Humanoid")
@@ -113,7 +114,27 @@ local function FastWait(Seconds, Instance, ...)
   return Success and Result or nil
 end
 
-function ToDictionary(array)
+local function CreateNewClear()
+  local COUNT_NEWINDEX = 0
+  
+  return {
+    __newindex = function(self, index, value)
+      if COUNT_NEWINDEX >= HIDDEN_SETTINGS.CLEAR_AFTER then
+        for key, cache in pairs(self) do
+          if typeof(cache) == "Instance" and not cache:IsDescendantOf(game) then
+            rawset(self, key, nil)
+          end
+        end
+        COUNT_NEWINDEX = 0
+      end
+      
+      COUNT_NEWINDEX += 1
+      return rawset(self, index, value)
+    end
+  }
+end
+
+function ToDictionary(array: { any }): { [any]: boolean }
   local Dictionary = {}
   
   for _, String in ipairs(array) do
@@ -227,9 +248,9 @@ local Module = {} do
   local Cached = {
     Closest = nil,
     Equipped = nil,
-    Humanoids = {},
+    Humanoids = setmetatable({}, CreateNewClear()),
+    Enemies = {} -- setmetatable({}, CreateNewClear()),
     Progress = {},
-    Enemies = {},
     Bring = {},
     Tools = {}
   }
@@ -722,15 +743,12 @@ local Module = {} do
   
   function Module.IsAlive(Character)
     if Character then
-      local Humanoid = Cached.Humanoids[Character] or GetCharacterHumanoid(Character)
-      
-      if Humanoid == true then
-        return true
-      end
+      local Humanoids = Cached.Humanoids
+      local Humanoid = Humanoids[Character] or GetCharacterHumanoid(Character)
       
       if Humanoid then
-        if not Cached.Humanoids[Character] then
-          Cached.Humanoids[Character] = Humanoid
+        if not Humanoids[Character] then
+          Humanoids[Character] = Humanoid
         end
         
         return Humanoid[if Humanoid.ClassName == "Humanoid" then "Health" else "Value"] > 0
@@ -787,7 +805,7 @@ local Module = {} do
         
         local Debounce = Module.Debounce.Skills[Skill]
         
-        if Enabled and (not Debounce or (tick() - Debounce) >= 0.5) then
+        if Enabled and (not Debounce or (tick() - Debounce) >= HIDDEN_SETTINGS.SKILL_COOLDOWN) then
           VirtualInputManager:SendKeyEvent(true, Skill, false, game)
           VirtualInputManager:SendKeyEvent(false, Skill, false, game)
           Module.Debounce.Skills[Skill] = tick()
@@ -987,10 +1005,6 @@ local Module = {} do
       local Position = (Player.Character or Player.CharacterAdded:Wait()):GetPivot().Position
       local Chests = CollectionService:GetTagged("_ChestTagged")
       
-      if #Chests == 0 then
-        return nil
-      end
-      
       local Distance, Nearest = math.huge
       
       for i = 1, #Chests do
@@ -1014,7 +1028,7 @@ local Module = {} do
     __call = function(self, BerryArray)
       local CachedBush = self.Cached
       
-      if CachedBush then
+      if CachedBush and CachedBush:IsDescendantOf(Map) then
         for Tag, CFrame in pairs(CachedBush:GetAttributes()) do
           return CachedBush
         end
