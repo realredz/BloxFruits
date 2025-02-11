@@ -249,7 +249,7 @@ local Module = {} do
     Closest = nil,
     Equipped = nil,
     Humanoids = setmetatable({}, CreateNewClear()),
-    Enemies = {} -- setmetatable({}, CreateNewClear()),
+    Enemies = {}, -- setmetatable({}, CreateNewClear()),
     Progress = {},
     Bring = {},
     Tools = {}
@@ -1910,23 +1910,17 @@ local Module = {} do
       end
     end
     
-    function Hooking:SetTarget(BasePart: BasePart, Character: Model?, IsEnemy: boolean?): (nil)
-      local ClosestsEnemies = Hooking.ClosestsEnemies
+    function Hooking:SetTarget(RootPart: BasePart, Character: Model?, IsEnemy: boolean?): (nil)
+      table.clear(self.ClosestsEnemies)
+      self.ClosestsEnemies.Closest = RootPart
+      Debounce.TargetDebounce = tick()
       
       if IsEnemy then
-        Debounce.TargetDebounce = tick()
-        table.clear(ClosestsEnemies)
-        ClosestsEnemies.Closest = BasePart
-        
         for _, Enemy in ipairs(Module.Enemies:GetTagged(Character.Name)) do
           if Enemy ~= Character and Enemy:FindFirstChild("UpperTorso") then
-            table.insert(ClosestsEnemies, Enemy.UpperTorso)
+            table.insert(self.ClosestsEnemies, Enemy.UpperTorso)
           end
         end
-      else
-        table.clear(ClosestsEnemies)
-        Debounce.TargetDebounce = tick()
-        ClosestsEnemies.Closest = BasePart
       end
     end
     
