@@ -994,8 +994,12 @@ local Module = {} do
   
   Module.Chests = setmetatable({}, {
     __call = function(self, SelectedIsland)
-      if self.Cached and not self.Cached:GetAttribute("IsDisabled")  then
-        return self.Cached
+      local CachedChest = self.Cached
+      
+      if CachedChest and not CachedChest:GetAttribute("IsDisabled") then
+        if not SelectedIsland or CachedChest:IsDescendantOf(SelectedIsland) then
+          return CachedChest
+        end
       end
       
       if self.Debounce and (tick() - self.Debounce) < 0.5 then
