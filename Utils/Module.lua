@@ -1605,7 +1605,7 @@ local Module = {} do
         if SUCCESS_FLAGS and COMBAT_REMOTE_THREAD and SUCCESS_HIT and HIT_FUNCTION then
           HIT_FUNCTION(self.EnemyRootPart, BladeHits)
         else
-          RE_RegisterHit:FireServer(self.EnemyRootPart, BladeHits)
+          -- RE_RegisterHit:FireServer(self.EnemyRootPart, BladeHits)
         end
       end
     end
