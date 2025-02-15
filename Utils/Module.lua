@@ -1097,6 +1097,7 @@ local Module = {} do
   
   Module.Enemies = (function()
     local EnemiesModule = {
+      __Valentines = {},
       __CakePrince = {},
       __PirateRaid = {},
       __RaidBoss = {},
@@ -1162,6 +1163,8 @@ local Module = {} do
         task.spawn(newEnemy, EnemiesModule[`__{Name}`], Enemy)
       elseif Enemy:GetAttribute("RaidBoss") then
         task.spawn(newEnemy, EnemiesModule.__RaidBoss, Enemy)
+      elseif (Enemy:GetAttribute("Level") or 0) >= Level.Value - 100 then
+        task.spawn(newEnemy, EnemiesModule.__Valentines, Enemy)
       elseif Elites[Name] then
         task.spawn(newEnemy, EnemiesModule.__Elite, Enemy)
       elseif Bones[Name] then
