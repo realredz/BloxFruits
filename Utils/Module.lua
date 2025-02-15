@@ -1,10 +1,10 @@
 local Settings = ...
 
-if type(Settings) ~= "table" then
+local _ENV = (getgenv or getrenv or getfenv)()
+
+if type(Settings) ~= "table" or not _ENV.rz_loaded then
   return nil
 end
-
-local _ENV = (getgenv or getrenv or getfenv)()
 
 local VirtualInputManager: VirtualInputManager = game:GetService("VirtualInputManager")
 local CollectionService: CollectionService = game:GetService("CollectionService")
