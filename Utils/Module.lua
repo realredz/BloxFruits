@@ -1450,8 +1450,22 @@ local Module = {} do
       return getupvalue(require(ReplicatedStorage.Controllers.CombatController).Attack, 9)
     end)
     
-    local SUCCESS_HIT, HIT_FUNCTION = pcall(function()
-      return (getmenv or getsenv)(Net)._G.SendHitsToServer
+    local HIT_FUNCTION; task.defer(function()
+      local PlayerScripts = Player:WaitForChild("PlayerScripts")
+      local LocalScript = PlayerScripts:FindFirstChildOfClass("LocalScript")
+      
+      while not LocalScript do
+        Player.PlayerScripts.ChildAdded:Wait()
+        LocalScript = PlayerScripts:FindFirstChildOfClass("LocalScript")
+      end
+      
+      if getsenv then
+        local Success, ScriptEnv = pcall(getsenv, LocalScript)
+        
+        if Success and ScriptEnv then
+          HIT_FUNCTION = ScriptEnv._G.SendHitsToServer
+        end
+      end
     end)
     
     local IsAlive = Module.IsAlive
@@ -1605,7 +1619,7 @@ local Module = {} do
       if self.EnemyRootPart then
         RE_RegisterAttack:FireServer(Cooldown)
         
-        if SUCCESS_FLAGS and COMBAT_REMOTE_THREAD and SUCCESS_HIT and HIT_FUNCTION then
+        if SUCCESS_FLAGS and COMBAT_REMOTE_THREAD and HIT_FUNCTION then
           HIT_FUNCTION(self.EnemyRootPart, BladeHits)
         elseif SUCCESS_FLAGS and not COMBAT_REMOTE_THREAD then
           RE_RegisterHit:FireServer(self.EnemyRootPart, BladeHits)
