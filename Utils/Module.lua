@@ -1,9 +1,9 @@
-local Settings = ...
+local Settings, Connections = ...
 
 local _ENV = (getgenv or getrenv or getfenv)()
 
-if type(Settings) ~= "table" or not _ENV.rz_loaded then
-  return nil
+if type(Settings) ~= "table" or type(Connections) ~= "table" then
+  return {}
 end
 
 local VirtualInputManager: VirtualInputManager = game:GetService("VirtualInputManager")
@@ -18,31 +18,31 @@ local GunValidator: RemoteEvent = Remotes:WaitForChild("Validator2")
 local CommF: RemoteFunction = Remotes:WaitForChild("CommF_")
 local CommE: RemoteEvent = Remotes:WaitForChild("CommE")
 
-local ChestModels = workspace:WaitForChild("ChestModels")
-local WorldOrigin = workspace:WaitForChild("_WorldOrigin")
-local Characters = workspace:WaitForChild("Characters")
-local SeaBeasts = workspace:WaitForChild("SeaBeasts")
-local Enemies = workspace:WaitForChild("Enemies")
-local Map = workspace:WaitForChild("Map")
+local ChestModels: Folder = workspace:WaitForChild("ChestModels")
+local WorldOrigin: Folder = workspace:WaitForChild("_WorldOrigin")
+local Characters: Folder = workspace:WaitForChild("Characters")
+local SeaBeasts: Folder = workspace:WaitForChild("SeaBeasts")
+local Enemies: Folder = workspace:WaitForChild("Enemies")
+local Map: Model = workspace:WaitForChild("Map")
 
-local EnemySpawns = WorldOrigin:WaitForChild("EnemySpawns")
-local Locations = WorldOrigin:WaitForChild("Locations")
+local EnemySpawns: Folder = WorldOrigin:WaitForChild("EnemySpawns")
+local Locations: Folder = WorldOrigin:WaitForChild("Locations")
 
 local RenderStepped = RunService.RenderStepped
 local Heartbeat = RunService.Heartbeat
 local Stepped = RunService.Stepped
 local Player = Players.LocalPlayer
 
-local Data = Player:WaitForChild("Data")
-local Level = Data:WaitForChild("Level")
-local Fragments = Data:WaitForChild("Fragments")
-local Money = Data:WaitForChild("Beli")
+local Data: Folder = Player:WaitForChild("Data")
+local Level: IntValue = Data:WaitForChild("Level")
+local Fragments: IntValue = Data:WaitForChild("Fragments")
+local Money: IntValue = Data:WaitForChild("Beli")
 
-local Modules = ReplicatedStorage:WaitForChild("Modules")
-local Net = Modules:WaitForChild("Net")
+local Modules: Folder? = ReplicatedStorage:WaitForChild("Modules")
+local Net: ModuleScript = Modules:WaitForChild("Net")
 
-local EXECUTOR_NAME = string.upper(if identifyexecutor then identifyexecutor() else "NULL")
-local IS_BLACKLISTED_EXECUTOR = table.find({"NULL", "SOLARA", "XENO", "SWIFT", "JJSPLOIT"}, EXECUTOR_NAME)
+local EXECUTOR_NAME: string = string.upper(if identifyexecutor then identifyexecutor() else "NULL")
+local IS_BLACKLISTED_EXECUTOR: boolean? = table.find({"NULL", "SOLARA", "XENO", "SWIFT", "JJSPLOIT"}, EXECUTOR_NAME)
 
 local hookmetamethod = (not IS_BLACKLISTED_EXECUTOR and hookmetamethod) or (function(...) return ... end)
 local hookfunction = (not IS_BLACKLISTED_EXECUTOR and hookfunction) or (function(...) return ... end)
@@ -61,16 +61,6 @@ local HIDDEN_SETTINGS: { [string]: any } = {
 
 _ENV._Bring_Tag = BRING_TAG
 _ENV._KillAura_Tag = KILLAURA_TAG
-
-local Connections = {} do
-  if _ENV.rz_connections then
-    for _, Connection in ipairs(_ENV.rz_connections) do
-      Connection:Disconnect()
-    end
-  end
-  
-  _ENV.rz_connections = Connections
-end
 
 local function GetEnemyName(string: string): string
   return (string:find("Lv. ") and string:gsub(" %pLv. %d+%p", "") or string):gsub(" %pBoss%p", "")
@@ -1097,7 +1087,6 @@ local Module = {} do
   
   Module.Enemies = (function()
     local EnemiesModule = {
-      __Valentines = {},
       __CakePrince = {},
       __PirateRaid = {},
       __RaidBoss = {},
@@ -1163,8 +1152,6 @@ local Module = {} do
         task.spawn(newEnemy, EnemiesModule[`__{Name}`], Enemy)
       elseif Enemy:GetAttribute("RaidBoss") then
         task.spawn(newEnemy, EnemiesModule.__RaidBoss, Enemy)
-      elseif (Enemy:GetAttribute("Level") or 0) >= Level.Value - 100 then
-        task.spawn(newEnemy, EnemiesModule.__Valentines, Enemy)
       elseif Elites[Name] then
         task.spawn(newEnemy, EnemiesModule.__Elite, Enemy)
       elseif Bones[Name] then
