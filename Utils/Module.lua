@@ -907,10 +907,11 @@ local Module = {} do
         Cached.Bring[BringPositionTag] = Target
       end
       
-      local EnemyList = if SuperBring then Enemies:GetChildren() else self.Enemies:GetTagged(Name)
+      local EnemyList = (not SuperBring and self.Enemies:GetTagged(Name)) or Enemies:GetChildren()
       
       for i = 1, #EnemyList do
         local Enemy = EnemyList[i]
+        if not SuperBring and Enemy.Name ~= Name then continue end
         if Enemy.Parent ~= Enemies or Enemy:HasTag(BRING_TAG) then continue end
         if not Enemy:FindFirstChild("CharacterReady") then continue end
         
